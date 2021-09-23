@@ -6,12 +6,12 @@ using Rhino.Geometry;
 
 namespace GHSynth
 {
-	public class Quantizer : GH_Component
+	public class QuantizerComponent : GH_Component
 	{
 		/// <summary>
 		/// Initializes a new instance of the Quantizer class.
 		/// </summary>
-		public Quantizer()
+		public QuantizerComponent()
 		  : base("Quantizer", "Q",
 			  "Quantize pitch",
 			  "GHSynth", "Subcategory")
