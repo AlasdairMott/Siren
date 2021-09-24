@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-
-using Grasshopper.Kernel;
-using Rhino.Geometry;
-
+﻿using Grasshopper.Kernel;
 using Synth;
+using System;
 
 // In order to load the result of this wizard, you will also need to
 // add the output bin/ folder of this project to the list of loaded
@@ -36,7 +32,7 @@ namespace GHSynth
 		{
 			pManager.AddNumberParameter("Pitch", "P", "Pitch of the sin wave", GH_ParamAccess.item);
 			pManager.AddNumberParameter("Duration", "T", "Duration of the wave", GH_ParamAccess.item);
-			pManager.AddGenericParameter("Trigger", "T", "Trigger the note", GH_ParamAccess.item);
+			
 		}
 
 		/// <summary>
@@ -44,6 +40,7 @@ namespace GHSynth
 		/// </summary>
 		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
 		{
+			pManager.AddGenericParameter("Sample", "S", "Sound sample", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -66,7 +63,8 @@ namespace GHSynth
 			double duration = 0.5;
 			if (!DA.GetData(1, ref duration)) return;
 
-			new BasicSynthesizer(frequency, (int) (duration * 44100));
+			var sample = new BasicSynthesizer(frequency, (int) (duration * 44100));
+			DA.SetData(0, sample);
 		}
 
 		/// <summary>

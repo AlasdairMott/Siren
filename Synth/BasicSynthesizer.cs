@@ -13,17 +13,24 @@ namespace Synth
         private const int SAMPLE_RATE = 44100;
         private const short BITS_PER_SAMPLE = 16;
 
+        private short[] wave;
+        private byte[] binaryWave;
+
         public BasicSynthesizer(float frequency, int duration) 
         {
-            short[] wave = new short[duration];
-            byte[] binaryWave = new byte[SAMPLE_RATE * sizeof(short)];
+            wave = new short[duration];
+            binaryWave = new byte[SAMPLE_RATE * sizeof(short)];
             for (int i = 0; i < duration; i++) 
             {
                 wave[i] = Convert.ToInt16(short.MaxValue * Math.Sin(((Math.PI * 2 * frequency) / SAMPLE_RATE) * i));
             }
             Buffer.BlockCopy(wave, 0, binaryWave, 0, wave.Length * sizeof(short));
+        }
+
+        public void Play() 
+        {
             using (MemoryStream memoryStream = new MemoryStream())
-            using (BinaryWriter binaryWriter = new BinaryWriter(memoryStream)) 
+            using (BinaryWriter binaryWriter = new BinaryWriter(memoryStream))
             {
                 short blockAlign = BITS_PER_SAMPLE / 8;
                 int subChunkTwoSize = SAMPLE_RATE * blockAlign;
