@@ -14,9 +14,7 @@ namespace GHSynth
 	{
 		private IOscillator osc;
 		private IEnvelope ampEnvelope;
-		//static private BufferedWaveProvider bwp;
-		//static WaveOutEvent wo = new WaveOutEvent();
-
+		
 		/// <summary>
 		/// Initializes a new instance of the ProtonSynthComponent class.
 		/// </summary>
@@ -33,7 +31,8 @@ namespace GHSynth
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
 			pManager.AddNumberParameter("Frequency", "F", "Frequency of the note", GH_ParamAccess.item);
-			pManager.AddTextParameter("Path", "P", "Path of audio file", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Duration", "D", "Duration of the note", GH_ParamAccess.item);
+			//pManager.AddTextParameter("Path", "P", "Path of audio file", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -41,6 +40,7 @@ namespace GHSynth
 		/// </summary>
 		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
 		{
+			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -53,7 +53,10 @@ namespace GHSynth
 			double frequency = 440;
 			if (!DA.GetData(0, ref frequency)) return;
 
-			string path = "";
+			double duration = 1.0;
+			if (!DA.GetData(1, ref duration)) return;
+
+			//string path = "";
 			//if (!DA.GetData(1, ref path)) return;
 
 			double maxAmplitude = 1;
@@ -62,65 +65,44 @@ namespace GHSynth
 			ampEnvelope = new LinearEnvelope(sampleRate);
 
 			// Setting up envelope parameters
-			ampEnvelope.AttackTime = TimeSpan.FromSeconds(0.1);
-			ampEnvelope.DecayTime = TimeSpan.FromSeconds(1);
+			ampEnvelope.AttackTime = TimeSpan.FromSeconds(1);
+			ampEnvelope.DecayTime = TimeSpan.FromSeconds(0.1);
 			ampEnvelope.SustainAmplitude = 0.5;
 			ampEnvelope.ReleaseTime = TimeSpan.FromSeconds(0.1);
 
 			// Starts the envelope
 			ampEnvelope.TriggerOn();
 
-			// Synthesize a single sample (1 out of 44100 per second) and modulate its amplitude
-			//double nextSample = osc.GetSample() * ampEnvelope.GetAmplitude();
-
-			//bwp = new BufferedWaveProvider(new WaveFormat(44100, 16, 1));
-			//bwp.BufferDuration = TimeSpan.FromMilliseconds(1000);
-
-			//RHino.Rhinoapp. bwp.BufferedDuration
-			//Rhino.RhinoApp.WriteLine($"duration {bwp.BufferDuration}");
-			//bwp.DiscardOnBufferOverflow = false;
-			//var sampler = NAudio.Dsp.BiQuadFilter.LowPassFilter()
+			//Synthesize a single sample (1 out of 44100 per second) and modulate its amplitude
 			
 
-			//wo = new WaveOutEvent();
-			//wo.NumberOfBuffers = 2;
-			//wo.DesiredLatency = 300;
-			//wo.Volume = 0.1f;
-			//wo.Init(bwp);
-			//wo.Play();
-			//FillBuffer();
+			//var filter = NAudio.Dsp.BiQuadFilter.LowPassFilter()
+			
 
-			//var sample = new Synth.BasicSynthesizer((float) frequency, (int)(1 * 44100));
-			//bwp.AddSamples(sample.Sample, 0, sample.Sample.Length);
-			//bwp.Read(sample.Sample, 0, sample.Sample.Length);
 			
 
 			//var audioFile = new AudioFileReader(path);
 			//var audioFile = new RawSourceWaveStream(new System.IO.MemoryStream(sample.Sample), new WaveFormat());
-			//Rhino.RhinoApp.WriteLine($"BufferDuration {bwp.BufferDuration}");
-			//Rhino.RhinoApp.WriteLine($"BufferedDuration {bwp.BufferedDuration}");
-			//Rhino.RhinoApp.WriteLine($"BufferLength {bwp.BufferLength}");
 
-			//var sampleProvider = new WaveProvider32(44100, 1);
-			//var waveProvider = new SampleToWaveProvider();
 
-			//var stream = new RawSourceWaveStream(sample.Sample, 0, sample.Sample.Length, new WaveFormat(44100, 1));
 
-			var rawSource = GetBytes(sampleRate); //1 second of raw audio
+			var rawSource = GetBytes((int) (sampleRate * duration)); //1 second of raw audio
 			var stream = new RawSourceWaveStream(rawSource, 0, rawSource.Length, new WaveFormat(44100, 16, 1));
 
 			//var provider = new 
 
-			using (var outputDevice = new WaveOutEvent())
-			{
-				outputDevice.Init(stream);
-				//outputDevice.Init(audioFile);
-				outputDevice.Play();
-				while (outputDevice.PlaybackState == PlaybackState.Playing)
-				{
-					Thread.Sleep(1000);
-				}
-			}
+			//using (var outputDevice = new WaveOutEvent())
+			//{
+			//	outputDevice.Init(stream);
+			//	//outputDevice.Init(audioFile);
+			//	outputDevice.Play();
+			//	while (outputDevice.PlaybackState == PlaybackState.Playing)
+			//	{
+			//		Thread.Sleep(1000);
+			//	}
+			//}
+
+			DA.SetData(0, stream);
 		}
 			
 		/// <summary>

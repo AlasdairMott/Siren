@@ -1,17 +1,18 @@
 ﻿using Grasshopper.GUI;
 using Grasshopper.GUI.Canvas;
 using Grasshopper.Kernel;
-using Grasshopper.Kernel.Types;
 using Grasshopper.Kernel.Attributes;
+using Grasshopper.Kernel.Types;
+using NAudio.Wave;
 using System;
 using System.Drawing;
-using Synth;
+using System.Threading;
 
 namespace GHSynth
 {
     public class SamplerPlayerComponent : GH_Component
 	{
-        public BasicSynthesizer Sample { get; private set; }
+        public RawSourceWaveStream Sample { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the SamplerPlayerComponent class.
@@ -21,7 +22,8 @@ namespace GHSynth
 			  "Description",
               "GHSynth", "Subcategory")
 		{
-		}
+            Sample = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
+        }
 
 		public override void CreateAttributes()
 		{
@@ -33,8 +35,8 @@ namespace GHSynth
 		/// </summary>
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
-            pManager.AddGenericParameter("Sample", "S", "Sample to play", GH_ParamAccess.item);
-		}
+            pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
+        }
 
 		/// <summary>
 		/// Registers all the output parameters for this component.
@@ -49,10 +51,13 @@ namespace GHSynth
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-            GH_ObjectWrapper obj = new GH_ObjectWrapper();
-            if (!DA.GetData(0, ref obj)) return;
-            Sample = obj.Value as BasicSynthesizer;
+            var sample = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
+            if (!DA.GetData(0, ref sample)) return;
+            Sample = sample;
 
+            //GH_ObjectWrapper obj = new GH_ObjectWrapper();
+            //if (!DA.GetData(0, ref obj)) return;
+            //Sample = (RawSourceWaveStream) obj.Value;
         }
 
         /// <summary>
@@ -76,7 +81,7 @@ namespace GHSynth
         private Rectangle button;
         private RectangleF textBox;
         private SamplerPlayerComponent owner;
-
+        
         public CustomGHButton(SamplerPlayerComponent owner) : base(owner)
         {
             icon = Properties.Resources.metronome;
@@ -87,6 +92,8 @@ namespace GHSynth
                                    Convert.ToInt32(Bounds.Y) + buttonOffset,
                                    Convert.ToInt32(Bounds.Height) - (buttonOffset * 2),
                                    Convert.ToInt32(Bounds.Height) - (buttonOffset * 2));
+            
+            
         }
 
         protected override void Layout()
@@ -96,6 +103,35 @@ namespace GHSynth
             updatedBounds.Width = 96;
             updatedBounds.Height = 36;
             Bounds = updatedBounds;
+
+            var componentInputs = (this.DocObject as IGH_Component).Params.Input;
+            var inputAttributes = componentInputs[0].Attributes;
+            //inputAttributes.Pivot = new PointF(10f, 10f);
+            //inputAttributes.InputGrip
+            RectangleF inputBounds = inputAttributes.Bounds;
+            inputBounds.Y += 4;
+            //updatedBounds.Y = Bounds.Y + Bounds.Height * 0.5f;//inputAttributes.InputGrip;
+            inputAttributes.Bounds = inputBounds;
+            //inputAttributes.PerformLayout();
+            //var grip = inputAttributes.InputGrip;
+            //grip.Y = 0.0f;
+
+            //Rhino.RhinoApp.WriteLine($"input grip count {componentInputs.Count}");
+
+            //Rhino.RhinoApp.WriteLine($"input grip {inputAttributes.InputGrip}");
+            //Rhino.RhinoApp.WriteLine($"Bounds location {inputAttributes.Bounds.Location}");
+            //Rhino.RhinoApp.WriteLine($"Bounds {inputAttributes.Bounds}");
+
+            ////this.Parent.
+
+            //Rhino.RhinoApp.WriteLine($"top elvel {inputAttributes.IsTopLevel}");
+            //Rhino.RhinoApp.WriteLine($"input grip {inputAttributes.HasInputGrip}");
+
+            //Rhino.RhinoApp.WriteLine($"Pivot {inputAttributes.Pivot}");
+            //Rhino.RhinoApp.WriteLine($"Bounds {inputAttributes.Bounds}");
+
+            //var inputs = this.InputGrip;
+            //inputs.Y = 0.0f;
         }
 
         protected override void Render(GH_Canvas canvas, Graphics graphics, GH_CanvasChannel channel)
@@ -111,20 +147,21 @@ namespace GHSynth
                 GH_CapsuleRenderEngine.RenderInputGrip(graphics, canvas.Viewport.Zoom, InputGrip, true);
 
                 // Updating the capsule rectangles
-                buttonOffset = (Convert.ToInt32(Bounds.Height) - 24) / 2;
-                textBox = new RectangleF(Bounds.X + buttonOffset / 2, Bounds.Y, Bounds.Width - Bounds.Height, Bounds.Height);
+                buttonOffset = 0;//(Convert.ToInt32(Bounds.Height) - 24) / 2;
+                //textBox = new RectangleF(Bounds.X + buttonOffset / 2, Bounds.Y, Bounds.Width - Bounds.Height, Bounds.Height);
                 button = new Rectangle(Convert.ToInt32(Bounds.X) + Convert.ToInt32(Bounds.Width) - Convert.ToInt32(Bounds.Height) + buttonOffset,
                                        Convert.ToInt32(Bounds.Y) + buttonOffset,
                                        Convert.ToInt32(Bounds.Height) - (buttonOffset * 2),
                                        Convert.ToInt32(Bounds.Height) - (buttonOffset * 2));
 
                 // Creating the capsules
-                GH_Capsule outerCapsule = GH_Capsule.CreateTextCapsule(Bounds, textBox, GH_Palette.Normal, "Play sample");
-                GH_Capsule buttonCapsule = GH_Capsule.CreateCapsule(button, GH_Palette.Transparent);
+                //GH_Capsule outerCapsule = GH_Capsule.CreateTextCapsule(Bounds, textBox, GH_Palette.Normal, "Play sample");
+                GH_Capsule outerCapsule = GH_Capsule.CreateCapsule(Bounds, GH_Palette.Black);
+                GH_Capsule buttonCapsule = GH_Capsule.CreateCapsule(button, GH_Palette.Transparent, 2, 2);
 
                 // Rendering the capsules
                 outerCapsule.Render(graphics, Selected, Owner.Locked, true);
-                buttonCapsule.Render(graphics, icon, new GH_PaletteStyle(Color.White));
+                buttonCapsule.Render(graphics, icon, Color.Transparent);
 
                 // Disposing of the capsules
                 outerCapsule.Dispose();
@@ -157,8 +194,16 @@ namespace GHSynth
                 // Checking if it was clicked, and if it's in the right area
                 if (!Owner.Locked && e.Clicks >= 1 && ((RectangleF)button).Contains(e.CanvasLocation))
                 {
-                    //Rhino.RhinoApp.WriteLine("Pressed");
-                    owner.Sample.Play();
+                    using (var outputDevice = new WaveOutEvent())
+                    {
+                        outputDevice.Init(owner.Sample);
+                        outputDevice.Play();
+                        while (outputDevice.PlaybackState == PlaybackState.Playing)
+                        {
+                            Thread.Sleep(1000);
+                        }
+                        owner.Sample.Position = 0;
+                    }
                 }
             }
             return base.RespondToMouseDown(sender, e);
