@@ -16,6 +16,8 @@ namespace Synth
         private short[] wave;
         private byte[] binaryWave;
 
+        public byte[] Sample => binaryWave;
+
         public BasicSynthesizer(float frequency, int duration) 
         {
             wave = new short[duration];

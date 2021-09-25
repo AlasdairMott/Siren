@@ -1,0 +1,211 @@
+﻿using Grasshopper.Kernel;
+using Skelp.ProtonSynth.Envelopes;
+using Skelp.ProtonSynth.SignalGenerators;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
+using System.Threading;
+
+namespace GHSynth
+{
+	public class ProtonSynthComponent : GH_Component
+	{
+		private IOscillator osc;
+		private IEnvelope ampEnvelope;
+		//static private BufferedWaveProvider bwp;
+		//static WaveOutEvent wo = new WaveOutEvent();
+
+		/// <summary>
+		/// Initializes a new instance of the ProtonSynthComponent class.
+		/// </summary>
+		public ProtonSynthComponent()
+		  : base("ProtonSynthComponent", "Nickname",
+			  "Description",
+			  "GHSynth", "Subcategory")
+		{
+		}
+
+		/// <summary>
+		/// Registers all the input parameters for this component.
+		/// </summary>
+		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+		{
+			pManager.AddNumberParameter("Frequency", "F", "Frequency of the note", GH_ParamAccess.item);
+			pManager.AddTextParameter("Path", "P", "Path of audio file", GH_ParamAccess.item);
+		}
+
+		/// <summary>
+		/// Registers all the output parameters for this component.
+		/// </summary>
+		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+		{
+		}
+
+		/// <summary>
+		/// This is the method that actually does the work.
+		/// </summary>
+		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
+		protected override void SolveInstance(IGH_DataAccess DA)
+		{
+			int sampleRate = 44100;
+			double frequency = 440;
+			if (!DA.GetData(0, ref frequency)) return;
+
+			string path = "";
+			//if (!DA.GetData(1, ref path)) return;
+
+			double maxAmplitude = 1;
+
+			osc = new SawtoothOscillator(sampleRate, frequency, maxAmplitude);
+			ampEnvelope = new LinearEnvelope(sampleRate);
+
+			// Setting up envelope parameters
+			ampEnvelope.AttackTime = TimeSpan.FromSeconds(0.1);
+			ampEnvelope.DecayTime = TimeSpan.FromSeconds(1);
+			ampEnvelope.SustainAmplitude = 0.5;
+			ampEnvelope.ReleaseTime = TimeSpan.FromSeconds(0.1);
+
+			// Starts the envelope
+			ampEnvelope.TriggerOn();
+
+			// Synthesize a single sample (1 out of 44100 per second) and modulate its amplitude
+			//double nextSample = osc.GetSample() * ampEnvelope.GetAmplitude();
+
+			//bwp = new BufferedWaveProvider(new WaveFormat(44100, 16, 1));
+			//bwp.BufferDuration = TimeSpan.FromMilliseconds(1000);
+
+			//RHino.Rhinoapp. bwp.BufferedDuration
+			//Rhino.RhinoApp.WriteLine($"duration {bwp.BufferDuration}");
+			//bwp.DiscardOnBufferOverflow = false;
+			//var sampler = NAudio.Dsp.BiQuadFilter.LowPassFilter()
+			
+
+			//wo = new WaveOutEvent();
+			//wo.NumberOfBuffers = 2;
+			//wo.DesiredLatency = 300;
+			//wo.Volume = 0.1f;
+			//wo.Init(bwp);
+			//wo.Play();
+			//FillBuffer();
+
+			//var sample = new Synth.BasicSynthesizer((float) frequency, (int)(1 * 44100));
+			//bwp.AddSamples(sample.Sample, 0, sample.Sample.Length);
+			//bwp.Read(sample.Sample, 0, sample.Sample.Length);
+			
+
+			//var audioFile = new AudioFileReader(path);
+			//var audioFile = new RawSourceWaveStream(new System.IO.MemoryStream(sample.Sample), new WaveFormat());
+			//Rhino.RhinoApp.WriteLine($"BufferDuration {bwp.BufferDuration}");
+			//Rhino.RhinoApp.WriteLine($"BufferedDuration {bwp.BufferedDuration}");
+			//Rhino.RhinoApp.WriteLine($"BufferLength {bwp.BufferLength}");
+
+			//var sampleProvider = new WaveProvider32(44100, 1);
+			//var waveProvider = new SampleToWaveProvider();
+
+			//var stream = new RawSourceWaveStream(sample.Sample, 0, sample.Sample.Length, new WaveFormat(44100, 1));
+
+			var rawSource = GetBytes(sampleRate); //1 second of raw audio
+			var stream = new RawSourceWaveStream(rawSource, 0, rawSource.Length, new WaveFormat(44100, 16, 1));
+
+			//var provider = new 
+
+			using (var outputDevice = new WaveOutEvent())
+			{
+				outputDevice.Init(stream);
+				//outputDevice.Init(audioFile);
+				outputDevice.Play();
+				while (outputDevice.PlaybackState == PlaybackState.Playing)
+				{
+					Thread.Sleep(1000);
+				}
+			}
+		}
+			
+		/// <summary>
+		/// Provides an Icon for the component.
+		/// </summary>
+		protected override System.Drawing.Bitmap Icon
+		{
+			get
+			{
+				//You can add image files to your project resources and access them like this:
+				// return Resources.IconForThisComponent;
+				return null;
+			}
+		}
+
+		/// <summary>
+		/// Gets the unique ID for this component. Do not change this ID after release.
+		/// </summary>
+		public override Guid ComponentGuid
+		{
+			get { return new Guid("d33f98c7-6cab-4305-96b7-8d15452b18fb"); }
+		}
+
+		//static async Task FillBuffer()
+		//{
+		//	while (true)
+		//	{
+		//		if (bwp.BufferedDuration < TimeSpan.FromMilliseconds(128))
+		//		{
+		//			var bytes = GetBytes(1323);
+
+		//			bwp.AddSamples(bytes, 0, bytes.Length);
+		//		}
+
+		//		await Task.Delay(10);
+		//	}
+		//}
+
+		private byte[] GetBytes(int sampleCount)
+		{
+			var output = new List<byte>();
+
+			for (int i = 0; i < sampleCount; i++)
+			{
+				var ampAmplitude = ampEnvelope.GetAmplitude();
+				var oscSample = osc.GetSample();
+				var result = oscSample * ampAmplitude;
+
+				var nAudioSampleInRange = GetShort(result);
+				var nAudioSampleInBytes = BitConverter.GetBytes(nAudioSampleInRange);
+
+				output.AddRange(nAudioSampleInBytes);
+			}
+
+			return output.ToArray();
+		}
+
+		private short GetShort(double x)
+		{
+			double oMin = -1;
+			double oMax = 1;
+			double nMin = short.MinValue;
+			double nMax = short.MaxValue;
+
+			var reverseInput = false;
+			var oldMin = Math.Min(oMin, oMax);
+			var oldMax = Math.Max(oMin, oMax);
+			if (oldMin != oMin)
+				reverseInput = true;
+
+			var reverseOutput = false;
+			var newMin = Math.Min(nMin, nMax);
+			var newMax = Math.Max(nMin, nMax);
+			if (newMin != nMin)
+				reverseOutput = true;
+
+			var portion = (x - oldMin) * (newMax - newMin) / (oldMax - oldMin);
+			if (reverseInput)
+				portion = (oldMax - x) * (newMax - newMin) / (oldMax - oldMin);
+
+			var result = portion + newMin;
+			if (reverseOutput)
+				result = newMax - portion;
+
+			return (short)Math.Round(result);
+		}
+	}
+}
