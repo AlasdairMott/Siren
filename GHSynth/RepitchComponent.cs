@@ -47,6 +47,8 @@ namespace GHSynth
 			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
 			if (!DA.GetData(0, ref wave)) return;
 
+			wave.Position = 0;
+
 			double p = 1;
 			if (!DA.GetData(1, ref p)) return;
 
@@ -62,13 +64,13 @@ namespace GHSynth
 			using (var tempStream = new NAudio.Utils.IgnoreDisposeStream(new MemoryStream()))
 			{
 				WaveFileWriter.WriteWavFileToStream(tempStream, waveProvider);
-
+				
 				//clone the source stream here?
 				//memoryStream.Seek(0, SeekOrigin.Begin);
 				stream = new RawSourceWaveStream(tempStream.SourceStream, waveProvider.WaveFormat);
 			}
-
 			
+
 
 			DA.SetData(0, stream);
 		}

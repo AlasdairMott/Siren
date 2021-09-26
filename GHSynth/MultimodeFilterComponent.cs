@@ -1,5 +1,6 @@
 ﻿using Grasshopper.Kernel;
 using NAudio.Wave;
+using NAudio.Dsp;
 using System;
 
 namespace GHSynth
@@ -22,7 +23,8 @@ namespace GHSynth
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
 			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
-			pManager.AddNumberParameter("Filter Freqeuncy", "F", "Freqeuncy", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Cutoff Freqeuncy", "F", "Cutoff Freqeuncy", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Resonance", "Q", "Resonance", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -44,10 +46,17 @@ namespace GHSynth
 			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
 			if (!DA.GetData(0, ref wave)) return;
 
-			var filter = NAudio.Dsp.BiQuadFilter.LowPassFilter(sampleRate, 1.0f, 0.0f);
+			var cutoff = 1.0;
+			if (!DA.GetData(1, ref cutoff)) return;
 
-			var sample = wave.ToSampleProvider();
-			//var filtered = new WavePro(reader, r);
+			var q = 1.0;
+			if (!DA.GetData(2, ref q)) return;
+
+			var filter = BiQuadFilter.LowPassFilter(sampleRate, (float) cutoff, (float) q);
+
+			var filtered = new FilteredAudioProvider(wave.ToSampleProvider(), filter);
+
+			DA.SetData(0, filtered.ToWaveProvider());
 		}
 
 		/// <summary>
@@ -61,6 +70,30 @@ namespace GHSynth
 		public override Guid ComponentGuid
 		{
 			get { return new Guid("7e1099b4-4b91-41bb-8e5d-e719ea45333e"); }
+		}
+	}
+
+	public class FilteredAudioProvider : ISampleProvider
+	{
+		private ISampleProvider source;
+		private BiQuadFilter filter;
+
+		public WaveFormat WaveFormat => source.WaveFormat;
+
+		public FilteredAudioProvider(ISampleProvider source, BiQuadFilter filter) 
+		{
+			this.source = source;
+			this.filter = filter;
+		}
+
+		public int Read(float[] buffer, int offset, int count)
+		{
+			int sampleRead = source.Read(buffer, offset, count);
+			for (int n = 0; n < sampleRead; n++) 
+			{
+				buffer[offset + n] = filter.Transform(buffer[offset + n]);
+			}
+			return sampleRead;
 		}
 	}
 }

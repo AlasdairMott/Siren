@@ -32,7 +32,6 @@ namespace GHSynth
 		{
 			pManager.AddNumberParameter("Frequency", "F", "Frequency of the note", GH_ParamAccess.item);
 			pManager.AddNumberParameter("Duration", "D", "Duration of the note", GH_ParamAccess.item);
-			//pManager.AddTextParameter("Path", "P", "Path of audio file", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -56,8 +55,7 @@ namespace GHSynth
 			double duration = 1.0;
 			if (!DA.GetData(1, ref duration)) return;
 
-			//string path = "";
-			//if (!DA.GetData(1, ref path)) return;
+			
 
 			double maxAmplitude = 1;
 
@@ -74,15 +72,6 @@ namespace GHSynth
 			ampEnvelope.TriggerOn();
 
 			//Synthesize a single sample (1 out of 44100 per second) and modulate its amplitude
-
-
-			//var filter = NAudio.Dsp.BiQuadFilter.LowPassFilter(sampleRate, 1.0f, 0.0f);
-			
-
-			
-
-			//var audioFile = new AudioFileReader(path);
-			//var audioFile = new RawSourceWaveStream(new System.IO.MemoryStream(sample.Sample), new WaveFormat());
 
 
 

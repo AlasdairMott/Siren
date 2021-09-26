@@ -80,7 +80,7 @@ namespace GHSynth
         private Bitmap icon;
         private int buttonOffset;
         private Rectangle button;
-        private RectangleF textBox;
+        //private RectangleF textBox;
         private SamplerPlayerComponent owner;
         
         public CustomGHButton(SamplerPlayerComponent owner) : base(owner)
@@ -88,7 +88,7 @@ namespace GHSynth
             icon = Properties.Resources.playback_Off;
             this.owner = owner;
             buttonOffset = (Convert.ToInt32(Bounds.Height) - 24) / 2;
-            textBox = new RectangleF(Bounds.X + buttonOffset / 2, Bounds.Y, Bounds.Width - Bounds.Height, Bounds.Height);
+            //textBox = new RectangleF(Bounds.X + buttonOffset / 2, Bounds.Y, Bounds.Width - Bounds.Height, Bounds.Height);
             button = new Rectangle(Convert.ToInt32(Bounds.X) + Convert.ToInt32(Bounds.Width) - Convert.ToInt32(Bounds.Height) + buttonOffset,
                                    Convert.ToInt32(Bounds.Y) + buttonOffset,
                                    Convert.ToInt32(Bounds.Height) - (buttonOffset * 2),
@@ -149,15 +149,15 @@ namespace GHSynth
 
                 // Updating the capsule rectangles
                 buttonOffset = 0;//(Convert.ToInt32(Bounds.Height) - 24) / 2;
-                //textBox = new RectangleF(Bounds.X + buttonOffset / 2, Bounds.Y, Bounds.Width - Bounds.Height, Bounds.Height);
+                var textBox = new RectangleF(Bounds.X + buttonOffset / 2, Bounds.Y, Bounds.Width - Bounds.Height, Bounds.Height);
                 button = new Rectangle(Convert.ToInt32(Bounds.X) + Convert.ToInt32(Bounds.Width) - Convert.ToInt32(Bounds.Height) + buttonOffset,
                                        Convert.ToInt32(Bounds.Y) + buttonOffset,
                                        Convert.ToInt32(Bounds.Height) - (buttonOffset * 2),
                                        Convert.ToInt32(Bounds.Height) - (buttonOffset * 2));
 
                 // Creating the capsules
-                //GH_Capsule outerCapsule = GH_Capsule.CreateTextCapsule(Bounds, textBox, GH_Palette.Normal, "Play sample");
-                GH_Capsule outerCapsule = GH_Capsule.CreateCapsule(Bounds, GH_Palette.Black);
+                GH_Capsule outerCapsule = GH_Capsule.CreateTextCapsule(Bounds, textBox, GH_Palette.Black, "W");
+                //GH_Capsule outerCapsule = GH_Capsule.CreateCapsule(Bounds, GH_Palette.Black);
                 GH_Capsule buttonCapsule = GH_Capsule.CreateCapsule(button, GH_Palette.Transparent, 2, 2);
 
                 // Rendering the capsules
@@ -197,16 +197,18 @@ namespace GHSynth
                 {
                     using (var outputDevice = new WaveOutEvent())
                     {
+                        if (owner.Wave is WaveStream)
+                            (owner.Wave as WaveStream).CurrentTime = TimeSpan.FromMilliseconds(0);
+
                         outputDevice.Init(owner.Wave);
                         outputDevice.Play();
                         while (outputDevice.PlaybackState == PlaybackState.Playing)
                         {
-                            Thread.Sleep(1000);
+                            Thread.Sleep(200);
                         }
 
-                        if (owner.Wave is WaveStream)
-                            (owner.Wave as WaveStream).Position = 0;
                         
+
                     }
                 }
             }

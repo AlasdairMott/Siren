@@ -123,6 +123,16 @@ namespace GHSynth.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap readSample {
+            get {
+                object obj = ResourceManager.GetObject("readSample", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap repitch {
             get {
                 object obj = ResourceManager.GetObject("repitch", resourceCulture);

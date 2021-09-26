@@ -98,7 +98,7 @@ namespace GHSynth
 				"GHSynth", 
 				"Data")) { }
 
-		protected override System.Drawing.Bitmap Icon => Properties.Resources.metronome;
+		protected override System.Drawing.Bitmap Icon => Properties.Resources.wave;
 
 		public override Guid ComponentGuid => new Guid("08a1577a-7dff-4163-a2c9-2dbd928626c4");
 	}
