@@ -7,12 +7,14 @@ using NAudio.Wave;
 using System;
 using System.Drawing;
 using System.Threading;
+using System.Windows.Forms;
 
 namespace GHSynth
 {
     public class SamplerPlayerComponent : GH_Component
 	{
         public IWaveProvider Wave { get; private set; }
+        public float Volume { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the SamplerPlayerComponent class.
@@ -20,9 +22,10 @@ namespace GHSynth
         public SamplerPlayerComponent()
 		  : base("SamplerPlayerComponent", "Nickname",
 			  "Description",
-              "GHSynth", "Subcategory")
+              "GHSynth", "Playback")
 		{
             Wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
+            Volume = 1.0f;
         }
 
 		public override void CreateAttributes()
@@ -73,6 +76,12 @@ namespace GHSynth
 		{
 			get { return new Guid("55f99243-1902-4ae3-a1e4-b2041ac6abf1"); }
 		}
+
+        //protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
+        //{
+        //    base.AppendAdditionalComponentMenuItems(menu);
+            
+        //}
     }
 
     public class CustomGHButton : GH_ComponentAttributes
@@ -80,7 +89,6 @@ namespace GHSynth
         private Bitmap icon;
         private int buttonOffset;
         private Rectangle button;
-        //private RectangleF textBox;
         private SamplerPlayerComponent owner;
         
         public CustomGHButton(SamplerPlayerComponent owner) : base(owner)
@@ -107,32 +115,9 @@ namespace GHSynth
 
             var componentInputs = (this.DocObject as IGH_Component).Params.Input;
             var inputAttributes = componentInputs[0].Attributes;
-            //inputAttributes.Pivot = new PointF(10f, 10f);
-            //inputAttributes.InputGrip
-            RectangleF inputBounds = inputAttributes.Bounds;
+            var inputBounds = inputAttributes.Bounds;
             inputBounds.Y += 4;
-            //updatedBounds.Y = Bounds.Y + Bounds.Height * 0.5f;//inputAttributes.InputGrip;
             inputAttributes.Bounds = inputBounds;
-            //inputAttributes.PerformLayout();
-            //var grip = inputAttributes.InputGrip;
-            //grip.Y = 0.0f;
-
-            //Rhino.RhinoApp.WriteLine($"input grip count {componentInputs.Count}");
-
-            //Rhino.RhinoApp.WriteLine($"input grip {inputAttributes.InputGrip}");
-            //Rhino.RhinoApp.WriteLine($"Bounds location {inputAttributes.Bounds.Location}");
-            //Rhino.RhinoApp.WriteLine($"Bounds {inputAttributes.Bounds}");
-
-            ////this.Parent.
-
-            //Rhino.RhinoApp.WriteLine($"top elvel {inputAttributes.IsTopLevel}");
-            //Rhino.RhinoApp.WriteLine($"input grip {inputAttributes.HasInputGrip}");
-
-            //Rhino.RhinoApp.WriteLine($"Pivot {inputAttributes.Pivot}");
-            //Rhino.RhinoApp.WriteLine($"Bounds {inputAttributes.Bounds}");
-
-            //var inputs = this.InputGrip;
-            //inputs.Y = 0.0f;
         }
 
         protected override void Render(GH_Canvas canvas, Graphics graphics, GH_CanvasChannel channel)
@@ -195,7 +180,7 @@ namespace GHSynth
                 // Checking if it was clicked, and if it's in the right area
                 if (!Owner.Locked && e.Clicks >= 1 && ((RectangleF)button).Contains(e.CanvasLocation))
                 {
-                    using (var outputDevice = new WaveOutEvent())
+                    using (var outputDevice = new WaveOutEvent() { Volume = owner.Volume})
                     {
                         if (owner.Wave is WaveStream)
                             (owner.Wave as WaveStream).CurrentTime = TimeSpan.FromMilliseconds(0);

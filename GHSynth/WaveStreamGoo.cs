@@ -51,6 +51,12 @@ namespace GHSynth
                 else target = (Q)(object)Value;
                 return true;
             }
+            else if (typeof(Q).IsAssignableFrom(typeof(AudioFileReader)))
+            {
+                if (Value == null) target = default(Q);
+                else target = (Q)(object)Value;
+                return true;
+            }
             target = default(Q);
             return false;
         }

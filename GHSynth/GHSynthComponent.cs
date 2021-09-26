@@ -11,6 +11,8 @@ namespace GHSynth
 {
 	public class GHSynthComponent : GH_Component
 	{
+		public override GH_Exposure Exposure => GH_Exposure.hidden;
+
 		/// <summary>
 		/// Each implementation of GH_Component must provide a public 
 		/// constructor without any arguments.

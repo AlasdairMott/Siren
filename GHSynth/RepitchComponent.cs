@@ -58,19 +58,48 @@ namespace GHSynth
 			
 			var pitch = new SmbPitchShiftingSampleProvider(wave.ToSampleProvider());
 			pitch.PitchFactor = (float)(upOneTone * p); // or downOneTone
-			var waveProvider = pitch.ToWaveProvider();
 
-			RawSourceWaveStream stream;
-			using (var tempStream = new NAudio.Utils.IgnoreDisposeStream(new MemoryStream()))
-			{
-				WaveFileWriter.WriteWavFileToStream(tempStream, waveProvider);
-				
-				//clone the source stream here?
-				//memoryStream.Seek(0, SeekOrigin.Begin);
-				stream = new RawSourceWaveStream(tempStream.SourceStream, waveProvider.WaveFormat);
-			}
-			
+			int count = (int)wave.Length;
+			byte[] buffer = new byte[wave.Length];
+			pitch.ToWaveProvider16().Read(buffer, 0, count);
 
+			var stream = new RawSourceWaveStream(buffer, 0, count, wave.WaveFormat);
+
+			//var waveProvider = pitch.ToWaveProvider();
+
+			//RawSourceWaveStream stream = new RawSourceWaveStream(wave as Stream, wave.WaveFormat);
+			//using (var tempStream = new NAudio.Utils.IgnoreDisposeStream(new MemoryStream()))
+			//{
+			//	WaveFileWriter.WriteWavFileToStream(tempStream, waveProvider);
+
+
+			//	//clone the source stream here?
+			//	//memoryStream.Seek(0, SeekOrigin.Begin);
+			//	stream = new RawSourceWaveStream(tempStream.SourceStream, waveProvider.WaveFormat);
+			//}
+
+
+			//using (var waveFileWriter = new WaveFileWriter(stream, wave.WaveFormat))
+			//{
+			//	byte[] bytes = new byte[wave.Length];
+			//	wave.Position = 0;
+			//	pitch.ToWaveProvider().Read(bytes, 0, (int) wave.Length);
+			//	waveFileWriter.Write(bytes, 0, bytes.Length);
+			//	waveFileWriter.Flush();
+			//}
+
+			//WaveFileWriter.CreateWaveFile16("buffer.wav", pitch);
+
+			//var buffer = new AudioFileReader("buffer.wav");
+
+			//var offsetProvider = new OffsetSampleProvider(pitch);
+			//offsetProvider.TakeSamples = wave.WaveFormat.SampleRate * wave.WaveFormat.Channels * wave.TotalTime.Seconds;
+
+			//var signal = new SignalGenerator() { Type = SignalGeneratorType.SawTooth}
+
+			//new WaveFileReader()
+
+			//var s = new RawSourceWaveStream(offsetProvider, wave.WaveFormat);
 
 			DA.SetData(0, stream);
 		}
