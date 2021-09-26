@@ -12,7 +12,7 @@ namespace GHSynth
 {
     public class SamplerPlayerComponent : GH_Component
 	{
-        public RawSourceWaveStream Sample { get; private set; }
+        public IWaveProvider Wave { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the SamplerPlayerComponent class.
@@ -22,7 +22,7 @@ namespace GHSynth
 			  "Description",
               "GHSynth", "Subcategory")
 		{
-            Sample = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
+            Wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
         }
 
 		public override void CreateAttributes()
@@ -51,9 +51,10 @@ namespace GHSynth
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-            var sample = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
-            if (!DA.GetData(0, ref sample)) return;
-            Sample = sample;
+            var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat()) as IWaveProvider;
+
+            if (!DA.GetData(0, ref wave)) return;
+            Wave = wave;
 
             //GH_ObjectWrapper obj = new GH_ObjectWrapper();
             //if (!DA.GetData(0, ref obj)) return;
@@ -63,7 +64,7 @@ namespace GHSynth
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.metronome;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.playback;
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.
@@ -84,7 +85,7 @@ namespace GHSynth
         
         public CustomGHButton(SamplerPlayerComponent owner) : base(owner)
         {
-            icon = Properties.Resources.metronome;
+            icon = Properties.Resources.playback_Off;
             this.owner = owner;
             buttonOffset = (Convert.ToInt32(Bounds.Height) - 24) / 2;
             textBox = new RectangleF(Bounds.X + buttonOffset / 2, Bounds.Y, Bounds.Width - Bounds.Height, Bounds.Height);
@@ -175,7 +176,7 @@ namespace GHSynth
             if (e.Button == System.Windows.Forms.MouseButtons.Left && ((RectangleF)button).Contains(e.CanvasLocation))
             {
                 // Changing the image
-                icon = Properties.Resources.quantize;
+                icon = Properties.Resources.playback_On;
             }
 
             return base.RespondToMouseDown(sender, e);
@@ -187,7 +188,7 @@ namespace GHSynth
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
                 // Updating the icon
-                icon = Properties.Resources.metronome;
+                icon = Properties.Resources.playback_Off;
 
                 sender.ScheduleRegen(1);
 
@@ -196,13 +197,16 @@ namespace GHSynth
                 {
                     using (var outputDevice = new WaveOutEvent())
                     {
-                        outputDevice.Init(owner.Sample);
+                        outputDevice.Init(owner.Wave);
                         outputDevice.Play();
                         while (outputDevice.PlaybackState == PlaybackState.Playing)
                         {
                             Thread.Sleep(1000);
                         }
-                        owner.Sample.Position = 0;
+
+                        if (owner.Wave is WaveStream)
+                            (owner.Wave as WaveStream).Position = 0;
+                        
                     }
                 }
             }

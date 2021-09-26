@@ -74,9 +74,9 @@ namespace GHSynth
 			ampEnvelope.TriggerOn();
 
 			//Synthesize a single sample (1 out of 44100 per second) and modulate its amplitude
-			
 
-			//var filter = NAudio.Dsp.BiQuadFilter.LowPassFilter()
+
+			//var filter = NAudio.Dsp.BiQuadFilter.LowPassFilter(sampleRate, 1.0f, 0.0f);
 			
 
 			
@@ -104,19 +104,11 @@ namespace GHSynth
 
 			DA.SetData(0, stream);
 		}
-			
+
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon
-		{
-			get
-			{
-				//You can add image files to your project resources and access them like this:
-				// return Resources.IconForThisComponent;
-				return null;
-			}
-		}
+		protected override System.Drawing.Bitmap Icon => Properties.Resources.wave;
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.
@@ -143,6 +135,15 @@ namespace GHSynth
 
 		private byte[] GetBytes(int sampleCount)
 		{
+			//int SAMPLE_RATE = 44100;
+			//short[] wave = new short[sampleCount];
+			//byte[]  binaryWave = new byte[SAMPLE_RATE * sizeof(short)];
+			//for (int i = 0; i < sampleCount; i++)
+			//{
+			//	wave[i] = Convert.ToInt16(short.MaxValue * (osc.GetSample() * ampEnvelope.GetAmplitude())); 
+			//}
+			//Buffer.BlockCopy(wave, 0, binaryWave, 0, wave.Length * sizeof(short));
+			//return binaryWave;
 			var output = new List<byte>();
 
 			for (int i = 0; i < sampleCount; i++)

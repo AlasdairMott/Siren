@@ -92,6 +92,8 @@
   <ItemGroup>
     <Compile Include="GHSynthComponent.cs" />
     <Compile Include="GHSynthInfo.cs" />
+    <Compile Include="MultimodeFilterComponent.cs" />
+    <Compile Include="RepitchComponent.cs" />
     <Compile Include="WaveStreamGoo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -118,13 +120,30 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="Resources\wave.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\metronome.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\playback_Off.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\playback_On.png" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="Resources\quantize.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\repitch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wave.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\filter.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\playback.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

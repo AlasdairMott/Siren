@@ -7,13 +7,14 @@ using System.Threading.Tasks;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 
 
 namespace GHSynth
 {
-	public class WaveStreamGoo : GH_Goo<WaveStream>
-	{
-        public override bool IsValid => Value.Length > 0;
+	public class WaveStreamGoo : GH_Goo<IWaveProvider>
+    {
+        public override bool IsValid => throw new Exception();//Value.Length > 0;
 
         public override string TypeName => "Gooey type name" + Value.GetType().ToString();
 
@@ -23,7 +24,7 @@ namespace GHSynth
         {
             this.Value = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
         }
-        public WaveStreamGoo(WaveStream stream)
+        public WaveStreamGoo(IWaveProvider stream)
         {
             if (stream == null) stream = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
             this.Value = stream;
@@ -33,6 +34,12 @@ namespace GHSynth
         public override bool CastTo<Q>(ref Q target)
         {
             if (typeof(Q).IsAssignableFrom(typeof(WaveStream)))
+            {
+                if (Value == null) target = default(Q);
+                else target = (Q)(object)Value;
+                return true;
+            }
+            else if (typeof(Q).IsAssignableFrom(typeof(SampleToWaveProvider)))
             {
                 if (Value == null) target = default(Q);
                 else target = (Q)(object)Value;
@@ -52,7 +59,12 @@ namespace GHSynth
             if (source == null) { return false; }
             if (typeof(WaveStream).IsAssignableFrom(source.GetType()))
             {
-                Value = (WaveStream)source;
+                Value = (IWaveProvider)source;
+                return true;
+            }
+            else if (typeof(SampleToWaveProvider).IsAssignableFrom(source.GetType()))
+            {
+                Value = (IWaveProvider) source;
                 return true;
             }
             return false;
@@ -64,7 +76,7 @@ namespace GHSynth
 			RawSourceWaveStream stream;
 			using (MemoryStream memoryStream = new MemoryStream()) 
 			{
-				Value.CopyTo(memoryStream);
+				(Value as WaveStream).CopyTo(memoryStream);
 				stream = new RawSourceWaveStream(memoryStream, new WaveFormat(44100, 16, 1));
 			}
 			return new WaveStreamGoo(stream);
