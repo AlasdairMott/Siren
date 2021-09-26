@@ -42,7 +42,10 @@ namespace GHSynth
 			if (!DA.GetData(0, ref path)) return;
 
 			var audioFile = new AudioFileReader(path);
-			DA.SetData(0, audioFile);
+
+			var raw = NAudioUtilities.WaveProviderToWaveStream(audioFile.ToWaveProvider16().ToSampleProvider(), audioFile);
+
+			DA.SetData(0, raw);
 		}
 
 		/// <summary>

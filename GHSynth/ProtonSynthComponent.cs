@@ -60,13 +60,17 @@ namespace GHSynth
 			double maxAmplitude = 1;
 
 			osc = new SawtoothOscillator(sampleRate, frequency, maxAmplitude);
+			//osc = new SineOscillator(sampleRate, frequency, maxAmplitude);
+			//osc = new NoiseGenerator(sampleRate, frequency, maxAmplitude);
+			//osc = new TriangleOscillator
+
 			ampEnvelope = new LinearEnvelope(sampleRate);
 
 			// Setting up envelope parameters
-			ampEnvelope.AttackTime = TimeSpan.FromSeconds(1);
-			ampEnvelope.DecayTime = TimeSpan.FromSeconds(0.1);
-			ampEnvelope.SustainAmplitude = 0.5;
-			ampEnvelope.ReleaseTime = TimeSpan.FromSeconds(0.1);
+			ampEnvelope.AttackTime = TimeSpan.FromSeconds(0.0);
+			ampEnvelope.DecayTime = TimeSpan.FromSeconds(0.0);
+			ampEnvelope.SustainAmplitude = 1.0;
+			ampEnvelope.ReleaseTime = TimeSpan.FromSeconds(0.0);
 
 			// Starts the envelope
 			ampEnvelope.TriggerOn();
