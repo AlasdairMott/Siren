@@ -1,16 +1,18 @@
 ﻿using Grasshopper.Kernel;
 using NAudio.Wave;
+using NAudio.Dsp;
 using System;
+using System.Collections.Generic;
 
-namespace GHSynth
+namespace GHSynth.Components
 {
-	public class ReadSampleComponent : GH_Component
+	public class UnityMixerComponent : GH_Component
 	{
 		/// <summary>
-		/// Initializes a new instance of the ReadSampleComponent class.
+		/// Initializes a new instance of the MixerComponent class.
 		/// </summary>
-		public ReadSampleComponent()
-		  : base("ReadSampleComponent", "Nickname",
+		public UnityMixerComponent()
+		  : base("MixerComponent", "Nickname",
 			  "Description",
 			  "GHSynth", "Subcategory")
 		{
@@ -21,7 +23,7 @@ namespace GHSynth
 		/// </summary>
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
-			pManager.AddTextParameter("Path", "P", "Path of audio file", GH_ParamAccess.item);
+			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.list);
 		}
 
 		/// <summary>
@@ -38,27 +40,25 @@ namespace GHSynth
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			string path = "";
-			if (!DA.GetData(0, ref path)) return;
+			var waves = new List<WaveStream>();
+			if (!DA.GetDataList(0, waves)) return;
 
-			var audioFile = new AudioFileReader(path);
-
-			var raw = NAudioUtilities.WaveProviderToWaveStream(audioFile.ToWaveProvider16().ToSampleProvider(), audioFile);
-
-			DA.SetData(0, raw);
+			var multiplier = 1 / waves.Count;
+			var mixer = new MixingWaveProvider32(waves);
+			
 		}
 
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon => Properties.Resources.readSample;
+		protected override System.Drawing.Bitmap Icon => Properties.Resources.mixer;
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.
 		/// </summary>
 		public override Guid ComponentGuid
 		{
-			get { return new Guid("805913e8-8e7b-4264-9368-87228bc3c850"); }
+			get { return new Guid("77093d78-0394-40ae-aea3-d3892d6ec1e1"); }
 		}
 	}
 }

@@ -14,7 +14,9 @@ namespace GHSynth
 	{
 		private IOscillator osc;
 		private IEnvelope ampEnvelope;
-		
+
+		public override GH_Exposure Exposure => GH_Exposure.hidden;
+
 		/// <summary>
 		/// Initializes a new instance of the ProtonSynthComponent class.
 		/// </summary>

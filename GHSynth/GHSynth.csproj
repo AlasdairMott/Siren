@@ -90,15 +90,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Audio\OscillatorComponent.cs" />
+    <Compile Include="Audio\UnityMixerComponent.cs" />
+    <Compile Include="Geometry\SampleToPolylineComponent.cs" />
     <Compile Include="SampleProviders\FilteredAudioProvider.cs" />
-    <Compile Include="GHSynthComponent.cs" />
+    <Compile Include="Audio\GHSynthComponent.cs" />
     <Compile Include="GHSynthInfo.cs" />
-    <Compile Include="MultimodeFilterComponent.cs" />
-    <Compile Include="NAudioUtilities.cs" />
-    <Compile Include="ReadSampleComponent.cs" />
-    <Compile Include="RepitchComponent.cs" />
+    <Compile Include="Audio\MultimodeFilterComponent.cs" />
+    <Compile Include="Utilities\NAudioUtilities.cs" />
+    <Compile Include="Audio\ReadSampleComponent.cs" />
+    <Compile Include="Audio\RepitchComponent.cs" />
     <Compile Include="SampleProviders\VCAProvider.cs" />
-    <Compile Include="VCAComponent.cs" />
+    <Compile Include="Audio\VCAComponent.cs" />
     <Compile Include="WaveStreamGoo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -106,9 +109,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="ProtonSynthComponent.cs" />
-    <Compile Include="QuantizerComponent.cs" />
-    <Compile Include="SamplerPlayerComponent.cs" />
+    <Compile Include="Audio\ProtonSynthComponent.cs" />
+    <Compile Include="Audio\QuantizerComponent.cs" />
+    <Compile Include="Audio\SamplerPlayerComponent.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Synth\Synth.csproj">
@@ -155,6 +158,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\VCA.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mixer.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

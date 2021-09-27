@@ -65,12 +65,12 @@ namespace GHSynth
             if (source == null) { return false; }
             if (typeof(WaveStream).IsAssignableFrom(source.GetType()))
             {
-                Value = (IWaveProvider)source;
+                Value = (WaveStream)source;
                 return true;
             }
             else if (typeof(SampleToWaveProvider).IsAssignableFrom(source.GetType()))
             {
-                Value = (IWaveProvider) source;
+                Value = (WaveStream) source;
                 return true;
             }
             return false;

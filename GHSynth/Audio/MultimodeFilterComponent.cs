@@ -1,19 +1,17 @@
 ﻿using Grasshopper.Kernel;
 using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
+using NAudio.Dsp;
 using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace GHSynth
 {
-	public class RepitchComponent : GH_Component
+	public class MultimodeFilterComponent : GH_Component
 	{
 		/// <summary>
-		/// Initializes a new instance of the RepitchComponent class.
+		/// Initializes a new instance of the MultimodeFilterComponent class.
 		/// </summary>
-		public RepitchComponent()
-		  : base("RepitchComponent", "Nickname",
+		public MultimodeFilterComponent()
+		  : base("MultimodeFilterComponent", "Nickname",
 			  "Description",
 			  "GHSynth", "Subcategory")
 		{
@@ -25,7 +23,8 @@ namespace GHSynth
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
 			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
-			pManager.AddNumberParameter("Pitch", "P", "PitchChange", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Cutoff Freqeuncy", "F", "Cutoff Freqeuncy", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Resonance", "Q", "Resonance", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -47,22 +46,20 @@ namespace GHSynth
 			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
 			if (!DA.GetData(0, ref wave)) return;
 
-			double p = 1;
-			if (!DA.GetData(1, ref p)) return;
+			var cutoff = 1.0;
+			if (!DA.GetData(1, ref cutoff)) return;
 
-			var semitone = Math.Pow(2, 1.0 / 12);
-			var upOneTone = semitone * semitone;
-			var downOneTone = 1.0 / upOneTone;
+			var q = 1.0;
+			if (!DA.GetData(2, ref q)) return;
+
+			var filter = BiQuadFilter.LowPassFilter(sampleRate, (float) cutoff, (float) q);
+
+			var filtered = new SampleProviders.FilteredAudioProvider(wave.ToSampleProvider(), filter);
 			
-			var pitch = new SmbPitchShiftingSampleProvider(wave.ToSampleProvider());
-			pitch.PitchFactor = (float)(upOneTone * p); // or downOneTone
-
-			var stream = NAudioUtilities.WaveProviderToWaveStream(pitch, wave);
-
-			//int count = (int)wave.Length;
-			//byte[] buffer = new byte[wave.Length];
-			//pitch.ToWaveProvider16().Read(buffer, 0, count);
-			//var stream = new RawSourceWaveStream(buffer, 0, count, wave.WaveFormat);
+			var stream = NAudioUtilities.WaveProviderToWaveStream(
+				filtered, 
+				(int)wave.Length,
+				wave.WaveFormat);
 
 			DA.SetData(0, stream);
 		}
@@ -70,14 +67,16 @@ namespace GHSynth
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon => Properties.Resources.repitch;
+		protected override System.Drawing.Bitmap Icon => Properties.Resources.filter;
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.
 		/// </summary>
 		public override Guid ComponentGuid
 		{
-			get { return new Guid("2afb9e8d-b7ca-4111-b3e1-e04b1249a134"); }
+			get { return new Guid("7e1099b4-4b91-41bb-8e5d-e719ea45333e"); }
 		}
 	}
+
+	
 }
