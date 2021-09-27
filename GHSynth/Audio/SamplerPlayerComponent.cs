@@ -13,7 +13,7 @@ namespace GHSynth
 {
     public class SamplerPlayerComponent : GH_Component
 	{
-        public IWaveProvider Wave { get; private set; }
+        public WaveStream Wave { get; private set; }
         public float Volume { get; set; }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace GHSynth
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-            var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat()) as IWaveProvider;
+            var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat()) as WaveStream;
 
             if (!DA.GetData(0, ref wave)) return;
             Wave = wave;
@@ -182,9 +182,6 @@ namespace GHSynth
                 {
                     using (var outputDevice = new WaveOutEvent() { Volume = owner.Volume})
                     {
-                        if (owner.Wave is WaveStream)
-                            (owner.Wave as WaveStream).CurrentTime = TimeSpan.FromMilliseconds(0);
-
                         outputDevice.Init(owner.Wave);
                         outputDevice.Play();
                         while (outputDevice.PlaybackState == PlaybackState.Playing)
@@ -192,8 +189,7 @@ namespace GHSynth
                             Thread.Sleep(200);
                         }
 
-                        
-
+                        owner.Wave.CurrentTime = TimeSpan.FromMilliseconds(0);
                     }
                 }
             }

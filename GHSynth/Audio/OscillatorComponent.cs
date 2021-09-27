@@ -64,7 +64,7 @@ namespace GHSynth.Components
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon => Properties.Resources.wave;
+		protected override System.Drawing.Bitmap Icon => Properties.Resources.sin;
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.

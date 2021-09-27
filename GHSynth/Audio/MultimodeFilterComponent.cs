@@ -55,11 +55,13 @@ namespace GHSynth
 			var filter = BiQuadFilter.LowPassFilter(sampleRate, (float) cutoff, (float) q);
 
 			var filtered = new SampleProviders.FilteredAudioProvider(wave.ToSampleProvider(), filter);
-			
+
+			wave.Position = 0;
 			var stream = NAudioUtilities.WaveProviderToWaveStream(
 				filtered, 
 				(int)wave.Length,
 				wave.WaveFormat);
+			wave.Position = 0;
 
 			DA.SetData(0, stream);
 		}

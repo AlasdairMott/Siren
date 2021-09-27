@@ -25,6 +25,7 @@ namespace GHSynth.Geometry
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
 			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
+			pManager.AddIntegerParameter("Resolution", "R", "Resolution of the display", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -44,15 +45,11 @@ namespace GHSynth.Geometry
 			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
 			if (!DA.GetData(0, ref wave)) return;
 
-			var sample = wave.ToSampleProvider();
-			var buffer = new float[wave.Length];
-			sample.Read(buffer, 0, (int) wave.Length);
+			int resolution = 10;
+			DA.GetData(1, ref resolution);
 
-			var polyline = new Polyline();
-			for (int i = 0; i < buffer.Length; i ++) 
-			{
-				polyline.Add(new Point3d(i * 0.01, buffer[i], 0));
-			}
+			var polyline = GeometryFunctions.ISampleToPolyline(wave.ToSampleProvider(), resolution);
+			wave.Position = 0;
 
 			DA.SetData(0, polyline);
 		}
@@ -60,15 +57,7 @@ namespace GHSynth.Geometry
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon
-		{
-			get
-			{
-				//You can add image files to your project resources and access them like this:
-				// return Resources.IconForThisComponent;
-				return null;
-			}
-		}
+		protected override System.Drawing.Bitmap Icon => Properties.Resources.curve;
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.

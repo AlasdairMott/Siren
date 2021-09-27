@@ -12,9 +12,9 @@ using NAudio.Wave.SampleProviders;
 
 namespace GHSynth
 {
-	public class WaveStreamGoo : GH_Goo<IWaveProvider>
+	public class WaveStreamGoo : GH_Goo<WaveStream>
     {
-        public override bool IsValid => throw new Exception();//Value.Length > 0;
+        public override bool IsValid => Value.Length > 0;
 
         public override string TypeName => "Gooey type name" + Value.GetType().ToString();
 
@@ -24,7 +24,7 @@ namespace GHSynth
         {
             this.Value = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
         }
-        public WaveStreamGoo(IWaveProvider stream)
+        public WaveStreamGoo(WaveStream stream)
         {
             if (stream == null) stream = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
             this.Value = stream;

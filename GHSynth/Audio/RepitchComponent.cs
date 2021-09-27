@@ -42,7 +42,7 @@ namespace GHSynth
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
+			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat()) as WaveStream;
 			if (!DA.GetData(0, ref wave)) return;
 
 			double p = 1;
@@ -55,10 +55,12 @@ namespace GHSynth
 			var pitchShifted = new SmbPitchShiftingSampleProvider(wave.ToSampleProvider());
 			pitchShifted.PitchFactor = (float)(upOneTone * p); // or downOneTone
 
+			wave.Position = 0;
 			var stream = NAudioUtilities.WaveProviderToWaveStream(
 				pitchShifted, 
 				(int)wave.Length,
 				wave.WaveFormat);
+			wave.Position = 0;
 
 			//int count = (int)wave.Length;
 			//byte[] buffer = new byte[wave.Length];

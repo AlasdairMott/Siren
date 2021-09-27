@@ -1,18 +1,18 @@
-﻿using Grasshopper.Kernel;
-using NAudio.Wave;
-using System;
-using Rhino.Geometry;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 
-namespace GHSynth
+using Grasshopper.Kernel;
+using Rhino.Geometry;
+
+namespace GHSynth.Audio
 {
-	public class ReadSampleComponent : GH_Component
+	public class CVComponent : GH_Component
 	{
 		/// <summary>
-		/// Initializes a new instance of the ReadSampleComponent class.
+		/// Initializes a new instance of the CVComponent class.
 		/// </summary>
-		public ReadSampleComponent()
-		  : base("ReadSampleComponent", "Nickname",
+		public CVComponent()
+		  : base("CVComponent", "Nickname",
 			  "Description",
 			  "GHSynth", "Subcategory")
 		{
@@ -23,7 +23,12 @@ namespace GHSynth
 		/// </summary>
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
-			pManager.AddTextParameter("Path", "P", "Path of audio file", GH_ParamAccess.item);
+			pManager.AddCurveParameter("Curve", "C", "CV Curve", GH_ParamAccess.item);
+			//pManager.AddIntegerParameter("Sample Count", "S", "Number of times to sample to curve", GH_ParamAccess.item);
+			pManager.AddInterval2DParameter("Horizontal Range", "H", "H", GH_ParamAccess.item);
+			pManager.AddInterval2DParameter("Vertical Range", "V", "V", GH_ParamAccess.item);
+
+			for(int p = 0; p < pManager.ParamCount; p++) pManager[p].Optional = true;
 		}
 
 		/// <summary>
@@ -40,34 +45,19 @@ namespace GHSynth
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			string path = "";
-			if (!DA.GetData(0, ref path)) return;
-
-			var audioFile = new AudioFileReader(path);
-
-			//var wave = audioFile.ToWaveProvider16().ToSampleProvider();
-
-			//var raw = NAudioUtilities.WaveProviderToWaveStream(
-			//	audioFile,
-			//	(int)audioFile.Length,
-			//	audioFile.WaveFormat);
-
-			DA.SetData(0, audioFile);
 		}
 
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon => Properties.Resources.readSample;
+		protected override System.Drawing.Bitmap Icon => Properties.Resources.cv;
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.
 		/// </summary>
 		public override Guid ComponentGuid
 		{
-			get { return new Guid("805913e8-8e7b-4264-9368-87228bc3c850"); }
+			get { return new Guid("3fe2ff09-1683-4131-87d7-d2760c50d4ff"); }
 		}
-
-		
 	}
 }

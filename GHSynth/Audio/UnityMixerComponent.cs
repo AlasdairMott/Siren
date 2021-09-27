@@ -2,7 +2,9 @@
 using NAudio.Wave;
 using NAudio.Dsp;
 using System;
+using System.Linq;
 using System.Collections.Generic;
+using NAudio.Wave.SampleProviders;
 
 namespace GHSynth.Components
 {
@@ -44,8 +46,16 @@ namespace GHSynth.Components
 			if (!DA.GetDataList(0, waves)) return;
 
 			var multiplier = 1 / waves.Count;
-			var mixer = new MixingWaveProvider32(waves);
-			
+			var mixer = new MixingSampleProvider(waves.Select(s => s.ToSampleProvider()));
+
+			waves.ForEach(w => w.Position = 0);
+			var stream = NAudioUtilities.WaveProviderToWaveStream(
+				mixer,
+				(int)waves.Max(s => s.Length),
+				waves[0].WaveFormat);
+			waves.ForEach(w => w.Position = 0);
+
+			DA.SetData(0, stream);
 		}
 
 		/// <summary>

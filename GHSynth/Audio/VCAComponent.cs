@@ -49,11 +49,12 @@ namespace GHSynth
 			if (!DA.GetData(0, ref amplitude)) return;
 
 			var vca = new SampleProviders.VCAProvider(wave.ToSampleProvider(), amplitude.ToSampleProvider());
-			
+
 			var stream = NAudioUtilities.WaveProviderToWaveStream
 				(vca, 
 				(int) wave.Length,
 				wave.WaveFormat);
+			wave.Position = 0;
 
 			DA.SetData(0, stream);
 		}
