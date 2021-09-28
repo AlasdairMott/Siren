@@ -46,7 +46,10 @@ namespace GHSynth
 			if (!DA.GetData(0, ref wave)) return;
 
 			var amplitude = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
-			if (!DA.GetData(0, ref amplitude)) return;
+			if (!DA.GetData(1, ref amplitude)) return;
+
+			wave.Position = 0;
+			amplitude.Position = 0;
 
 			var vca = new SampleProviders.VCAProvider(wave.ToSampleProvider(), amplitude.ToSampleProvider());
 
@@ -55,6 +58,7 @@ namespace GHSynth
 				(int) wave.Length,
 				wave.WaveFormat);
 			wave.Position = 0;
+			amplitude.Position = 0;
 
 			DA.SetData(0, stream);
 		}
