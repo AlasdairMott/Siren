@@ -6,11 +6,15 @@ using Rhino.Geometry;
 using NAudio.Wave;
 using NAudio.Dsp;
 using NAudio.Wave.SampleProviders;
+using System.Windows.Forms;
+using GH_IO.Serialization;
 
 namespace GHSynth.Components
 {
 	public class OscillatorComponent : GH_Component
 	{
+		private string wavetype;
+
 		/// <summary>
 		/// Initializes a new instance of the OscillatorComponent class.
 		/// </summary>
@@ -19,6 +23,7 @@ namespace GHSynth.Components
 			  "Description",
 			  "GHSynth", "Subcategory")
 		{
+			wavetype = "Sawtooth";
 		}
 
 		/// <summary>
@@ -51,11 +56,19 @@ namespace GHSynth.Components
 			double duration = 1.0;
 			if (!DA.GetData(1, ref duration)) return;
 
-			var signal = Oscillator(frequency, duration, SignalGeneratorType.Square);
-
+			SignalGeneratorType type;
+			switch (wavetype) 
+			{
+				case "Sin": type = SignalGeneratorType.Sin; break;
+				case "Sawtooth": type = SignalGeneratorType.SawTooth; break;
+				case "Triangle": type = SignalGeneratorType.Triangle; break;
+				case "Square": type = SignalGeneratorType.Square; break;
+				default: throw new ArgumentOutOfRangeException("wavetype not valid");
+			}
+			var oscillator = Oscillator(frequency, duration, type);
 			var wave = NAudioUtilities.WaveProviderToWaveStream(
-				signal.ToWaveProvider16().ToSampleProvider(), 
-				signal.TakeSamples,
+				oscillator.ToWaveProvider16().ToSampleProvider(), 
+				oscillator.TakeSamples,
 				new WaveFormat(sampleRate, 1));
 
 			DA.SetData(0, wave);
@@ -72,6 +85,40 @@ namespace GHSynth.Components
 		public override Guid ComponentGuid
 		{
 			get { return new Guid("3fc1b43e-fc6d-413e-a0fb-e9e4d696a449"); }
+		}
+
+		protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
+		{
+			base.AppendAdditionalComponentMenuItems(menu);
+
+			var m_oscillator = Menu_AppendItem(menu, "Waves", null, true);
+			var waves = new List<string>() { "Sin", "Sawtooth", "Triangle", "Square" };
+			foreach (var w in waves) {
+				var option = new ToolStripMenuItem() { 
+					Text = w, 
+					Checked = (w == wavetype)
+				};
+				m_oscillator.DropDownItems.Add(option);
+			}
+			m_oscillator.DropDownItemClicked += MenuWaveClicked;
+		}
+
+		private void MenuWaveClicked(object sender, ToolStripItemClickedEventArgs e)
+		{
+			wavetype = ((ToolStripMenuItem)e.ClickedItem).Text;
+			ExpireSolution(true);
+		}
+
+		public override bool Write(GH_IWriter writer)
+		{
+			writer.SetString("wavetype", wavetype);
+			return base.Write(writer);
+		}
+
+		public override bool Read(GH_IReader reader)
+		{
+			reader.TryGetString("wavetype", ref wavetype);
+			return base.Read(reader);
 		}
 
 		public OffsetSampleProvider Oscillator(double frequency, double duration, SignalGeneratorType type) 
