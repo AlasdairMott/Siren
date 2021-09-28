@@ -2,18 +2,20 @@
 using Grasshopper.GUI.Canvas;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Attributes;
-using Grasshopper.Kernel.Types;
 using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 using System;
 using System.Drawing;
 using System.Threading;
-using System.Windows.Forms;
 
 namespace GHSynth
 {
     public class SamplerPlayerComponent : GH_Component
 	{
+        private readonly WaveOut waveOut;
+
         public WaveStream Wave { get; private set; }
+        public MixingSampleProvider Mixer { get; private set; }
         public float Volume { get; set; }
 
         /// <summary>
@@ -24,6 +26,11 @@ namespace GHSynth
 			  "Description",
               "GHSynth", "Playback")
 		{
+            waveOut = new WaveOut();
+            Mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(44100, 1));
+            Mixer.ReadFully = true;
+            waveOut.Init(Mixer);
+
             Wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
             Volume = 1.0f;
         }
@@ -58,10 +65,21 @@ namespace GHSynth
 
             if (!DA.GetData(0, ref wave)) return;
             Wave = wave;
+        }
 
-            //GH_ObjectWrapper obj = new GH_ObjectWrapper();
-            //if (!DA.GetData(0, ref obj)) return;
-            //Sample = (RawSourceWaveStream) obj.Value;
+        public override void AddedToDocument(GH_Document document)
+        {
+            base.AddedToDocument(document);
+
+            waveOut.Play();
+        }
+
+        public override void RemovedFromDocument(GH_Document document)
+        {
+            base.RemovedFromDocument(document);
+
+            waveOut.Stop();
+            waveOut.Dispose();
         }
 
         /// <summary>
@@ -180,17 +198,25 @@ namespace GHSynth
                 // Checking if it was clicked, and if it's in the right area
                 if (!Owner.Locked && e.Clicks >= 1 && ((RectangleF)button).Contains(e.CanvasLocation))
                 {
-                    using (var outputDevice = new WaveOutEvent() { Volume = owner.Volume})
-                    {
-                        outputDevice.Init(owner.Wave);
-                        outputDevice.Play();
-                        while (outputDevice.PlaybackState == PlaybackState.Playing)
-                        {
-                            Thread.Sleep(200);
-                        }
+                    owner.Wave.CurrentTime = TimeSpan.FromMilliseconds(0);
+                    owner.Mixer.AddMixerInput(owner.Wave);
 
-                        owner.Wave.CurrentTime = TimeSpan.FromMilliseconds(0);
-                    }
+                    //while (owner.Wave.Position < owner.Wave.Length-100)
+                    //{
+                    //    Thread.Sleep(200);
+                    //}
+
+                    //using (var outputDevice = new WaveOutEvent() { Volume = owner.Volume})
+                    //{
+                    //    outputDevice.Init(owner.Wave);
+                    //    outputDevice.Play();
+                    //    while (outputDevice.PlaybackState == PlaybackState.Playing)
+                    //    {
+                    //        Thread.Sleep(200);
+                    //    }
+
+                    //    owner.Wave.CurrentTime = TimeSpan.FromMilliseconds(0);
+                    //}
                 }
             }
             return base.RespondToMouseDown(sender, e);

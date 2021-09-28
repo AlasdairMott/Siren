@@ -48,6 +48,7 @@ namespace GHSynth.Geometry
 			int resolution = 10;
 			DA.GetData(1, ref resolution);
 
+			wave.Position = 0;
 			var polyline = GeometryFunctions.ISampleToPolyline(wave.ToSampleProvider(), resolution);
 			wave.Position = 0;
 
