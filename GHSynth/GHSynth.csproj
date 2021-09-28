@@ -91,9 +91,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Audio\CVComponent.cs" />
+    <Compile Include="Audio\NoiseComponent.cs" />
     <Compile Include="Audio\OscillatorComponent.cs" />
     <Compile Include="Audio\UnityMixerComponent.cs" />
     <Compile Include="Geometry\GeometryFunctions.cs" />
+    <Compile Include="Geometry\SampleToEnvelopeComponent.cs" />
     <Compile Include="Geometry\SampleToPolylineComponent.cs" />
     <Compile Include="SampleProviders\FilteredAudioProvider.cs" />
     <Compile Include="Audio\GHSynthComponent.cs" />
