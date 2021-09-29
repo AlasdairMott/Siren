@@ -1,13 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-
+﻿using GH_IO.Serialization;
 using Grasshopper.Kernel;
-using Rhino.Geometry;
+using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
+using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace GHSynth.Audio
 {
 	public class NoiseComponent : GH_Component
 	{
+		private string wavetype;
+
 		/// <summary>
 		/// Initializes a new instance of the NoiseComponent class.
 		/// </summary>
@@ -16,6 +20,7 @@ namespace GHSynth.Audio
 			  "Description",
 			  "GHSynth", "Subcategory")
 		{
+			wavetype = "White";
 		}
 
 		/// <summary>
@@ -23,6 +28,7 @@ namespace GHSynth.Audio
 		/// </summary>
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
+			pManager.AddNumberParameter("Duration", "D", "Duration of the noise", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -39,6 +45,24 @@ namespace GHSynth.Audio
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
+			int sampleRate = 44100;
+			double duration = 0.5;
+			if (!DA.GetData(0, ref duration)) return;
+
+			SignalGeneratorType type;
+			switch (wavetype)
+			{
+				case "White": type = SignalGeneratorType.White; break;
+				case "Pink": type = SignalGeneratorType.Pink; break;
+				default: throw new ArgumentOutOfRangeException("wavetype not valid");
+			}
+			var oscillator = SampleProviders.SimpleSignalGenerator.Oscillator(440, duration, type);
+			var wave = NAudioUtilities.WaveProviderToWaveStream(
+				oscillator.ToWaveProvider16().ToSampleProvider(),
+				oscillator.TakeSamples,
+				new WaveFormat(sampleRate, 1));
+
+			DA.SetData(0, wave);
 		}
 
 		/// <summary>
@@ -53,5 +77,41 @@ namespace GHSynth.Audio
 		{
 			get { return new Guid("35236b27-bee8-43ac-bef7-1f76946566da"); }
 		}
+
+	protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
+	{
+		base.AppendAdditionalComponentMenuItems(menu);
+
+		var m_oscillator = Menu_AppendItem(menu, "Waves", null, true);
+		var waves = new List<string>() { "White", "Pink" };
+		foreach (var w in waves)
+		{
+			var option = new ToolStripMenuItem()
+			{
+				Text = w,
+				Checked = (w == wavetype)
+			};
+			m_oscillator.DropDownItems.Add(option);
+		}
+		m_oscillator.DropDownItemClicked += MenuWaveClicked;
 	}
+
+	private void MenuWaveClicked(object sender, ToolStripItemClickedEventArgs e)
+	{
+		wavetype = ((ToolStripMenuItem)e.ClickedItem).Text;
+		ExpireSolution(true);
+	}
+
+	public override bool Write(GH_IWriter writer)
+	{
+		writer.SetString("wavetype", wavetype);
+		return base.Write(writer);
+	}
+
+	public override bool Read(GH_IReader reader)
+	{
+		reader.TryGetString("wavetype", ref wavetype);
+		return base.Read(reader);
+	}
+}
 }

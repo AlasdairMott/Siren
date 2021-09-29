@@ -102,6 +102,7 @@
     <Compile Include="Audio\GHSynthComponent.cs" />
     <Compile Include="GHSynthInfo.cs" />
     <Compile Include="Audio\MultimodeFilterComponent.cs" />
+    <Compile Include="SampleProviders\SimpleSignalGenerator.cs" />
     <Compile Include="Utilities\NAudioUtilities.cs" />
     <Compile Include="Audio\ReadSampleComponent.cs" />
     <Compile Include="Audio\RepitchComponent.cs" />

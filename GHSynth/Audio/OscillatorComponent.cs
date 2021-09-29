@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-
+﻿using GH_IO.Serialization;
 using Grasshopper.Kernel;
-using Rhino.Geometry;
 using NAudio.Wave;
-using NAudio.Dsp;
 using NAudio.Wave.SampleProviders;
+using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
-using GH_IO.Serialization;
 
 namespace GHSynth.Components
 {
@@ -65,7 +62,7 @@ namespace GHSynth.Components
 				case "Square": type = SignalGeneratorType.Square; break;
 				default: throw new ArgumentOutOfRangeException("wavetype not valid");
 			}
-			var oscillator = Oscillator(frequency, duration, type);
+			var oscillator = SampleProviders.SimpleSignalGenerator.Oscillator(frequency, duration, type);
 			var wave = NAudioUtilities.WaveProviderToWaveStream(
 				oscillator.ToWaveProvider16().ToSampleProvider(), 
 				oscillator.TakeSamples,
@@ -119,18 +116,6 @@ namespace GHSynth.Components
 		{
 			reader.TryGetString("wavetype", ref wavetype);
 			return base.Read(reader);
-		}
-
-		public OffsetSampleProvider Oscillator(double frequency, double duration, SignalGeneratorType type) 
-		{
-			var sampleRate = 44100;
-			var signalGenerator = new SignalGenerator(sampleRate, 1);
-			signalGenerator.Type = type;
-			signalGenerator.Frequency = frequency;
-			signalGenerator.Gain = 0.25;
-			var offsetProvider = new OffsetSampleProvider(signalGenerator);
-			offsetProvider.TakeSamples = (int) (sampleRate * duration);
-			return offsetProvider;
 		}
 	}
 }

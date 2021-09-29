@@ -60,7 +60,8 @@ namespace GHSynth.Audio
 			DA.GetData(1, ref plane);
 			DA.GetData(2, ref X); if (X <= 0) throw new Exception("T must be positive");
 			DA.GetData(3, ref Y); if (Y <= 0) throw new Exception("A must be positive");
-			DA.GetData(4, ref sampleRate); if (sampleRate <= 0) throw new Exception("Sample rate must be positive");
+			DA.GetData(4, ref sampleRate); if (sampleRate <= 0 || sampleRate > 44100) 
+				throw new Exception("Sample rate must be positive and less than 44100");
 
 			double tolerance = Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance;
 
@@ -74,6 +75,8 @@ namespace GHSynth.Audio
 			cuttingPlane.ZAxis = - plane.XAxis;
 			cuttingPlane.Origin = start;
 
+			int repeats = (int) 44100/ sampleRate;
+
 			//var shortBuffer = new short[count];
 			var buffer = new List<byte>();
 			//var points = new Point3d[count];
@@ -85,7 +88,10 @@ namespace GHSynth.Audio
 				plane.ClosestParameter(point, out double s, out double t);
 				var sample = Convert.ToInt16(short.MaxValue * (float)(t / Y));
 				var sampleBytes = BitConverter.GetBytes(sample);
-				buffer.AddRange(sampleBytes);
+
+				
+				for (int j = 0; j < repeats; j++)
+					buffer.AddRange(sampleBytes);
 
 				//points[i] = point;
 				//var gimbal = new List<Line>()
@@ -102,7 +108,7 @@ namespace GHSynth.Audio
 			//DA.SetDataList(0, points);
 			//DA.SetDataList(1, buffer);
 			var bufferStream = buffer.ToArray();
-			var wave = new RawSourceWaveStream(bufferStream, 0, bufferStream.Length, new WaveFormat(sampleRate, 1));
+			var wave = new RawSourceWaveStream(bufferStream, 0, bufferStream.Length, new WaveFormat(44100, 1));
 
 			//var resampled = new MediaFoundationResampler(wave, 44100);
 
