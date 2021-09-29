@@ -6,6 +6,16 @@ namespace GHSynth
 {
 	public class GHSynthInfo : GH_AssemblyInfo
 	{
+		static GHSynthFileMenu gHSynthFileMenu;
+
+		public GHSynthInfo()
+		{
+			gHSynthFileMenu = new GHSynthFileMenu();
+			gHSynthFileMenu.AddToMenu();
+
+			GHSynthSettings.SampleRate = 44100;
+		}
+
 		public override string Name
 		{
 			get
