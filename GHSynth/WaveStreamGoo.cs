@@ -83,7 +83,7 @@ namespace GHSynth
 			using (MemoryStream memoryStream = new MemoryStream()) 
 			{
 				(Value as WaveStream).CopyTo(memoryStream);
-				stream = new RawSourceWaveStream(memoryStream, new WaveFormat(44100, 16, 1));
+				stream = new RawSourceWaveStream(memoryStream, new WaveFormat(GHSynthSettings.SampleRate, 16, 1));
 			}
 			return new WaveStreamGoo(stream);
 		}

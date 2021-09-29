@@ -82,7 +82,7 @@ namespace GHSynth
 
 
 			var rawSource = GetBytes((int) (sampleRate * duration)); //1 second of raw audio
-			var stream = new RawSourceWaveStream(rawSource, 0, rawSource.Length, new WaveFormat(44100, 16, 1));
+			var stream = new RawSourceWaveStream(rawSource, 0, rawSource.Length, new WaveFormat(GHSynthSettings.SampleRate, 16, 1));
 
 			//var provider = new 
 

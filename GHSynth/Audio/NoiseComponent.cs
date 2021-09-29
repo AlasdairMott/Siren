@@ -45,7 +45,7 @@ namespace GHSynth.Audio
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			int sampleRate = 44100;
+			int sampleRate = GHSynthSettings.SampleRate;
 			double duration = 0.5;
 			if (!DA.GetData(0, ref duration)) return;
 

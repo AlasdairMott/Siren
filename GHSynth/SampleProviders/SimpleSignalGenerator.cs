@@ -6,7 +6,7 @@ namespace GHSynth.SampleProviders
 	{
 		public static OffsetSampleProvider Oscillator(double frequency, double duration, SignalGeneratorType type)
 		{
-			var sampleRate = 44100;
+			var sampleRate = GHSynthSettings.SampleRate;
 			var signalGenerator = new SignalGenerator(sampleRate, 1);
 			signalGenerator.Type = type;
 			signalGenerator.Frequency = frequency;

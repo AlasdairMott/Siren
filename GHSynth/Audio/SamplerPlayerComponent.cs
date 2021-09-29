@@ -27,7 +27,7 @@ namespace GHSynth
               "GHSynth", "Playback")
 		{
             waveOut = new WaveOut();
-            Mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(44100, 1));
+            Mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(GHSynthSettings.SampleRate, 1));
             Mixer.ReadFully = true;
             waveOut.Init(Mixer);
 

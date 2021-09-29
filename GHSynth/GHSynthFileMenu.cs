@@ -46,7 +46,16 @@ namespace GHSynth
 
         private void SampleRateClicked(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            double newRate = GHSynthSettings.SampleRate;
+            var dialog_result = Rhino.UI.Dialogs.ShowNumberBox(
+                "Sample Rate",
+                "Sample Rate",
+                ref newRate,
+                8000, 
+                44100);
+            if ((int)newRate != GHSynthSettings.SampleRate) 
+                Grasshopper.Instances.ActiveCanvas.Document.ExpireSolution();
+            GHSynthSettings.SampleRate = (int)newRate;
         }
     }
 }

@@ -65,7 +65,7 @@ namespace GHSynth
 			double duration = 0.5;
 			if (!DA.GetData(1, ref duration)) return;
 
-			var sample = new BasicSynthesizer(frequency, (int) (duration * 44100));
+			var sample = new BasicSynthesizer(frequency, (int) (duration * GHSynthSettings.SampleRate));
 			DA.SetData(0, sample);
 		}
 
