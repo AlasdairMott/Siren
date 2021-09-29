@@ -57,7 +57,7 @@ namespace GHSynth.Components
 			if (!DA.GetData(1, ref duration)) return;
 
 			SignalGeneratorType type;
-			switch (wavetype) 
+			switch (wavetype)
 			{
 				case "Sin": type = SignalGeneratorType.Sin; break;
 				case "Sawtooth": type = SignalGeneratorType.SawTooth; break;

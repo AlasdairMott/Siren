@@ -113,6 +113,16 @@ namespace GHSynth.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap noise {
+            get {
+                object obj = ResourceManager.GetObject("noise", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap playback {
             get {
                 object obj = ResourceManager.GetObject("playback", resourceCulture);
@@ -196,6 +206,16 @@ namespace GHSynth.Properties {
         internal static System.Drawing.Bitmap wave {
             get {
                 object obj = ResourceManager.GetObject("wave", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap waveProperties {
+            get {
+                object obj = ResourceManager.GetObject("waveProperties", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

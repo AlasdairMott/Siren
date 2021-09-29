@@ -94,6 +94,7 @@
     <Compile Include="Audio\NoiseComponent.cs" />
     <Compile Include="Audio\OscillatorComponent.cs" />
     <Compile Include="Audio\UnityMixerComponent.cs" />
+    <Compile Include="Audio\WavePropertiesComponent.cs" />
     <Compile Include="Geometry\GeometryFunctions.cs" />
     <Compile Include="Geometry\SampleToEnvelopeComponent.cs" />
     <Compile Include="Geometry\SampleToPolylineComponent.cs" />
@@ -170,10 +171,16 @@
     <None Include="Resources\curve.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\cv.png" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="Resources\sin.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\cv.png" />
+    <None Include="Resources\noise.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\waveProperties.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
