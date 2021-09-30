@@ -13,7 +13,7 @@ namespace GHSynth
 		public MultimodeFilterComponent()
 		  : base("MultimodeFilterComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Filters")
+			  "GHSynth", "Effects")
 		{
 		}
 
