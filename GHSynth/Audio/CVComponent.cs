@@ -12,7 +12,7 @@ namespace GHSynth.Audio
 	public class CVComponent : GH_Component /*, IGH_PreviewData*/
 	{
 		private Curve bounds;
-		private List<Curve> timeIntervals;
+		private List<Line> timeIntervals;
 
 		/// <summary>
 		/// Initializes a new instance of the CVComponent class.
@@ -23,7 +23,7 @@ namespace GHSynth.Audio
 			  "GHSynth", "CV Generators")
 		{
 			bounds = new PolylineCurve();
-			timeIntervals = new List<Curve>();
+			timeIntervals = new List<Line>();
 		}
 
 		/// <summary>
@@ -45,8 +45,6 @@ namespace GHSynth.Audio
 		/// </summary>
 		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
 		{
-			//pManager.AddPointParameter("Points", "P", "Debugging points", GH_ParamAccess.list);
-			//pManager.AddNumberParameter("Floats", "F", "Debugging floats", GH_ParamAccess.list);
 			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
 		}
 
@@ -66,84 +64,68 @@ namespace GHSynth.Audio
 			DA.GetData(1, ref plane);
 			DA.GetData(2, ref X); if (X <= 0) throw new Exception("T must be positive");
 			DA.GetData(3, ref Y); if (Y <= 0) throw new Exception("A must be positive");
-			DA.GetData(4, ref sampleRate); if (sampleRate <= 0 || sampleRate > GHSynthSettings.SampleRate) 
+			DA.GetData(4, ref sampleRate); if (sampleRate <= 0 || sampleRate > GHSynthSettings.SampleRate)
 				throw new Exception("Sample rate must be positive and less than project sample rate");
 
 			double tolerance = Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance;
 
 			var bbox = curve.GetBoundingBox(plane);
 			var width = bbox.GetEdges()[0].Length;
-			var count = (int) ( width / X) * sampleRate;
+			var count = (int)(width / X) * sampleRate;
 
 			var start = bbox.GetEdges()[3].PointAt(0.5);
 			var cuttingPlane = new Plane(plane);
 			cuttingPlane.XAxis = plane.ZAxis;
-			cuttingPlane.ZAxis = - plane.XAxis;
+			cuttingPlane.ZAxis = -plane.XAxis;
 			cuttingPlane.Origin = start;
+
+			#region display
+			var transform = Transform.ChangeBasis(Plane.WorldXY, plane);
+			var boundsRect = new Polyline(new Point3d[4] {
+				bbox.Corner(true, true, true),
+				bbox.Corner(false, true, true),
+				bbox.Corner(false, false, true),
+				bbox.Corner(true, false, true) });
+			boundsRect.Transform(transform);
+			boundsRect[0] = new Point3d(boundsRect[0].X, -Y, boundsRect[0].Z);
+			boundsRect[1] = new Point3d(boundsRect[1].X, -Y, boundsRect[1].Z);
+			boundsRect[2] = new Point3d(boundsRect[2].X,  Y, boundsRect[2].Z);
+			boundsRect[3] = new Point3d(boundsRect[3].X,  Y, boundsRect[3].Z);
+			transform.TryGetInverse(out transform);
+			boundsRect.Transform(transform);
+			bounds = boundsRect.ToPolylineCurve();
+
+			var numberOfSeconds = Math.Ceiling(width / X);
+			var span = new Vector3d(0, 2 * Y, 0);
+			for (int i = 0; i < numberOfSeconds; i++)
+			{
+				var line = new Line(new Point3d(i * X, -Y, 0), span);
+				line.Transform(transform);
+				timeIntervals.Add(line);
+			}
+			#endregion
 
 			int repeats = (int) GHSynthSettings.SampleRate / sampleRate;
 
-			//var shortBuffer = new short[count];
 			var buffer = new List<byte>();
-			//var points = new Point3d[count];
 			for (int i = 0; i < count; i++) 
 			{
 				var intersection = Rhino.Geometry.Intersect.Intersection.CurvePlane(curve, cuttingPlane, tolerance);
 
 				var point = intersection.First().PointA;
 				plane.ClosestParameter(point, out double s, out double t);
-				var sample = Convert.ToInt16(short.MaxValue * (float)(t / Y));
+				var value = (float) Math.Min(Math.Max((t / Y), -1), 1);
+				var sample = Convert.ToInt16(short.MaxValue * value);
 				var sampleBytes = BitConverter.GetBytes(sample);
 
-				
 				for (int j = 0; j < repeats; j++)
 					buffer.AddRange(sampleBytes);
-
-				//points[i] = point;
-				//var gimbal = new List<Line>()
-				//{
-				//	new Line(cuttingPlane.Origin, cuttingPlane.Origin + cuttingPlane.XAxis * 2),
-				//	new Line(cuttingPlane.Origin, cuttingPlane.Origin + cuttingPlane.YAxis * 2),
-				//	new Line(cuttingPlane.Origin, cuttingPlane.Origin + cuttingPlane.ZAxis * 2)
-				//};
-				//foreach (var g in gimbal) Rhino.RhinoDoc.ActiveDoc.Objects.AddLine(g);
 
 				cuttingPlane.Origin += new Point3d(width / count, 0, 0);
 			}
 
-			//DA.SetDataList(0, points);
-			//DA.SetDataList(1, buffer);
 			var bufferStream = buffer.ToArray();
 			var wave = new RawSourceWaveStream(bufferStream, 0, bufferStream.Length, new WaveFormat(GHSynthSettings.SampleRate, 1));
-
-			//var resampled = new MediaFoundationResampler(wave, 44100);
-
-			//wave.Position = 0;
-			//var stream = NAudioUtilities.WaveProviderToWaveStream(
-			//	resampled.ToSampleProvider(),
-			//	(int)wave.Length,
-			//	resampled.WaveFormat);
-			//wave.Position = 0;
-
-			//using (var stream = new MemoryStream()) 
-			//{
-			//	var writer = new StreamWriter(stream);
-			//	writer.Write(buffer);
-			//	writer.Flush();
-			//	stream.Position = 0;
-			//	wave = new RawSourceWaveStream(stream, new WaveFormat(sampleRate, 1));
-			//}
-
-			//wave = new short[duration];
-			//var binaryWave = new byte[sampleRate * sizeof(short)];
-			//for (int i = 0; i < duration; i++)
-			//{
-			//	wave[i] = Convert.ToInt16(short.MaxValue * Math.Sin(((Math.PI * 2 * frequency) / SAMPLE_RATE) * i));
-			//}
-			//Buffer.BlockCopy(shortBuffer, 0, binaryWave, 0, shortBuffer.Length * sizeof(short));
-			//wave = new RawSourceWaveStream(binaryWave, 0, binaryWave.Length, new WaveFormat(sampleRate, 1));
-
-
 
 			DA.SetData(0, wave);
 
@@ -166,9 +148,9 @@ namespace GHSynth.Audio
 		{
 			base.DrawViewportWires(args);
 			args.Display.DrawCurve(bounds, Color.Red);
-			foreach (Curve c in timeIntervals)
+			foreach (Line l in timeIntervals)
 			{
-				args.Display.DrawCurve(c, Color.Red);
+				args.Display.DrawLine(l, Color.Red);
 			}
 		}
 	}

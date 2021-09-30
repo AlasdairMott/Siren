@@ -24,7 +24,7 @@ namespace GHSynth
         public SamplerPlayerComponent()
 		  : base("SamplerPlayerComponent", "Nickname",
 			  "Description",
-              "GHSynth", "Playback")
+              "GHSynth", "Utilities")
 		{
             waveOut = new WaveOut();
             Mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(GHSynthSettings.SampleRate, 1));

@@ -15,7 +15,7 @@ namespace GHSynth.Geometry
 		public SampleToPolylineComponent()
 		  : base("SampleToCurveComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Geometry")
+			  "GHSynth", "Utilities")
 		{
 		}
 

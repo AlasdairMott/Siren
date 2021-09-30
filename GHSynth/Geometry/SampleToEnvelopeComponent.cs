@@ -15,7 +15,7 @@ namespace GHSynth.Geometry
 		public SampleToEnvelopeComponent()
 		  : base("SampleToEnvelopeComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Subcategory")
+			  "GHSynth", "Utilities")
 		{
 		}
 

@@ -101,8 +101,8 @@ namespace GHSynth
                 "WaveStreamParameter",
                 "WaveStreamParameter", 
 				"Audio wave", 
-				"GHSynth", 
-				"Data")) { }
+				"GHSynth",
+                "Utilities")) { }
 
 		protected override System.Drawing.Bitmap Icon => Properties.Resources.wave;
 
