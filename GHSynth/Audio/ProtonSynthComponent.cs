@@ -23,7 +23,7 @@ namespace GHSynth
 		public ProtonSynthComponent()
 		  : base("ProtonSynthComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Subcategory")
+			  "GHSynth", "Oscillators")
 		{
 		}
 
@@ -50,7 +50,7 @@ namespace GHSynth
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			int sampleRate = 44100;
+			int sampleRate = GHSynthSettings.SampleRate;
 			double frequency = 440;
 			if (!DA.GetData(0, ref frequency)) return;
 

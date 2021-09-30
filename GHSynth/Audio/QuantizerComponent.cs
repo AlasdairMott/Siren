@@ -14,7 +14,7 @@ namespace GHSynth
 		public QuantizerComponent()
 		  : base("Quantizer", "Q",
 			  "Quantize pitch",
-			  "GHSynth", "Subcategory")
+			  "GHSynth", "Effects")
 		{
 		}
 

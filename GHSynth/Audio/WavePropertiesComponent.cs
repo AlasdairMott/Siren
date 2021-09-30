@@ -15,7 +15,7 @@ namespace GHSynth.Audio
 		public WavePropertiesComponent()
 		  : base("WavePropertiesComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Subcategory")
+			  "GHSynth", "Analysis")
 		{
 		}
 

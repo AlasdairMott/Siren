@@ -37,7 +37,11 @@ namespace GHSynth
                 var ghSynthMenu = new ToolStripMenuItem("GHSynth");
                 menu.Items.Add(ghSynthMenu);
 
-                var button_setSampleRate = new ToolStripMenuItem() { Text = "Sample Rate", Checked = false };
+                var button_setSampleRate = new ToolStripMenuItem() {
+                    Text = "Sample Rate",
+                    Checked = false,
+                    Image = Properties.Resources.Hz
+                };
                 button_setSampleRate.Click += SampleRateClicked;
                 ghSynthMenu.DropDownItems.Add(button_setSampleRate);
 

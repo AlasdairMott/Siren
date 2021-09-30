@@ -15,7 +15,7 @@ namespace GHSynth
 		public VCAComponent()
 		  : base("VCAComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Subcategory")
+			  "GHSynth", "VCA")
 		{
 		}
 

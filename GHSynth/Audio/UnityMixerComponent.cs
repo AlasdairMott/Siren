@@ -16,7 +16,7 @@ namespace GHSynth.Components
 		public UnityMixerComponent()
 		  : base("MixerComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Subcategory")
+			  "GHSynth", "VCA")
 		{
 		}
 

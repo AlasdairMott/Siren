@@ -14,7 +14,7 @@ namespace GHSynth
 		public ReadSampleComponent()
 		  : base("ReadSampleComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Subcategory")
+			  "GHSynth", "Oscillators")
 		{
 		}
 

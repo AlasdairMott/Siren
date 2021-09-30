@@ -15,7 +15,7 @@ namespace GHSynth
 		public RepitchComponent()
 		  : base("RepitchComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Subcategory")
+			  "GHSynth", "Effects")
 		{
 		}
 

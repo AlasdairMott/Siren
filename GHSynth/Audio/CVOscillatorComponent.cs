@@ -8,15 +8,15 @@ using System.Windows.Forms;
 
 namespace GHSynth.Components
 {
-	public class OscillatorComponent : GH_Component
+	public class CVOscillatorComponent : GH_Component
 	{
 		private string wavetype;
 
 		/// <summary>
-		/// Initializes a new instance of the OscillatorComponent class.
+		/// Initializes a new instance of the CVOscillatorComponent class.
 		/// </summary>
-		public OscillatorComponent()
-		  : base("OscillatorComponent", "Nickname",
+		public CVOscillatorComponent()
+		  : base("CVOscillatorComponent", "Nickname",
 			  "Description",
 			  "GHSynth", "Oscillators")
 		{
@@ -28,8 +28,12 @@ namespace GHSynth.Components
 		/// </summary>
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
-			pManager.AddNumberParameter("Frequency", "F", "Frequency of the note", GH_ParamAccess.item);
-			pManager.AddNumberParameter("Duration", "D", "Duration of the note", GH_ParamAccess.item);
+			pManager.AddParameter(new WaveStreamParameter(), "Frequency", "F", "Frequency of the note", GH_ParamAccess.item);
+			pManager.AddIntegerParameter("Octave", "O", "Octave of the note", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Tuning", "T", "Note tuning", GH_ParamAccess.item);
+
+			pManager[1].Optional = true;
+			pManager[2].Optional = true;
 		}
 
 		/// <summary>
@@ -46,12 +50,10 @@ namespace GHSynth.Components
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			int sampleRate = GHSynthSettings.SampleRate;
-			double frequency = 440;
-			if (!DA.GetData(0, ref frequency)) return;
+			var cv = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
+			if (!DA.GetData(0, ref cv)) return;
 
-			double duration = 1.0;
-			if (!DA.GetData(1, ref duration)) return;
+			cv.Position = 0;
 
 			SignalGeneratorType type;
 			switch (wavetype)
@@ -62,13 +64,23 @@ namespace GHSynth.Components
 				case "Square": type = SignalGeneratorType.Square; break;
 				default: throw new ArgumentOutOfRangeException("wavetype not valid");
 			}
-			var oscillator = SampleProviders.SimpleSignalGenerator.Oscillator(frequency, duration, type);
-			var wave = NAudioUtilities.WaveProviderToWaveStream(
-				oscillator.ToWaveProvider16().ToSampleProvider(), 
-				oscillator.TakeSamples,
-				new WaveFormat(sampleRate, 1));
 
-			DA.SetData(0, wave);
+			var signalGenerator = new SignalGenerator(GHSynthSettings.SampleRate, 1)
+			{
+				Type = type,
+				Frequency = 440,
+				Gain = 0.25
+			};
+
+			var oscillator = new SampleProviders.OscillatorProvider(cv.ToSampleProvider(), signalGenerator);
+
+			var stream = NAudioUtilities.WaveProviderToWaveStream
+				(oscillator,
+				(int)cv.Length,
+				cv.WaveFormat);
+			cv.Position = 0;
+
+			DA.SetData(0, stream);
 		}
 
 		/// <summary>
@@ -81,7 +93,7 @@ namespace GHSynth.Components
 		/// </summary>
 		public override Guid ComponentGuid
 		{
-			get { return new Guid("3fc1b43e-fc6d-413e-a0fb-e9e4d696a449"); }
+			get { return new Guid("31bfd5f1-556d-46a5-ab52-949aadf2372a"); }
 		}
 
 		protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)

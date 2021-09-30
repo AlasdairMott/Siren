@@ -18,7 +18,7 @@ namespace GHSynth.Audio
 		public NoiseComponent()
 		  : base("NoiseComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Subcategory")
+			  "GHSynth", "Oscillators")
 		{
 			wavetype = "White";
 		}

@@ -5,19 +5,25 @@ using Grasshopper.Kernel;
 using Rhino.Geometry;
 using NAudio.Wave;
 using System.IO;
+using System.Drawing;
 
 namespace GHSynth.Audio
 {
-	public class CVComponent : GH_Component
+	public class CVComponent : GH_Component /*, IGH_PreviewData*/
 	{
+		private Curve bounds;
+		private List<Curve> timeIntervals;
+
 		/// <summary>
 		/// Initializes a new instance of the CVComponent class.
 		/// </summary>
 		public CVComponent()
 		  : base("CVComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Subcategory")
+			  "GHSynth", "CV Generators")
 		{
+			bounds = new PolylineCurve();
+			timeIntervals = new List<Curve>();
 		}
 
 		/// <summary>
@@ -154,6 +160,16 @@ namespace GHSynth.Audio
 		public override Guid ComponentGuid
 		{
 			get { return new Guid("3fe2ff09-1683-4131-87d7-d2760c50d4ff"); }
+		}
+
+		public override void DrawViewportWires(IGH_PreviewArgs args)
+		{
+			base.DrawViewportWires(args);
+			args.Display.DrawCurve(bounds, Color.Red);
+			foreach (Curve c in timeIntervals)
+			{
+				args.Display.DrawCurve(c, Color.Red);
+			}
 		}
 	}
 }

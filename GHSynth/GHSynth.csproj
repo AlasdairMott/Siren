@@ -98,6 +98,7 @@
   <ItemGroup>
     <Compile Include="Audio\CVComponent.cs" />
     <Compile Include="Audio\NoiseComponent.cs" />
+    <Compile Include="Audio\CVOscillatorComponent.cs" />
     <Compile Include="Audio\OscillatorComponent.cs" />
     <Compile Include="Audio\UnityMixerComponent.cs" />
     <Compile Include="Audio\WavePropertiesComponent.cs" />
@@ -110,6 +111,7 @@
     <Compile Include="Audio\GHSynthComponent.cs" />
     <Compile Include="GHSynthInfo.cs" />
     <Compile Include="Audio\MultimodeFilterComponent.cs" />
+    <Compile Include="SampleProviders\OscillatorProvider.cs" />
     <Compile Include="SampleProviders\SimpleSignalGenerator.cs" />
     <Compile Include="Utilities\NAudioUtilities.cs" />
     <Compile Include="Audio\ReadSampleComponent.cs" />
@@ -190,6 +192,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\waveProperties.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Hz.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
