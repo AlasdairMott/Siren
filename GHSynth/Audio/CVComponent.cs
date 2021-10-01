@@ -13,6 +13,7 @@ namespace GHSynth.Audio
 	{
 		private Curve bounds;
 		private List<Line> timeIntervals;
+		private BoundingBox boundingBox;
 
 		/// <summary>
 		/// Initializes a new instance of the CVComponent class.
@@ -24,6 +25,7 @@ namespace GHSynth.Audio
 		{
 			bounds = new PolylineCurve();
 			timeIntervals = new List<Line>();
+			boundingBox = BoundingBox.Empty;
 		}
 
 		/// <summary>
@@ -54,6 +56,8 @@ namespace GHSynth.Audio
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
+			timeIntervals.Clear();
+
 			var curve = new PolylineCurve() as Curve;
 			var plane = Plane.WorldXY;
 			double X = 0;
@@ -68,8 +72,10 @@ namespace GHSynth.Audio
 				throw new Exception("Sample rate must be positive and less than project sample rate");
 
 			double tolerance = Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance;
+			var transform = Transform.ChangeBasis(Plane.WorldXY, plane);			
 
-			var bbox = curve.GetBoundingBox(plane);
+			curve.Transform(transform);
+			var bbox = curve.GetBoundingBox(true);
 			var width = bbox.GetEdges()[0].Length;
 			var count = (int)(width / X) * sampleRate;
 
@@ -80,41 +86,45 @@ namespace GHSynth.Audio
 			cuttingPlane.Origin = start;
 
 			#region display
-			var transform = Transform.ChangeBasis(Plane.WorldXY, plane);
 			var boundsRect = new Polyline(new Point3d[4] {
 				bbox.Corner(true, true, true),
 				bbox.Corner(false, true, true),
 				bbox.Corner(false, false, true),
 				bbox.Corner(true, false, true) });
-			boundsRect.Transform(transform);
+
 			boundsRect[0] = new Point3d(boundsRect[0].X, -Y, boundsRect[0].Z);
 			boundsRect[1] = new Point3d(boundsRect[1].X, -Y, boundsRect[1].Z);
 			boundsRect[2] = new Point3d(boundsRect[2].X,  Y, boundsRect[2].Z);
 			boundsRect[3] = new Point3d(boundsRect[3].X,  Y, boundsRect[3].Z);
+
 			transform.TryGetInverse(out transform);
 			boundsRect.Transform(transform);
 			bounds = boundsRect.ToPolylineCurve();
 
 			var numberOfSeconds = Math.Ceiling(width / X);
 			var span = new Vector3d(0, 2 * Y, 0);
+
 			for (int i = 0; i < numberOfSeconds; i++)
 			{
-				var line = new Line(new Point3d(i * X, -Y, 0), span);
+				var line = new Line(new Point3d(start.X + i * X, -Y, 0), span);
 				line.Transform(transform);
 				timeIntervals.Add(line);
 			}
+
+			boundingBox = bounds.GetBoundingBox(true);
 			#endregion
 
-			int repeats = (int) GHSynthSettings.SampleRate / sampleRate;
+			int repeats = (int)GHSynthSettings.SampleRate / sampleRate;
 
 			var buffer = new List<byte>();
-			for (int i = 0; i < count; i++) 
+			for (int i = 0; i < count; i++)
 			{
 				var intersection = Rhino.Geometry.Intersect.Intersection.CurvePlane(curve, cuttingPlane, tolerance);
 
 				var point = intersection.First().PointA;
-				plane.ClosestParameter(point, out double s, out double t);
-				var value = (float) Math.Min(Math.Max((t / Y), -1), 1);
+				var value = (float) Math.Max(Math.Min((point.Y / Y), 1), -1);
+				Rhino.RhinoApp.WriteLine(value.ToString());
+
 				var sample = Convert.ToInt16(short.MaxValue * value);
 				var sampleBytes = BitConverter.GetBytes(sample);
 
@@ -128,7 +138,6 @@ namespace GHSynth.Audio
 			var wave = new RawSourceWaveStream(bufferStream, 0, bufferStream.Length, new WaveFormat(GHSynthSettings.SampleRate, 1));
 
 			DA.SetData(0, wave);
-
 		}
 
 		/// <summary>
@@ -144,9 +153,12 @@ namespace GHSynth.Audio
 			get { return new Guid("3fe2ff09-1683-4131-87d7-d2760c50d4ff"); }
 		}
 
+		public override BoundingBox ClippingBox => boundingBox;
+
 		public override void DrawViewportWires(IGH_PreviewArgs args)
 		{
 			base.DrawViewportWires(args);
+			if (this.Hidden) return;
 			args.Display.DrawCurve(bounds, Color.Red);
 			foreach (Line l in timeIntervals)
 			{
