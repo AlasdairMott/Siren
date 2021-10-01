@@ -8,16 +8,17 @@ namespace GHSynth.SampleProviders
 	{
 		private ISampleProvider source;
 		private SignalGenerator signalGenerator;
-		//private OffsetSampleProvider offsetProvider;
+		private double octave;
+		private double semi;
 
 		public WaveFormat WaveFormat => source.WaveFormat;
 
-		public OscillatorProvider(ISampleProvider source, SignalGenerator signalGenerator)
+		public OscillatorProvider(ISampleProvider source, SignalGenerator signalGenerator, double octave, double semi)
 		{
 			this.source = source;
 			this.signalGenerator = signalGenerator;
-			//offsetProvider = new OffsetSampleProvider(signalGenerator);
-			//offsetProvider.TakeSamples = 1;
+			this.octave = octave;
+			this.semi = semi;
 		}
 
 		public int Read(float[] buffer, int offset, int count)
@@ -26,7 +27,8 @@ namespace GHSynth.SampleProviders
 			for (int n = 0; n < sampleRead; n++)
 			{
 				//signalGenerator.Frequency = 440;
-				signalGenerator.Frequency = (float) Math.Pow(2, (buffer[offset + n]*8) - 1) * 55;
+				var cv = (buffer[offset + n]) * 8 - 1 + semi*(1.0/12.0);
+				signalGenerator.Frequency = (float) Math.Pow(2, cv + octave - 1) * 55;
 				var sample = new float[1];
 				signalGenerator.Read(sample, 0, 1);
 				buffer[offset + n] = sample[0];

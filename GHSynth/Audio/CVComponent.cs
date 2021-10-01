@@ -123,7 +123,6 @@ namespace GHSynth.Audio
 
 				var point = intersection.First().PointA;
 				var value = (float) Math.Max(Math.Min((point.Y / Y), 1), -1);
-				Rhino.RhinoApp.WriteLine(value.ToString());
 
 				var sample = Convert.ToInt16(short.MaxValue * value);
 				var sampleBytes = BitConverter.GetBytes(sample);

@@ -53,6 +53,11 @@ namespace GHSynth.Components
 			var cv = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
 			if (!DA.GetData(0, ref cv)) return;
 
+			int octave = 0;
+			double semi = 0;
+			DA.GetData(1, ref octave);
+			DA.GetData(2, ref semi);
+
 			cv.Position = 0;
 
 			SignalGeneratorType type;
@@ -72,7 +77,7 @@ namespace GHSynth.Components
 				Gain = 0.25
 			};
 
-			var oscillator = new SampleProviders.OscillatorProvider(cv.ToSampleProvider(), signalGenerator);
+			var oscillator = new SampleProviders.OscillatorProvider(cv.ToSampleProvider(), signalGenerator, octave, semi);
 
 			var stream = NAudioUtilities.WaveProviderToWaveStream
 				(oscillator,
