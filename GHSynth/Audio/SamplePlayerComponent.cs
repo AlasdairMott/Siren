@@ -72,11 +72,6 @@ namespace GHSynth.Audio
 			);
 			foreach (var offset in offsets) { mixer.AddMixerInput(offset); }
 
-			//sample provider that takes a wave, list of offsets
-			//when sample reaches end, or is retriggered, bring back to start
-
-			//new List<OffsetSampleProvider>()
-
 			var stream = NAudioUtilities.WaveProviderToWaveStream(
 				mixer,
 				(int) (triggerTimes.Max() * GHSynthSettings.SampleRate + wave.Length),

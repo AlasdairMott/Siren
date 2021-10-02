@@ -177,9 +177,6 @@
     <None Include="Resources\cv.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\sin.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\noise.png" />
   </ItemGroup>
   <ItemGroup>
@@ -187,6 +184,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Hz.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sampleTrigger.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sampleHold.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sin.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
