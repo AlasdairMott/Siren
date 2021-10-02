@@ -24,7 +24,7 @@ namespace GHSynth.SampleProviders
 			int sampleRead = source.Read(buffer, offset, count);
 			for (int n = 0; n < sampleRead; n++)
 			{
-				var cv = (buffer[offset + n]) * 8 - 1; //1V/O
+				var cv = (buffer[offset + n]) * 10 - 1; //1V/O
 
 				var integer = Math.Truncate(cv);
 				var real = cv - integer;
@@ -33,7 +33,7 @@ namespace GHSynth.SampleProviders
 				cv = (float) (integer + real);
 
 				//Transform to cv and back
-				var sample = (cv + 1) / 8;
+				var sample = (cv + 1) / 10;
 				buffer[offset + n] = sample;
 			}
 			return sampleRead;

@@ -6,11 +6,10 @@ using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
 using System.Drawing;
-using System.Threading;
 
 namespace GHSynth
 {
-    public class SamplerPlayerComponent : GH_Component
+    public class AudioOutComponent : GH_Component
 	{
         private readonly WaveOut waveOut;
 
@@ -19,10 +18,10 @@ namespace GHSynth
         public float Volume { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the SamplerPlayerComponent class.
+        /// Initializes a new instance of the AudioOutComponent class.
         /// </summary>
-        public SamplerPlayerComponent()
-		  : base("SamplerPlayerComponent", "Nickname",
+        public AudioOutComponent()
+		  : base("AudioOutComponent", "Nickname",
 			  "Description",
               "GHSynth", "Utilities")
 		{
@@ -107,9 +106,9 @@ namespace GHSynth
         private Bitmap icon;
         private int buttonOffset;
         private Rectangle button;
-        private SamplerPlayerComponent owner;
+        private AudioOutComponent owner;
         
-        public CustomGHButton(SamplerPlayerComponent owner) : base(owner)
+        public CustomGHButton(AudioOutComponent owner) : base(owner)
         {
             icon = Properties.Resources.playback_Off;
             this.owner = owner;

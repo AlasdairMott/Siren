@@ -26,7 +26,7 @@ namespace GHSynth.SampleProviders
 			int sampleRead = source.Read(buffer, offset, count);
 			for (int n = 0; n < sampleRead; n++)
 			{
-				var cv = (buffer[offset + n]) * 8 - 1 + semi*(1.0/12.0);
+				var cv = (buffer[offset + n]) * 10 - 1 + semi*(1.0/12.0);
 				signalGenerator.Frequency = (float) Math.Pow(2, cv + octave - 1) * 55;
 				var sample = new float[1];
 				signalGenerator.Read(sample, 0, 1);

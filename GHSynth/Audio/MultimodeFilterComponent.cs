@@ -23,8 +23,15 @@ namespace GHSynth
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
 			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
-			pManager.AddNumberParameter("Cutoff Freqeuncy", "F", "Cutoff Freqeuncy", GH_ParamAccess.item);
+			pManager.AddParameter(new WaveStreamParameter(), "Frequency CV", "f", "Frequency CV", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Cutoff Frequency", "F", "Cutoff Frequency", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Frequency CV amount", "cv", "Frequency CV amount", GH_ParamAccess.item);
 			pManager.AddNumberParameter("Resonance", "Q", "Resonance", GH_ParamAccess.item);
+
+			pManager[1].Optional = true;
+			pManager[2].Optional = true;
+			pManager[3].Optional = true;
+			pManager[4].Optional = true;
 		}
 
 		/// <summary>
@@ -44,24 +51,39 @@ namespace GHSynth
 			int sampleRate = GHSynthSettings.SampleRate;
 
 			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
-			if (!DA.GetData(0, ref wave)) return;
+			if (!DA.GetData("Wave", ref wave)) return;
 
-			var cutoff = 1.0;
-			if (!DA.GetData(1, ref cutoff)) return;
+			var frequencyCV = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
+			DA.GetData("Frequency CV", ref frequencyCV);
+
+			var cutoff = 10.0;
+			DA.GetData("Cutoff Frequency", ref cutoff);
+			cutoff = NAudioUtilities.Clamp((float) cutoff, -10f, 10f);
+
+			var cvAmount = 0.0;
+			DA.GetData("Frequency CV amount", ref cvAmount);
 
 			var q = 1.0;
-			if (!DA.GetData(2, ref q)) return;
+			DA.GetData("Resonance", ref q);
 
 			var filter = BiQuadFilter.LowPassFilter(sampleRate, (float) cutoff, (float) q);
 
-			var filtered = new SampleProviders.FilteredAudioProvider(wave.ToSampleProvider(), filter);
+			var filtered = new SampleProviders.FilteredAudioProvider(
+				wave.ToSampleProvider(), 
+				frequencyCV.ToSampleProvider(), 
+				filter,
+				(float) cutoff,
+				(float) cvAmount,
+				(float) q);
 
 			wave.Position = 0;
+			frequencyCV.Position = 0;
 			var stream = NAudioUtilities.WaveProviderToWaveStream(
 				filtered, 
 				(int)wave.Length,
 				wave.WaveFormat);
 			wave.Position = 0;
+			frequencyCV.Position = 0;
 
 			DA.SetData(0, stream);
 		}

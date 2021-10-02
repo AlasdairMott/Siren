@@ -4,17 +4,17 @@ using System.Collections.Generic;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace GHSynth
+namespace GHSynth.Audio
 {
-	public class QuantizerComponent : GH_Component
+	public class SampleHoldComponent : GH_Component
 	{
 		/// <summary>
-		/// Initializes a new instance of the Quantizer class.
+		/// Initializes a new instance of the SampleAndHoldComponent class.
 		/// </summary>
-		public QuantizerComponent()
-		  : base("Quantizer", "Q",
-			  "Quantize pitch",
-			  "GHSynth", "Effects")
+		public SampleHoldComponent()
+		  : base("SampleAndHoldComponent", "Nickname",
+			  "Description",
+			  "GHSynth", "CV Control")
 		{
 		}
 
@@ -23,8 +23,6 @@ namespace GHSynth
 		/// </summary>
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
-			pManager.AddNumberParameter("Pitch", "P", "Pitch in V/O", GH_ParamAccess.item);
-			pManager.AddIntegerParameter("Notes in scale", "N", "Number of notes in the scale", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -32,7 +30,6 @@ namespace GHSynth
 		/// </summary>
 		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
 		{
-			pManager.AddNumberParameter("Pitch", "Q", "Quantized Pitch in V/O", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -41,27 +38,27 @@ namespace GHSynth
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			double pitch = 1;
-			if (!DA.GetData(0, ref pitch)) return;
-
-			int notes = 12;
-			DA.GetData(1, ref notes);
-
-			//round pitch to nearest (1/notes)
-			DA.SetData(0, Math.Round(pitch * notes, 0) / notes);
 		}
 
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon => Properties.Resources.quantize;
+		protected override System.Drawing.Bitmap Icon
+		{
+			get
+			{
+				//You can add image files to your project resources and access them like this:
+				// return Resources.IconForThisComponent;
+				return null;
+			}
+		}
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.
 		/// </summary>
 		public override Guid ComponentGuid
 		{
-			get { return new Guid("1f321dfe-b48e-4c6b-bec9-00ddfff05868"); }
+			get { return new Guid("50e0dfb9-49f1-4107-bd95-5b3e29282520"); }
 		}
 	}
 }

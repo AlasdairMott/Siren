@@ -1,4 +1,5 @@
 ﻿using NAudio.Wave;
+using System;
 
 namespace GHSynth
 {
@@ -13,6 +14,16 @@ namespace GHSynth
 
 			var stream = new RawSourceWaveStream(buffer, 0, length, waveFormat);
 			return stream;
+		}
+
+		public static float Remap(float value, float sourceA, float sourceB, float targetA, float targetB) 
+		{
+			return targetA + (value - sourceA) * (targetB - targetA) / (sourceB - sourceA);
+		}
+
+		public static float Clamp(float value, float floor, float ceiling) 
+		{
+			return Math.Max(Math.Min(value, ceiling), floor);
 		}
 	}
 }

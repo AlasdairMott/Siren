@@ -56,7 +56,7 @@ namespace GHSynth.Audio
 				case "Pink": type = SignalGeneratorType.Pink; break;
 				default: throw new ArgumentOutOfRangeException("wavetype not valid");
 			}
-			var oscillator = SampleProviders.SimpleSignalGenerator.Oscillator(440, duration, type);
+			var oscillator = SampleProviders.NoiseGenerator.Oscillator(440, duration * 2, type);
 			var wave = NAudioUtilities.WaveProviderToWaveStream(
 				oscillator.ToWaveProvider16().ToSampleProvider(),
 				oscillator.TakeSamples,

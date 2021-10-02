@@ -2,7 +2,7 @@
 
 namespace GHSynth.SampleProviders
 {
-	class SimpleSignalGenerator
+	class NoiseGenerator
 	{
 		public static OffsetSampleProvider Oscillator(double frequency, double duration, SignalGeneratorType type)
 		{
