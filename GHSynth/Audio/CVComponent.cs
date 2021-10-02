@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Grasshopper.Kernel;
-using Rhino.Geometry;
+﻿using Grasshopper.Kernel;
 using NAudio.Wave;
-using System.IO;
+using Rhino.Geometry;
+using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 
 namespace GHSynth.Audio
 {
@@ -21,7 +20,7 @@ namespace GHSynth.Audio
 		public CVComponent()
 		  : base("CVComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "CV Generators")
+			  "GHSynth", "CV Control")
 		{
 			bounds = new PolylineCurve();
 			timeIntervals = new List<Line>();

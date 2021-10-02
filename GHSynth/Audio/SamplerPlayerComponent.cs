@@ -152,7 +152,7 @@ namespace GHSynth
 
                 // Updating the capsule rectangles
                 buttonOffset = 0;//(Convert.ToInt32(Bounds.Height) - 24) / 2;
-                var textBox = new RectangleF(Bounds.X + buttonOffset / 2, Bounds.Y, Bounds.Width - Bounds.Height, Bounds.Height);
+                var textBox = new RectangleF(Bounds.X - 12/*+ buttonOffset / 2*/, Bounds.Y, Bounds.Width - Bounds.Height, Bounds.Height);
                 button = new Rectangle(Convert.ToInt32(Bounds.X) + Convert.ToInt32(Bounds.Width) - Convert.ToInt32(Bounds.Height) + buttonOffset,
                                        Convert.ToInt32(Bounds.Y) + buttonOffset,
                                        Convert.ToInt32(Bounds.Height) - (buttonOffset * 2),

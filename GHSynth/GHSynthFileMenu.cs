@@ -34,6 +34,11 @@ namespace GHSynth
                 if (menu == null)
                     continue;
 
+                for (int i = 0; i < menu.Items.Count; i++)
+                {
+                    var menuitem = menu.Items[i] as ToolStripMenuItem;
+                    if (menuitem != null && menuitem.Text == "GHSynth") return;
+                }
                 var ghSynthMenu = new ToolStripMenuItem("GHSynth");
                 menu.Items.Add(ghSynthMenu);
 
