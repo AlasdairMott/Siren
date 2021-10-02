@@ -54,7 +54,7 @@ namespace GHSynth.Audio
 			double X = 1;
 			DA.GetData(2, ref X); if (X <= 0) throw new Exception("T must be positive");
 
-			var triggerTimes = points.Select(p => p.X * X).ToList();
+			var triggerTimes = points.Select(p => p.X / X).ToList();
 
 			var mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(GHSynthSettings.SampleRate, 1));
 			var offsets = triggerTimes.Select(t => {
@@ -89,15 +89,7 @@ namespace GHSynth.Audio
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon
-		{
-			get
-			{
-				//You can add image files to your project resources and access them like this:
-				// return Resources.IconForThisComponent;
-				return null;
-			}
-		}
+		protected override System.Drawing.Bitmap Icon => Properties.Resources.sampleTrigger;
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.
