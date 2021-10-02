@@ -198,24 +198,11 @@ namespace GHSynth
                 if (!Owner.Locked && e.Clicks >= 1 && ((RectangleF)button).Contains(e.CanvasLocation))
                 {
                     owner.Wave.CurrentTime = TimeSpan.FromMilliseconds(0);
+
+
                     owner.Mixer.AddMixerInput(owner.Wave);
+                    //owner.Mixer.AddMixerInput(new SampleProviders.LoopStream(owner.Wave));
 
-                    //while (owner.Wave.Position < owner.Wave.Length-100)
-                    //{
-                    //    Thread.Sleep(200);
-                    //}
-
-                    //using (var outputDevice = new WaveOutEvent() { Volume = owner.Volume})
-                    //{
-                    //    outputDevice.Init(owner.Wave);
-                    //    outputDevice.Play();
-                    //    while (outputDevice.PlaybackState == PlaybackState.Playing)
-                    //    {
-                    //        Thread.Sleep(200);
-                    //    }
-
-                    //    owner.Wave.CurrentTime = TimeSpan.FromMilliseconds(0);
-                    //}
                 }
             }
             return base.RespondToMouseDown(sender, e);

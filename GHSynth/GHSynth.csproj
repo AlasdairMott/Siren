@@ -110,6 +110,7 @@
     <Compile Include="SampleProviders\FilteredAudioProvider.cs" />
     <Compile Include="GHSynthInfo.cs" />
     <Compile Include="Audio\MultimodeFilterComponent.cs" />
+    <Compile Include="SampleProviders\LoopingProvider.cs" />
     <Compile Include="SampleProviders\OscillatorProvider.cs" />
     <Compile Include="SampleProviders\NoiseGenerator.cs" />
     <Compile Include="SampleProviders\TriggeredSampleProvider.cs" />
