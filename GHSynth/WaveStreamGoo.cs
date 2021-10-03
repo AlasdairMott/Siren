@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using NAudio.Wave;
@@ -107,5 +108,38 @@ namespace GHSynth
 		protected override System.Drawing.Bitmap Icon => Properties.Resources.wave;
 
 		public override Guid ComponentGuid => new Guid("08a1577a-7dff-4163-a2c9-2dbd928626c4");
-	}
+
+        public override void AppendAdditionalMenuItems(ToolStripDropDown menu)
+        {
+            base.AppendAdditionalMenuItems(menu);
+            var m_save = new ToolStripMenuItem("Save file")
+            {
+                Enabled = this.m_data.Count() > 0
+            };
+            menu.Items.Add(m_save);
+            m_save.Click += button_OnSave;
+        }
+
+        private void button_OnSave(object sender, EventArgs e)
+        {
+            var fd = new Rhino.UI.SaveFileDialog()
+            {
+                Title = "Save file",
+                DefaultExt = "wav",
+                Filter = "wav files (*.wav)|*.wav|All files (*.*)|*.*",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                FileName = "Audio"
+        };
+
+            var result = fd.ShowSaveDialog();
+            if (result)
+            {
+                var goo = this.m_data.get_FirstItem(true);
+                if (goo == null) return;
+                var waveStream = goo.Value;
+                waveStream.Position = 0;
+                WaveFileWriter.CreateWaveFile(fd.FileName, waveStream);
+            }
+        }
+    }
 }
