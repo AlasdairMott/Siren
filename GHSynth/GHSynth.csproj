@@ -104,9 +104,9 @@
     <Compile Include="Audio\WavePropertiesComponent.cs" />
     <Compile Include="GHSynthSettings.cs" />
     <Compile Include="Geometry\GeometryFunctions.cs" />
-    <Compile Include="Geometry\SampleToEnvelopeComponent.cs" />
     <Compile Include="Geometry\SampleToPolylineComponent.cs" />
     <Compile Include="GHSynthFileMenu.cs" />
+    <Compile Include="SampleProviders\CachedSound.cs" />
     <Compile Include="SampleProviders\CVQuantizer.cs" />
     <Compile Include="SampleProviders\FilteredAudioProvider.cs" />
     <Compile Include="GHSynthInfo.cs" />

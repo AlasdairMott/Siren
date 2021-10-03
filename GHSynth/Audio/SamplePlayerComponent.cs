@@ -1,11 +1,11 @@
-﻿using Grasshopper.Kernel;
+﻿using GHSynth.SampleProviders;
+using Grasshopper.Kernel;
 using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
 using Rhino.Geometry;
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using NAudio.Wave.SampleProviders;
-using System.Threading;
+using System.Linq;
 
 namespace GHSynth.Audio
 {
@@ -57,28 +57,31 @@ namespace GHSynth.Audio
 			var triggerTimes = points.Select(p => p.X / X).ToList();
 
 			var mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(GHSynthSettings.SampleRate, 1));
-			var offsets = triggerTimes.Select(t => {
+
+			var offsets = new List<ISampleProvider>();
+			foreach (double t in triggerTimes) 
+			{
 				wave.Position = 0;
 				var length = (int)(t * GHSynthSettings.SampleRate + wave.Length);
-				var offsetSample = new OffsetSampleProvider(wave.ToSampleProvider()) { 
+				var cachedSound = new CachedSound(wave);
+				var cachedSoundProvider = new CachedSoundSampleProvider(cachedSound);
+
+				var offsetSample = new OffsetSampleProvider(cachedSoundProvider)
+				{
 					DelayBy = TimeSpan.FromSeconds(t),
 					TakeSamples = length
 				};
-				return NAudioUtilities.WaveProviderToWaveStream(
-					offsetSample,
-					length, 
-					wave.WaveFormat);
-				}
-			);
-			foreach (var offset in offsets) { mixer.AddMixerInput(offset); }
+				
+				mixer.AddMixerInput(offsetSample);
+			}
 
+			int totalLength = (int)(triggerTimes.Max() * GHSynthSettings.SampleRate + wave.Length) * 2;
 			var stream = NAudioUtilities.WaveProviderToWaveStream(
 				mixer,
-				(int) (triggerTimes.Max() * GHSynthSettings.SampleRate + wave.Length),
+				totalLength,
 				wave.WaveFormat);
 
 			DA.SetData(0, stream);
-
 		}
 
 		/// <summary>
