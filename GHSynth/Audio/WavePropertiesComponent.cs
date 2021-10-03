@@ -45,7 +45,7 @@ namespace GHSynth.Audio
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
+			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat()) as WaveStream;
 			if (!DA.GetData(0, ref wave)) return;
 
 			DA.SetData(0, wave.Length);

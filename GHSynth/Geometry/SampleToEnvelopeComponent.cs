@@ -42,17 +42,17 @@ namespace GHSynth.Geometry
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
-			if (!DA.GetData(0, ref wave)) return;
+			//var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
+			//if (!DA.GetData(0, ref wave)) return;
 
-			int resolution = 10;
-			DA.GetData(1, ref resolution);
+			//int resolution = 10;
+			//DA.GetData(1, ref resolution);
 
-			wave.Position = 0;
-			var polyline = GeometryFunctions.ISampleToPolyline(wave.ToSampleProvider(), resolution);
-			wave.Position = 0;
+			//wave.Position = 0;
+			//var polyline = GeometryFunctions.ISampleToPolyline(wave.ToSampleProvider(), resolution);
+			//wave.Position = 0;
 
-			DA.SetData(0, polyline);
+			//DA.SetData(0, polyline);
 		}
 
 		/// <summary>

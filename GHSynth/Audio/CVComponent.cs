@@ -38,6 +38,7 @@ namespace GHSynth.Audio
 			pManager.AddNumberParameter("Amplitude Factor", "A", "A", GH_ParamAccess.item);
 			pManager.AddIntegerParameter("Sample Rate", "S", "Samples per second", GH_ParamAccess.item);
 
+			pManager[1].Optional = true;
 			//for (int p = 1; p < pManager.ParamCount; p++) pManager[p].Optional = true;
 		}
 
@@ -76,7 +77,7 @@ namespace GHSynth.Audio
 			curve.Transform(transform);
 			var bbox = curve.GetBoundingBox(true);
 			var width = bbox.GetEdges()[0].Length;
-			var count = (int)(width / X) * sampleRate;
+			var count = (int)(width / X * sampleRate);
 
 			var start = bbox.GetEdges()[3].PointAt(0.5);
 			var cuttingPlane = new Plane(plane);

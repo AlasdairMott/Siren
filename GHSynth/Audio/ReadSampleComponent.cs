@@ -45,12 +45,21 @@ namespace GHSynth
 
 			var audioFile = new AudioFileReader(path);
 
-			//var wave = audioFile.ToWaveProvider16().ToSampleProvider();
+			//var cachedWave = new SampleProviders.CachedSound(audioFile);
 
+			//audioFile.Position = 0;
 			//var raw = NAudioUtilities.WaveProviderToWaveStream(
-			//	audioFile,
+			//	new SampleProviders.CachedSoundSampleProvider(cachedWave),
+			//	(int)audioFile.Length,
+			//	cachedWave.WaveFormat);
+			//audioFile.Position = 0;
+
+			//audioFile.Position = 0;
+			//var raw = NAudioUtilities.WaveProviderToWaveStream(
+			//	audioFile.ToSampleProvider(),
 			//	(int)audioFile.Length,
 			//	audioFile.WaveFormat);
+			//audioFile.Position = 0;
 
 			DA.SetData(0, audioFile);
 		}

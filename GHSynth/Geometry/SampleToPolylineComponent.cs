@@ -25,6 +25,8 @@ namespace GHSynth.Geometry
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
 			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Time Factor", "T", "T", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Amplitude Factor", "A", "A", GH_ParamAccess.item);
 			pManager.AddIntegerParameter("Resolution", "R", "Resolution of the display", GH_ParamAccess.item);
 		}
 
@@ -42,14 +44,19 @@ namespace GHSynth.Geometry
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
+			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat()) as WaveStream;
 			if (!DA.GetData(0, ref wave)) return;
 
+			double X = 0;
+			double Y = 0;
 			int resolution = 10;
-			DA.GetData(1, ref resolution);
+
+			DA.GetData(1, ref X); if (X <= 0) throw new Exception("T must be positive");
+			DA.GetData(2, ref Y); if (Y <= 0) throw new Exception("A must be positive");
+			DA.GetData("Resolution", ref resolution); if (resolution <= 0) throw new Exception("Resolution must be positive");
 
 			wave.Position = 0;
-			var polyline = GeometryFunctions.ISampleToPolyline(wave.ToSampleProvider(), resolution);
+			var polyline = GeometryFunctions.ISampleToPolyline(wave.ToSampleProvider(), X, Y, resolution);
 			wave.Position = 0;
 
 			DA.SetData(0, polyline);
