@@ -14,6 +14,9 @@ namespace GHSynth
 			gHSynthFileMenu.AddToMenu();
 
 			GHSynthSettings.SampleRate = 44100;
+			GHSynthSettings.TimeScale = 10;
+			GHSynthSettings.AmplitudeScale = 10;
+			GHSynthSettings.Tempo = 120;
 		}
 
 		public override string Name

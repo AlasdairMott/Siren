@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace GHSynth
@@ -39,32 +41,63 @@ namespace GHSynth
                     var menuitem = menu.Items[i] as ToolStripMenuItem;
                     if (menuitem != null && menuitem.Text == "GHSynth") return;
                 }
+
                 var ghSynthMenu = new ToolStripMenuItem("GHSynth");
                 menu.Items.Add(ghSynthMenu);
 
-                var button_setSampleRate = new ToolStripMenuItem() {
-                    Text = "Sample Rate",
-                    Checked = false,
-                    Image = Properties.Resources.Hz
+                var intSettings = new List<(string, Bitmap)>() {
+                    ("Sample Rate", Properties.Resources.Hz),
+                    ("Time Scale", null),
+                    ("Amplitude Scale", null),
+                    ("Tempo", null)
                 };
-                button_setSampleRate.Click += SampleRateClicked;
-                ghSynthMenu.DropDownItems.Add(button_setSampleRate);
+
+                foreach (var setting in intSettings) { 
+                    var option = new ToolStripMenuItem()
+                    {
+                        Text = setting.Item1,
+                        Image = setting.Item2
+                    };
+                    ghSynthMenu.DropDownItems.Add(option);
+                }
+                ghSynthMenu.DropDownItemClicked += intOptionClicked;
 
             }
         }
 
-        private void SampleRateClicked(object sender, EventArgs e)
+        private void intOptionClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-            double newRate = GHSynthSettings.SampleRate;
+            var optionText = ((ToolStripMenuItem)e.ClickedItem).Text;
+            double newRate;
+            int min, max;
+            switch (optionText) {
+                case "Sample Rate": 
+                    newRate = GHSynthSettings.SampleRate;
+                    min = 8000; max = 44100;
+                    break;
+                case "Time Scale":  
+                    newRate = GHSynthSettings.TimeScale;
+                    min = 1; max = 100000;
+                    break;
+                case "Amplitude Scale": 
+                    newRate = GHSynthSettings.AmplitudeScale;
+                    min = 1; max = 100000;
+                    break;
+                case "Tempo": 
+                    newRate = GHSynthSettings.Tempo;
+                    min = 1; max = 240;
+                    break;
+                default: return;
+            }
+
             var dialog_result = Rhino.UI.Dialogs.ShowNumberBox(
-                "Sample Rate",
-                "Sample Rate",
+                optionText,
+                optionText,
                 ref newRate,
-                8000, 
-                44100);
-            if ((int)newRate != GHSynthSettings.SampleRate) 
+                min, 
+                max);
+            if (dialog_result && Grasshopper.Instances.ActiveCanvas.Document != null) 
                 Grasshopper.Instances.ActiveCanvas.Document.ExpireSolution();
-            GHSynthSettings.SampleRate = (int)newRate;
         }
     }
 }
