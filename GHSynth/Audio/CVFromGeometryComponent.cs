@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace GHSynth.Audio
 {
-	public class CVComponent : GH_Component /*, IGH_PreviewData*/
+	public class CVFromGeometryComponent : GH_Component /*, IGH_PreviewData*/
 	{
 		private Curve bounds;
 		private List<Line> timeIntervals;
@@ -17,8 +17,8 @@ namespace GHSynth.Audio
 		/// <summary>
 		/// Initializes a new instance of the CVComponent class.
 		/// </summary>
-		public CVComponent()
-		  : base("CVComponent", "Nickname",
+		public CVFromGeometryComponent()
+		  : base("CVFromGeometryComponent", "Nickname",
 			  "Description",
 			  "GHSynth", "CV Control")
 		{

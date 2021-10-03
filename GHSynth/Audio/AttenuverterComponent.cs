@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using Grasshopper.Kernel;
+using NAudio.Wave;
 using Rhino.Geometry;
 
 namespace GHSynth.Audio
@@ -14,7 +15,7 @@ namespace GHSynth.Audio
 		public AttenuverterComponent()
 		  : base("AttenuverterComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Subcategory")
+			  "GHSynth", "VCA")
 		{
 		}
 
@@ -23,6 +24,8 @@ namespace GHSynth.Audio
 		/// </summary>
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
+			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Attenuation", "A", "Attenuation", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -30,6 +33,7 @@ namespace GHSynth.Audio
 		/// </summary>
 		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
 		{
+			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -38,20 +42,29 @@ namespace GHSynth.Audio
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
+			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
+			if (!DA.GetData(0, ref wave)) return;
+
+			var attenuation = 1.0;
+			if (!DA.GetData(1, ref attenuation)) return;
+
+			wave.Position = 0;
+
+			var attenuverter = new SampleProviders.AttenuverterProvider(wave.ToSampleProvider(), (float) attenuation);
+
+			var stream = NAudioUtilities.WaveProviderToWaveStream
+				(attenuverter,
+				(int)wave.Length,
+				wave.WaveFormat);
+			wave.Position = 0;
+
+			DA.SetData(0, stream);
 		}
 
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon
-		{
-			get
-			{
-				//You can add image files to your project resources and access them like this:
-				// return Resources.IconForThisComponent;
-				return null;
-			}
-		}
+		protected override System.Drawing.Bitmap Icon => Properties.Resources.attenuverter;
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.

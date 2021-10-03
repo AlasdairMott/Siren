@@ -93,7 +93,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Audio\CVComponent.cs" />
+    <Compile Include="Audio\AttenuverterComponent.cs" />
+    <Compile Include="Audio\CVFromGeometryComponent.cs" />
     <Compile Include="Audio\CVQuantizerComponent.cs" />
     <Compile Include="Audio\NoiseComponent.cs" />
     <Compile Include="Audio\CVOscillatorComponent.cs" />
@@ -106,6 +107,7 @@
     <Compile Include="Geometry\GeometryFunctions.cs" />
     <Compile Include="Geometry\SampleToPolylineComponent.cs" />
     <Compile Include="GHSynthFileMenu.cs" />
+    <Compile Include="SampleProviders\AttenuverterProvider.cs" />
     <Compile Include="SampleProviders\CachedSound.cs" />
     <Compile Include="SampleProviders\CVQuantizer.cs" />
     <Compile Include="SampleProviders\FilteredAudioProvider.cs" />
@@ -198,6 +200,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\settings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\attenuverter.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
