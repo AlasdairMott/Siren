@@ -39,7 +39,8 @@ namespace GHSynth.Audio
 			pManager.AddIntegerParameter("Sample Rate", "S", "Samples per second", GH_ParamAccess.item);
 
 			pManager[1].Optional = true;
-			//for (int p = 1; p < pManager.ParamCount; p++) pManager[p].Optional = true;
+			pManager[2].Optional = true;
+			pManager[3].Optional = true;
 		}
 
 		/// <summary>
@@ -60,8 +61,8 @@ namespace GHSynth.Audio
 
 			var curve = new PolylineCurve() as Curve;
 			var plane = Plane.WorldXY;
-			double X = 0;
-			double Y = 0;
+			double X = GHSynthSettings.TimeScale;
+			double Y = GHSynthSettings.AmplitudeScale;
 			var sampleRate = GHSynthSettings.SampleRate;
 
 			if (!DA.GetData(0, ref curve)) return;

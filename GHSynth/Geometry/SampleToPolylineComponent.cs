@@ -28,6 +28,9 @@ namespace GHSynth.Geometry
 			pManager.AddNumberParameter("Time Factor", "T", "T", GH_ParamAccess.item);
 			pManager.AddNumberParameter("Amplitude Factor", "A", "A", GH_ParamAccess.item);
 			pManager.AddIntegerParameter("Resolution", "R", "Resolution of the display", GH_ParamAccess.item);
+
+			pManager[1].Optional = true;
+			pManager[2].Optional = true;
 		}
 
 		/// <summary>
@@ -47,8 +50,8 @@ namespace GHSynth.Geometry
 			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat()) as WaveStream;
 			if (!DA.GetData(0, ref wave)) return;
 
-			double X = 0;
-			double Y = 0;
+			double X = GHSynthSettings.TimeScale;
+			double Y = GHSynthSettings.AmplitudeScale;
 			int resolution = 10;
 
 			DA.GetData(1, ref X); if (X <= 0) throw new Exception("T must be positive");
