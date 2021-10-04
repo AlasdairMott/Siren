@@ -1,4 +1,4 @@
-# GHSynth
+# Siren
 
 Modular synthesizer for Grasshopper. GHSynth is built using [Naudio](https://github.com/naudio/NAudio).
 
@@ -11,4 +11,17 @@ Modular synthesizer for Grasshopper. GHSynth is built using [Naudio](https://git
 - Preview sounds within grasshopper and export to wav.
 
 ![grasshopper example](https://github.com/AlasdairMott/GHSynth/blob/main/example.jpg?raw=true)
+
+## Examples
+
+
+## Todo
+- Delay effect
+- Midi parser
+- Wave goo to wrap "Cached wave", not "wave stream"
+- Endless stream goo
+- voltage offset
+- Looping
+- Sample trim and stitch
+- Audio interface outputs
 
