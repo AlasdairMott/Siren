@@ -10,10 +10,11 @@ Modular synthesizer for Grasshopper. GHSynth is built using [Naudio](https://git
 - Import and trigger samples
 - Preview sounds within grasshopper and export to wav.
 
-![grasshopper example](https://github.com/AlasdairMott/GHSynth/blob/main/example.jpg?raw=true)
+![grasshopper example](https://github.com/AlasdairMott/GHSynth/blob/main/documentation/siren.jpg)
 
 ## Examples
 
+Example grasshopper files are provided. See [Examples](https://github.com/AlasdairMott/GHSynth/tree/main/Examples).
 
 ## Todo
 - Delay effect
