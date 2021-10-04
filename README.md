@@ -1,6 +1,6 @@
 # Siren
 
-Modular synthesizer for Grasshopper. GHSynth is built using [Naudio](https://github.com/naudio/NAudio).
+Modular synthesizer for Grasshopper. Siren is built using [Naudio](https://github.com/naudio/NAudio).
 
 - Create control voltage (CV) from geometry
 - Convert audio to geometry, convert geometry to audio.
@@ -12,9 +12,9 @@ Modular synthesizer for Grasshopper. GHSynth is built using [Naudio](https://git
 
 ![grasshopper example](https://github.com/AlasdairMott/GHSynth/blob/main/documentation/siren.jpg)
 
-## Examples
+## Running Siren
 
-Example grasshopper files are provided. See [Examples](https://github.com/AlasdairMott/GHSynth/tree/main/Examples).
+Make sure to copy NAudio dlls from Siren\bin into the grasshopper libraries folder. [Example](https://github.com/AlasdairMott/GHSynth/tree/main/Examples) grasshopper files are provided. 
 
 ## Todo
 - Delay effect
