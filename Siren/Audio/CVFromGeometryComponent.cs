@@ -32,7 +32,7 @@ namespace Siren.Audio
 		/// </summary>
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
-			pManager.AddCurveParameter("Curve", "C", "CV Curve", GH_ParamAccess.item);
+			pManager.AddCurveParameter("Curve", "C", "CV Curve", GH_ParamAccess.list);
 			pManager.AddPlaneParameter("Plane", "P", "Origin and orienation of the curve", GH_ParamAccess.item);
 			pManager.AddNumberParameter("Time Factor", "T", "T", GH_ParamAccess.item);
 			pManager.AddNumberParameter("Amplitude Factor", "A", "A", GH_ParamAccess.item);
@@ -49,6 +49,7 @@ namespace Siren.Audio
 		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
 		{
 			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
+			pManager.AddParameter(new WaveStreamParameter(), "Trigger", "T", "Trigger output", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -59,13 +60,13 @@ namespace Siren.Audio
 		{
 			timeIntervals.Clear();
 
-			var curve = new PolylineCurve() as Curve;
+			var curves = new List<Curve>();
 			var plane = Plane.WorldXY;
 			double X = SirenSettings.TimeScale;
 			double Y = SirenSettings.AmplitudeScale;
 			var sampleRate = SirenSettings.SampleRate;
 
-			if (!DA.GetData(0, ref curve)) return;
+			if (!DA.GetDataList(0, curves)) return;
 			DA.GetData(1, ref plane);
 			DA.GetData(2, ref X); if (X <= 0) throw new Exception("T must be positive");
 			DA.GetData(3, ref Y); if (Y <= 0) throw new Exception("A must be positive");
@@ -73,14 +74,19 @@ namespace Siren.Audio
 				throw new Exception("Sample rate must be positive and less than project sample rate");
 
 			double tolerance = Rhino.RhinoDoc.ActiveDoc.ModelAbsoluteTolerance;
-			var transform = Transform.ChangeBasis(Plane.WorldXY, plane);			
+			var transform = Transform.ChangeBasis(Plane.WorldXY, plane);
 
-			curve.Transform(transform);
-			var bbox = curve.GetBoundingBox(true);
+			var start = Point3d.Origin;
+			var bbox = new BoundingBox(start, start);
+			curves.ForEach(c => { 
+				c.Transform(transform); 
+				bbox.Union(c.GetBoundingBox(true)); 
+			});
+
 			var width = bbox.GetEdges()[0].Length;
 			var count = (int)(width / X * sampleRate);
 
-			var start = bbox.GetEdges()[3].PointAt(0.5);
+			
 			var cuttingPlane = new Plane(plane);
 			cuttingPlane.XAxis = plane.ZAxis;
 			cuttingPlane.ZAxis = -plane.XAxis;
@@ -117,27 +123,46 @@ namespace Siren.Audio
 
 			int repeats = (int)SirenSettings.SampleRate / sampleRate;
 
-			var buffer = new List<byte>();
+			var bufferOscillator = new List<byte>();
+			var bufferTrigger = new List<byte>();
+
 			for (int i = 0; i < count; i++)
 			{
-				var intersection = Rhino.Geometry.Intersect.Intersection.CurvePlane(curve, cuttingPlane, tolerance);
+				var silence = true;
+				float value = 0.0f;
+				int j = 0;
+				do {
+					var intersection = Rhino.Geometry.Intersect.Intersection.CurvePlane(curves[j], cuttingPlane, tolerance);
+					if (intersection != null)
+					{
+						silence = false;
+						var point = intersection.First().PointA;
+						value = (float)Math.Max(Math.Min((point.Y / Y), 1), -1);
+					}
+					j++;
+				}
+				while (silence && j < curves.Count);
 
-				var point = intersection.First().PointA;
-				var value = (float) Math.Max(Math.Min((point.Y / Y), 1), -1);
+				var sampleOscillator = BitConverter.GetBytes(Convert.ToInt16(short.MaxValue * value));
+				var sampleTrigger = BitConverter.GetBytes(Convert.ToInt16(short.MaxValue * Convert.ToSingle(!silence)));
 
-				var sample = Convert.ToInt16(short.MaxValue * value);
-				var sampleBytes = BitConverter.GetBytes(sample);
-
-				for (int j = 0; j < repeats; j++)
-					buffer.AddRange(sampleBytes);
-
+				for (int k = 0; k < repeats; k++)
+				{
+					bufferOscillator.AddRange(sampleOscillator);
+					bufferTrigger.AddRange(sampleTrigger);
+				}
+					
 				cuttingPlane.Origin += new Point3d(width / count, 0, 0);
 			}
 
-			var bufferStream = buffer.ToArray();
-			var wave = new RawSourceWaveStream(bufferStream, 0, bufferStream.Length, new WaveFormat(SirenSettings.SampleRate, 1));
+			var bufferOscillatorStream = bufferOscillator.ToArray();
+			var bufferTriggerStream = bufferTrigger.ToArray();
 
-			DA.SetData(0, wave);
+			var waveOscillator = new RawSourceWaveStream(bufferOscillatorStream, 0, bufferOscillatorStream.Length, new WaveFormat(SirenSettings.SampleRate, 1));
+			var waveTrigger = new RawSourceWaveStream(bufferTriggerStream, 0, bufferTriggerStream.Length, new WaveFormat(SirenSettings.SampleRate, 1));
+
+			DA.SetData(0, waveOscillator);
+			DA.SetData(1, waveTrigger);
 		}
 
 		/// <summary>
