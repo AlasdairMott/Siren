@@ -102,7 +102,7 @@ namespace Siren
                 "WaveStreamParameter",
                 "WaveStreamParameter", 
 				"Audio wave", 
-				"GHSynth",
+				"Siren",
                 "Utilities")) { }
 
 		protected override System.Drawing.Bitmap Icon => Properties.Resources.wave;

@@ -6,12 +6,12 @@ namespace Siren
 {
 	public class SirenInfo : GH_AssemblyInfo
 	{
-		static SirenFileMenu gHSynthFileMenu;
+		static SirenFileMenu sirenFileMenu;
 
 		public SirenInfo()
 		{
-			gHSynthFileMenu = new SirenFileMenu();
-			gHSynthFileMenu.AddToMenu();
+			sirenFileMenu = new SirenFileMenu();
+			sirenFileMenu.AddToMenu();
 
 			SirenSettings.SampleRate = 44100;
 			SirenSettings.TimeScale = 10;
@@ -23,7 +23,7 @@ namespace Siren
 		{
 			get
 			{
-				return "GHSynth";
+				return "Siren";
 			}
 		}
 		public override Bitmap Icon

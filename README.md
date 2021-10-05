@@ -10,11 +10,11 @@ Modular synthesizer for Grasshopper. Siren is built using [Naudio](https://githu
 - Import and trigger samples
 - Preview sounds within grasshopper and export to wav.
 
-![grasshopper example](https://github.com/AlasdairMott/GHSynth/blob/main/documentation/siren.jpg)
+![grasshopper example](https://github.com/AlasdairMott/Siren/blob/main/documentation/siren.jpg)
 
 ## Running Siren
 
-Make sure to copy NAudio dlls from Siren\bin into the grasshopper libraries folder. [Example](https://github.com/AlasdairMott/GHSynth/tree/main/Examples) grasshopper files are provided. 
+Make sure to copy NAudio dlls from Siren\bin into the grasshopper libraries folder. [Example](https://github.com/AlasdairMott/Siren/tree/main/Examples) grasshopper files are provided.
 
 ## Todo
 - Delay effect

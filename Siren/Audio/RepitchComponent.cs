@@ -15,7 +15,7 @@ namespace Siren
 		public RepitchComponent()
 		  : base("RepitchComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Effects")
+			  "Siren", "Effects")
 		{
 		}
 

@@ -39,11 +39,11 @@ namespace Siren
                 for (int i = 0; i < menu.Items.Count; i++)
                 {
                     var menuitem = menu.Items[i] as ToolStripMenuItem;
-                    if (menuitem != null && menuitem.Text == "GHSynth") return;
+                    if (menuitem != null && menuitem.Text == "Siren") return;
                 }
 
-                var ghSynthMenu = new ToolStripMenuItem("GHSynth");
-                menu.Items.Add(ghSynthMenu);
+                var sirenMenu = new ToolStripMenuItem("Siren");
+                menu.Items.Add(sirenMenu);
 
                 var intSettings = new List<(string, Bitmap)>() {
                     ("Sample Rate", Properties.Resources.Hz),
@@ -58,9 +58,9 @@ namespace Siren
                         Text = setting.Item1,
                         Image = setting.Item2
                     };
-                    ghSynthMenu.DropDownItems.Add(option);
+                    sirenMenu.DropDownItems.Add(option);
                 }
-                ghSynthMenu.DropDownItemClicked += intOptionClicked;
+                sirenMenu.DropDownItemClicked += intOptionClicked;
 
             }
         }

@@ -15,7 +15,7 @@ namespace Siren.Geometry
 		public SampleToPolylineComponent()
 		  : base("SampleToCurveComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Utilities")
+			  "Siren", "Utilities")
 		{
 		}
 
