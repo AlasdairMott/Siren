@@ -15,7 +15,7 @@ namespace Siren
 		public VCAComponent()
 		  : base("VCAComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "VCA")
+			  "Siren", "VCA")
 		{
 		}
 

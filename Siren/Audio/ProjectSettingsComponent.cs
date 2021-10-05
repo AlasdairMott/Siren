@@ -14,7 +14,7 @@ namespace Siren.Audio
 		public ProjectSettingsComponent()
 		  : base("ProjectSettingsComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Utilities")
+			  "Siren", "Utilities")
 		{
 		}
 

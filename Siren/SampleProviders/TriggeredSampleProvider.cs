@@ -4,7 +4,7 @@
 //using System.Linq;
 //using System.Collections.Generic;
 
-//namespace GHSynth.SampleProviders
+//namespace Siren.SampleProviders
 //{
 //	public class TriggeredSampleProvider : ISampleProvider
 //	{
@@ -18,7 +18,7 @@
 //			this.sample = sample;
 //			this.triggers = triggers;
 
-//			mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(GHSynthSettings.SampleRate, 1));
+//			mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(SirenSettings.SampleRate, 1));
 //			var offsets = triggers.Select(t =>
 //				new OffsetSampleProvider(sample.ToSampleProvider())
 //				{ DelayBy = TimeSpan.FromSeconds(t) });

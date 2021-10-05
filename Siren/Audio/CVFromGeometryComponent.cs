@@ -20,7 +20,7 @@ namespace Siren.Audio
 		public CVFromGeometryComponent()
 		  : base("CVFromGeometryComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "CV Control")
+			  "Siren", "CV Control")
 		{
 			bounds = new PolylineCurve();
 			timeIntervals = new List<Line>();

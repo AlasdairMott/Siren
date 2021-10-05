@@ -14,7 +14,7 @@ namespace Siren
 		public ReadSampleComponent()
 		  : base("ReadSampleComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Oscillators")
+			  "Siren", "Oscillators")
 		{
 		}
 

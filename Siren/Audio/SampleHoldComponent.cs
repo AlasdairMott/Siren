@@ -14,7 +14,7 @@ namespace Siren.Audio
 		public SampleHoldComponent()
 		  : base("SampleAndHoldComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "CV Control")
+			  "Siren", "CV Control")
 		{
 		}
 

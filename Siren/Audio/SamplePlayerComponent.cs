@@ -17,7 +17,7 @@ namespace Siren.Audio
 		public SamplePlayerComponent()
 		  : base("SamplePlayerComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Oscillators")
+			  "Siren", "Oscillators")
 		{
 		}
 

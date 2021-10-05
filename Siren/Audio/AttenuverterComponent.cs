@@ -15,7 +15,7 @@ namespace Siren.Audio
 		public AttenuverterComponent()
 		  : base("AttenuverterComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "VCA")
+			  "Siren", "VCA")
 		{
 		}
 

@@ -13,7 +13,7 @@ namespace Siren
 		public MultimodeFilterComponent()
 		  : base("MultimodeFilterComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Effects")
+			  "Siren", "Effects")
 		{
 		}
 

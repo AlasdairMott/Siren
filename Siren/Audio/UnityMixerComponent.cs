@@ -16,7 +16,7 @@ namespace Siren.Components
 		public UnityMixerComponent()
 		  : base("MixerComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "VCA")
+			  "Siren", "VCA")
 		{
 		}
 

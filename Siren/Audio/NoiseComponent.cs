@@ -18,7 +18,7 @@ namespace Siren.Audio
 		public NoiseComponent()
 		  : base("NoiseComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Oscillators")
+			  "Siren", "Oscillators")
 		{
 			wavetype = "White";
 		}

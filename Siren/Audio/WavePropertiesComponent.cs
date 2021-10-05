@@ -15,7 +15,7 @@ namespace Siren.Audio
 		public WavePropertiesComponent()
 		  : base("WavePropertiesComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Utilities")
+			  "Siren", "Utilities")
 		{
 		}
 

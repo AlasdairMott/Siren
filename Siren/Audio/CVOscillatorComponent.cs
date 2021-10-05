@@ -18,7 +18,7 @@ namespace Siren.Components
 		public CVOscillatorComponent()
 		  : base("CVOscillatorComponent", "Nickname",
 			  "Description",
-			  "GHSynth", "Oscillators")
+			  "Siren", "Oscillators")
 		{
 			wavetype = "Sawtooth";
 		}

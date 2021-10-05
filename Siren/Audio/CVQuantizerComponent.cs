@@ -18,7 +18,7 @@ namespace Siren.Audio
 		public CVQuantizerComponent()
 		  : base("CVQuantizer", "Nickname",
 			  "Description",
-			  "GHSynth", "CV Control")
+			  "Siren", "CV Control")
 		{
 			scaleName = "Chromatic";
 		}

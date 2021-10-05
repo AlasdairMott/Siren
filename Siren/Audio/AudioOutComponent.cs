@@ -23,7 +23,7 @@ namespace Siren
         public AudioOutComponent()
 		  : base("AudioOutComponent", "Nickname",
 			  "Description",
-              "GHSynth", "Utilities")
+              "Siren", "Utilities")
 		{
             waveOut = new WaveOut();
             Mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(SirenSettings.SampleRate, 1));
