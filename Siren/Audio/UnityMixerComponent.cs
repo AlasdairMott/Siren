@@ -44,6 +44,11 @@ namespace Siren.Components
 		{
 			var waves = new List<WaveStream>();
 			if (!DA.GetDataList(0, waves)) return;
+			if (waves.Contains(null))
+            {
+				AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "An invalid wave input was provided; check for issues with earlier components.");
+				return;
+			}
 
 			var multiplier = 1 / waves.Count;
 			var mixer = new MixingSampleProvider(waves.Select(s => s.ToSampleProvider()));
