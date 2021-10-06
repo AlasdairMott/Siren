@@ -14,7 +14,7 @@ namespace Siren.Audio
 		public SpectrumAnalyserComponent()
 		  : base("SpectrumAnalyserComponent", "Nickname",
 			  "Description",
-			  "Siren", "Subcategory")
+			  "Siren", "Utilities")
 		{
 		}
 
@@ -44,15 +44,17 @@ namespace Siren.Audio
 			if (!DA.GetData("Wave", ref wave)) return;
 
 			wave.Position = 0;
-			var fft = new SampleProviders.FFT(wave);
-			fft.Read();
+			var fft = new SampleProviders.FFT(wave.ToSampleProvider());
+
+			var buffer = new float[wave.Length];
+			int samplesRead = fft.Read(buffer, 0, (int)wave.Length);
 
 			wave.Position = 0;
 
 			var polyline = new Polyline();
-			for (int i = 0; i < fft.dataFft.Length; i++)
+			for (int i = 0; i < fft.DataFft.Length / 2; i++)
 			{
-				var pt = new Point3d(i * ((double)SirenSettings.TimeScale / (double)SirenSettings.SampleRate), fft.dataFft[i], 0);
+				var pt = new Point3d(2 * i * ((double)SirenSettings.TimeScale / (double)SirenSettings.SampleRate), fft.DataFft[i] * (double)SirenSettings.AmplitudeScale, 0);
 				polyline.Add(pt);
 			}
 
@@ -62,15 +64,7 @@ namespace Siren.Audio
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon
-		{
-			get
-			{
-				//You can add image files to your project resources and access them like this:
-				// return Resources.IconForThisComponent;
-				return null;
-			}
-		}
+		protected override System.Drawing.Bitmap Icon => Properties.Resources.spectrum;
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.

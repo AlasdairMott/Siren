@@ -3,36 +3,32 @@ using System;
 
 namespace Siren.SampleProviders
 {
-    class FFT
+    class FFT : ISampleProvider
 	{
-		public double[] dataFft;
-        Int16[] dataPcm;
-        WaveStream wave;
-        ISampleProvider source;
+        private ISampleProvider source;
 
-        public FFT(WaveStream wave) 
+        public double[] DataFft;
+        public WaveFormat WaveFormat => source.WaveFormat;
+
+        public FFT(ISampleProvider source) 
         {
-            source = wave.ToSampleProvider();
+            this.source = source;
         }
 
-        public int Read() 
+        public int Read(float[] buffer, int offset, int count)
         {
-            dataPcm = new Int16[wave.Length];
-
-            var buffer = new float[wave.Length];
-            int sampleRead = source.Read(buffer, 0, (int)wave.Length);
-
+            var dataPcm = new Int16[count];
+            int sampleRead = source.Read(buffer, 0, count);
             for (int n = 0; n < sampleRead; n++)
             {
                 dataPcm[n] = Convert.ToInt16(short.MaxValue * buffer[n]);
             }
-            updateFFT();
-
+            updateFFT(dataPcm);
             return sampleRead;
         }
 
         /* Code copied from fft function from https://github.com/swharden/Csharp-Data-Visualization/blob/a7facd303904e5c8feb4186c48edac124cc92429/examples/2019-06-08-audio-fft/Form1.cs */
-        private void updateFFT()
+        private void updateFFT(Int16[] dataPcm)
         {
             // the PCM size to be analyzed with FFT must be a power of 2
             int fftPoints = 2;
@@ -46,13 +42,15 @@ namespace Siren.SampleProviders
             NAudio.Dsp.FastFourierTransform.FFT(true, (int)Math.Log(fftPoints, 2.0), fftFull);
 
             // copy the complex values into the double array that will be plotted
-            if (dataFft == null)
-                dataFft = new double[fftPoints / 2];
+            if (DataFft == null)
+                DataFft = new double[fftPoints / 2];
             for (int i = 0; i < fftPoints / 2; i++)
             {
                 double fftLeft = Math.Abs(fftFull[i].X + fftFull[i].Y);
                 double fftRight = Math.Abs(fftFull[fftPoints - i - 1].X + fftFull[fftPoints - i - 1].Y);
-                dataFft[i] = fftLeft + fftRight;
+                DataFft[i] = fftLeft + fftRight;
+
+                DataFft[i] *= 1.0 / fftPoints;
             }
         }
     }

@@ -103,7 +103,7 @@
     <Compile Include="Audio\ProjectSettingsComponent.cs" />
     <Compile Include="Audio\SampleHoldComponent.cs" />
     <Compile Include="Audio\SamplePlayerComponent.cs" />
-    <Compile Include="Audio\SpectrumAnalyserComponent.cs" />
+    <Compile Include="Geometry\SpectrumAnalyserComponent.cs" />
     <Compile Include="Audio\UnityMixerComponent.cs" />
     <Compile Include="Audio\WavePropertiesComponent.cs" />
     <Compile Include="SampleProviders\FFT.cs" />
@@ -207,6 +207,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\attenuverter.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\spectrum.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
