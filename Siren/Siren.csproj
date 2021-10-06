@@ -103,8 +103,10 @@
     <Compile Include="Audio\ProjectSettingsComponent.cs" />
     <Compile Include="Audio\SampleHoldComponent.cs" />
     <Compile Include="Audio\SamplePlayerComponent.cs" />
+    <Compile Include="Audio\SpectrumAnalyserComponent.cs" />
     <Compile Include="Audio\UnityMixerComponent.cs" />
     <Compile Include="Audio\WavePropertiesComponent.cs" />
+    <Compile Include="SampleProviders\FFT.cs" />
     <Compile Include="SirenSettings.cs" />
     <Compile Include="Geometry\GeometryFunctions.cs" />
     <Compile Include="Geometry\SampleToPolylineComponent.cs" />
