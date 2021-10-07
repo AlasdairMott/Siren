@@ -12,14 +12,13 @@ namespace Siren.Components
 {
 	public class CVOscillatorComponent : GH_Component
 	{
-		protected WaveForm selectedWave;
-		string savedWaveSelection;
+		protected int selectedWave;
 		protected List<WaveForm> waveOptions = new List<WaveForm>()
 		{
-			new WaveForm("Sin", Properties.Resources.sin, SignalGeneratorType.Sin),
-			new WaveForm("Sawtooth", Properties.Resources.sin, SignalGeneratorType.SawTooth),
-			new WaveForm("Triangle", Properties.Resources.sin, SignalGeneratorType.Triangle),
-			new WaveForm("Square", Properties.Resources.sin, SignalGeneratorType.Square)
+			new WaveForm("Sin", Properties.Resources.wavef_sin, SignalGeneratorType.Sin),
+			new WaveForm("Sawtooth", Properties.Resources.wavef_saw, SignalGeneratorType.SawTooth),
+			new WaveForm("Triangle", Properties.Resources.wavef_triangle, SignalGeneratorType.Triangle),
+			new WaveForm("Square", Properties.Resources.wavef_square, SignalGeneratorType.Square)
 		};
 
 		protected struct WaveForm
@@ -41,7 +40,7 @@ namespace Siren.Components
 			  "Description",
 			  "Siren", "Oscillators")
 		{
-			selectedWave = waveOptions[1]; // Sawtooth default
+			selectedWave = 1; // Sawtooth default
 		}
 
 		/// <summary>
@@ -60,7 +59,7 @@ namespace Siren.Components
 		public override void CreateAttributes() // Setup custom inline icons within component
 		{
 			var waveIcons = waveOptions.Select(o => o.Icon).ToList();
-			m_attributes = new InlineIconStrip(this, this.SetWaveformFromIconClick, waveIcons);
+			m_attributes = new InlineIconStrip(this, this.SetWaveformFromIcon, waveIcons, selectedWave);
 		}
 
 		/// <summary>
@@ -89,7 +88,7 @@ namespace Siren.Components
 
 			var signalGenerator = new SignalGenerator(SirenSettings.SampleRate, 1)
 			{
-				Type = selectedWave.Type,
+				Type = waveOptions[selectedWave].Type,
 				Frequency = 440,
 				Gain = 0.25
 			};
@@ -118,22 +117,26 @@ namespace Siren.Components
 			get { return new Guid("31bfd5f1-556d-46a5-ab52-949aadf2372a"); }
 		}
 
-		protected void SetWaveformFromIconClick(int indexOfClickedIcon)
+		protected void SetWaveformFromIcon(int indexOfClickedIcon)
 		{
-			selectedWave = waveOptions[indexOfClickedIcon];
+			selectedWave = indexOfClickedIcon;
 			ExpireSolution(true);
 		}
 
 		public override bool Write(GH_IWriter writer)
 		{
-			writer.SetString("wavetype", selectedWave.Title);
+			writer.SetString("wavetype", waveOptions[selectedWave].Title);
 			return base.Write(writer);
 		}
 
 		public override bool Read(GH_IReader reader)
 		{
-			if (reader.TryGetString("wavetype", ref savedWaveSelection))
-				selectedWave = waveOptions.Find(w => w.Title == savedWaveSelection);
+			string waveformTitle = "";
+			if (reader.TryGetString("wavetype", ref waveformTitle))
+			{
+				selectedWave = waveOptions.FindIndex(w => w.Title == waveformTitle);
+				this.CreateAttributes(); // Need to refresh to pass newly-loaded state
+			}
 
 			return base.Read(reader);
 		}
