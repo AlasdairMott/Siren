@@ -1,5 +1,7 @@
 ﻿using NAudio.Wave;
 using System;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace Siren.SampleProviders
 {
@@ -43,8 +45,8 @@ namespace Siren.SampleProviders
 
             // copy the complex values into the double array that will be plotted
             if (DataFft == null)
-                DataFft = new double[fftPoints / 2];
-            for (int i = 0; i < fftPoints / 2; i++)
+                DataFft = new double[fftPoints / 4];
+            for (int i = 0; i < fftPoints / 4; i++)
             {
                 double fftLeft = Math.Abs(fftFull[i].X + fftFull[i].Y);
                 double fftRight = Math.Abs(fftFull[fftPoints - i - 1].X + fftFull[fftPoints - i - 1].Y);
@@ -52,6 +54,20 @@ namespace Siren.SampleProviders
 
                 DataFft[i] *= 1.0 / fftPoints;
             }
+        }
+
+        public WaveStream GetFFTWave() {
+            var rawSource = new byte[DataFft.Length];
+            double maxValue = DataFft.Max();
+
+            var bytes = new List<byte>();
+            for (int i = 0; i < rawSource.Length; i++)
+            {
+                var value = Convert.ToInt16(short.MaxValue * (DataFft[i] / maxValue));
+                bytes.AddRange(BitConverter.GetBytes(value));
+            }
+            var byteArray = bytes.ToArray();
+            return new RawSourceWaveStream(byteArray, 0, byteArray.Length, new WaveFormat(44100, 16, 1));
         }
     }
 }

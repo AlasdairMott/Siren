@@ -4,7 +4,7 @@ using NAudio.Wave;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
-namespace Siren.Audio
+namespace Siren.Geometry
 {
 	public class SpectrumAnalyserComponent : GH_Component
 	{
@@ -24,6 +24,10 @@ namespace Siren.Audio
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
 			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Buffer", "B", "Buffer (in seconds)", GH_ParamAccess.item);
+			pManager.AddNumberParameter("MaxWindow", "W", "Window to take max from (in seconds)", GH_ParamAccess.item);
+			pManager[1].Optional = true;
+			pManager[2].Optional = true;
 		}
 
 		/// <summary>
@@ -32,6 +36,7 @@ namespace Siren.Audio
 		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
 		{
 			pManager.AddCurveParameter("FFT", "FFT", "FFT", GH_ParamAccess.item);
+			pManager.AddCurveParameter("FFT2", "FFT", "FFT", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -43,22 +48,41 @@ namespace Siren.Audio
 			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
 			if (!DA.GetData("Wave", ref wave)) return;
 
+			double bufferTime = 0.0;
+			if (!DA.GetData(1, ref bufferTime)) bufferTime = wave.TotalTime.TotalSeconds;
+
+			double maxWindowTime = 0.0;
+			if (!DA.GetData(2, ref maxWindowTime)) maxWindowTime = wave.TotalTime.TotalSeconds;
+
+			var maxWindowCount = (int) (wave.WaveFormat.SampleRate * maxWindowTime);
+
+			//var bufferCount = wave.WaveFormat.SampleRate * (int) bufferTime;
+			//for (int i = 0; i < wave.Length - bufferCount; i++) 
+			//{
+
+			//}
+
 			wave.Position = 0;
 			var fft = new SampleProviders.FFT(wave.ToSampleProvider());
 
 			var buffer = new float[wave.Length];
 			int samplesRead = fft.Read(buffer, 0, (int)wave.Length);
-
+			//var polyline = new Polyline();
+			//for (int i = 0; i < fft.DataFft.Length; i++)
+			//{
+			//	var value = Math.Log(i, 2) * i * ((double)SirenSettings.TimeScale / (double)SirenSettings.SampleRate);
+			//	var pt = new Point3d(value, fft.DataFft[i] * (double)SirenSettings.AmplitudeScale, 0);
+			//	polyline.Add(pt);
+			//}
 			wave.Position = 0;
 
-			var polyline = new Polyline();
-			for (int i = 0; i < fft.DataFft.Length / 2; i++)
-			{
-				var pt = new Point3d(2 * i * ((double)SirenSettings.TimeScale / (double)SirenSettings.SampleRate), fft.DataFft[i] * (double)SirenSettings.AmplitudeScale, 0);
-				polyline.Add(pt);
-			}
+			var stream = fft.GetFFTWave();
 
-			DA.SetData(0, polyline);
+			var polyline2 = GeometryFunctions.ISampleToPolyline(stream.ToSampleProvider(), SirenSettings.TimeScale, SirenSettings.AmplitudeScale, (int)maxWindowTime, GeometryFunctions.WindowMethod.Max);
+			wave.Position = 0;
+
+			//DA.SetData(0, polyline);
+			DA.SetData(1, polyline2);
 		}
 
 		/// <summary>
