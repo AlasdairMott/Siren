@@ -2,15 +2,35 @@
 using Grasshopper.Kernel;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
+using Siren.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Siren.Components
 {
 	public class CVOscillatorComponent : GH_Component
 	{
-		private string wavetype;
+		protected int selectedWave;
+		protected List<WaveForm> waveOptions = new List<WaveForm>()
+		{
+			new WaveForm("Sin", Properties.Resources.wavef_sin, SignalGeneratorType.Sin),
+			new WaveForm("Sawtooth", Properties.Resources.wavef_saw, SignalGeneratorType.SawTooth),
+			new WaveForm("Triangle", Properties.Resources.wavef_triangle, SignalGeneratorType.Triangle),
+			new WaveForm("Square", Properties.Resources.wavef_square, SignalGeneratorType.Square)
+		};
+
+		protected struct WaveForm
+		{
+			public string Title { get; }
+			public System.Drawing.Bitmap Icon { get; }
+			public SignalGeneratorType Type { get; }
+			public WaveForm(string title, System.Drawing.Bitmap icon, SignalGeneratorType type)
+			{
+				Title = title; Icon = icon; Type = type;
+			}
+		}
 
 		/// <summary>
 		/// Initializes a new instance of the CVOscillatorComponent class.
@@ -20,7 +40,7 @@ namespace Siren.Components
 			  "Description",
 			  "Siren", "Oscillators")
 		{
-			wavetype = "Sawtooth";
+			selectedWave = 1; // Sawtooth default
 		}
 
 		/// <summary>
@@ -34,6 +54,12 @@ namespace Siren.Components
 
 			pManager[1].Optional = true;
 			pManager[2].Optional = true;
+		}
+
+		public override void CreateAttributes() // Setup custom inline icons within component
+		{
+			var waveIcons = waveOptions.Select(o => o.Icon).ToList();
+			m_attributes = new InlineIconStrip(this, this.SetWaveformFromIcon, waveIcons, selectedWave);
 		}
 
 		/// <summary>
@@ -60,19 +86,9 @@ namespace Siren.Components
 
 			cv.Position = 0;
 
-			SignalGeneratorType type;
-			switch (wavetype)
-			{
-				case "Sin": type = SignalGeneratorType.Sin; break;
-				case "Sawtooth": type = SignalGeneratorType.SawTooth; break;
-				case "Triangle": type = SignalGeneratorType.Triangle; break;
-				case "Square": type = SignalGeneratorType.Square; break;
-				default: throw new ArgumentOutOfRangeException("wavetype not valid");
-			}
-
 			var signalGenerator = new SignalGenerator(SirenSettings.SampleRate, 1)
 			{
-				Type = type,
+				Type = waveOptions[selectedWave].Type,
 				Frequency = 440,
 				Gain = 0.25
 			};
@@ -101,37 +117,27 @@ namespace Siren.Components
 			get { return new Guid("31bfd5f1-556d-46a5-ab52-949aadf2372a"); }
 		}
 
-		protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
+		protected void SetWaveformFromIcon(int indexOfClickedIcon)
 		{
-			base.AppendAdditionalComponentMenuItems(menu);
-
-			var m_oscillator = Menu_AppendItem(menu, "Waves", null, true);
-			var waves = new List<string>() { "Sin", "Sawtooth", "Triangle", "Square" };
-			foreach (var w in waves) {
-				var option = new ToolStripMenuItem() { 
-					Text = w, 
-					Checked = (w == wavetype)
-				};
-				m_oscillator.DropDownItems.Add(option);
-			}
-			m_oscillator.DropDownItemClicked += MenuWaveClicked;
-		}
-
-		private void MenuWaveClicked(object sender, ToolStripItemClickedEventArgs e)
-		{
-			wavetype = ((ToolStripMenuItem)e.ClickedItem).Text;
+			selectedWave = indexOfClickedIcon;
 			ExpireSolution(true);
 		}
 
 		public override bool Write(GH_IWriter writer)
 		{
-			writer.SetString("wavetype", wavetype);
+			writer.SetString("wavetype", waveOptions[selectedWave].Title);
 			return base.Write(writer);
 		}
 
 		public override bool Read(GH_IReader reader)
 		{
-			reader.TryGetString("wavetype", ref wavetype);
+			string waveformTitle = "";
+			if (reader.TryGetString("wavetype", ref waveformTitle))
+			{
+				selectedWave = waveOptions.FindIndex(w => w.Title == waveformTitle);
+				this.CreateAttributes(); // Need to refresh to pass newly-loaded state
+			}
+
 			return base.Read(reader);
 		}
 	}
