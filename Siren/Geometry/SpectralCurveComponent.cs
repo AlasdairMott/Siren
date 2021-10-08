@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NAudio.Wave;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
+using System.Linq;
 
 namespace Siren.Geometry
 {
@@ -66,8 +67,10 @@ namespace Siren.Geometry
 			int samplesRead = fft.Read(buffer, 0, (int)wave.Length);
 			var stream = fft.GetFFTWave();
 
-			var polyline = GeometryFunctions.ISampleToPolyline(stream.ToSampleProvider(), X, Y, resolution, GeometryFunctions.WindowMethod.Max);
-			var factor = (X / wave.TotalTime.TotalSeconds) / polyline.BoundingBox.Max.X;
+			var polyline = GeometryFunctions.ISampleToPolyline(stream.ToSampleProvider(), X, Y, resolution, 
+				GeometryFunctions.WindowMethod.Max, GeometryFunctions.ScalingMethod.Logarithmic);
+
+			var factor = (X / wave.TotalTime.TotalSeconds) / polyline.Last.X;
 			polyline.Transform(Transform.Scale(Plane.WorldXY, factor, 1.0, 1.0));
 
 			DA.SetData(0, polyline);
