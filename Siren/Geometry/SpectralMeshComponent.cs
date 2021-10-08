@@ -40,7 +40,7 @@ namespace Siren.Geometry
 		/// </summary>
 		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
 		{
-			pManager.AddCurveParameter("FFT", "FFT", "FFT", GH_ParamAccess.item);
+			pManager.AddMeshParameter("FFT", "FFT", "FFT", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -54,7 +54,7 @@ namespace Siren.Geometry
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon => Properties.Resources.spectrum;
+		protected override System.Drawing.Bitmap Icon => Properties.Resources.mesh;
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.

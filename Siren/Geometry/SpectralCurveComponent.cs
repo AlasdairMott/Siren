@@ -13,7 +13,7 @@ namespace Siren.Geometry
 		/// Initializes a new instance of the SpectrumAnalyserComponent class.
 		/// </summary>
 		public SpectralCurveComponent()
-		  : base("SpectrumAnalyserComponent", "Nickname",
+		  : base("SpectralCurveComponent", "Nickname",
 			  "Description",
 			  "Siren", "Geometry")
 		{
