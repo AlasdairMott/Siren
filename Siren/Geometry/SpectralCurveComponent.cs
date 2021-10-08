@@ -6,15 +6,15 @@ using Rhino.Geometry;
 
 namespace Siren.Geometry
 {
-	public class SpectrumAnalyserComponent : GH_Component
+	public class SpectralCurveComponent : GH_Component
 	{
 		/// <summary>
 		/// Initializes a new instance of the SpectrumAnalyserComponent class.
 		/// </summary>
-		public SpectrumAnalyserComponent()
+		public SpectralCurveComponent()
 		  : base("SpectrumAnalyserComponent", "Nickname",
 			  "Description",
-			  "Siren", "Utilities")
+			  "Siren", "Geometry")
 		{
 		}
 
@@ -24,10 +24,13 @@ namespace Siren.Geometry
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
 			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
-			pManager.AddNumberParameter("Buffer", "B", "Buffer (in seconds)", GH_ParamAccess.item);
-			pManager.AddNumberParameter("MaxWindow", "W", "Window to take max from (in seconds)", GH_ParamAccess.item);
+			pManager.AddIntegerParameter("Resolution", "R", "Resolution of the display", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Time Factor", "T", "T", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Amplitude Factor", "A", "A", GH_ParamAccess.item);
+
 			pManager[1].Optional = true;
 			pManager[2].Optional = true;
+			pManager[3].Optional = true;
 		}
 
 		/// <summary>
@@ -36,7 +39,6 @@ namespace Siren.Geometry
 		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
 		{
 			pManager.AddCurveParameter("FFT", "FFT", "FFT", GH_ParamAccess.item);
-			pManager.AddCurveParameter("FFT2", "FFT", "FFT", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -48,41 +50,27 @@ namespace Siren.Geometry
 			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
 			if (!DA.GetData("Wave", ref wave)) return;
 
-			double bufferTime = 0.0;
-			if (!DA.GetData(1, ref bufferTime)) bufferTime = wave.TotalTime.TotalSeconds;
+			double X = SirenSettings.TimeScale;
+			double Y = SirenSettings.AmplitudeScale;
+			int resolution = 10;
 
-			double maxWindowTime = 0.0;
-			if (!DA.GetData(2, ref maxWindowTime)) maxWindowTime = wave.TotalTime.TotalSeconds;
-
-			var maxWindowCount = (int) (wave.WaveFormat.SampleRate * maxWindowTime);
-
-			//var bufferCount = wave.WaveFormat.SampleRate * (int) bufferTime;
-			//for (int i = 0; i < wave.Length - bufferCount; i++) 
-			//{
-
-			//}
-
+			DA.GetData("Resolution", ref resolution); if (resolution <= 0) throw new Exception("Resolution must be positive");
+			DA.GetData(2, ref X); if (X <= 0) throw new Exception("T must be positive");
+			DA.GetData(3, ref Y); if (Y <= 0) throw new Exception("A must be positive");
+			
 			wave.Position = 0;
 			var fft = new SampleProviders.FFT(wave.ToSampleProvider());
+			wave.Position = 0;
 
 			var buffer = new float[wave.Length];
 			int samplesRead = fft.Read(buffer, 0, (int)wave.Length);
-			//var polyline = new Polyline();
-			//for (int i = 0; i < fft.DataFft.Length; i++)
-			//{
-			//	var value = Math.Log(i, 2) * i * ((double)SirenSettings.TimeScale / (double)SirenSettings.SampleRate);
-			//	var pt = new Point3d(value, fft.DataFft[i] * (double)SirenSettings.AmplitudeScale, 0);
-			//	polyline.Add(pt);
-			//}
-			wave.Position = 0;
-
 			var stream = fft.GetFFTWave();
 
-			var polyline2 = GeometryFunctions.ISampleToPolyline(stream.ToSampleProvider(), SirenSettings.TimeScale, SirenSettings.AmplitudeScale, (int)maxWindowTime, GeometryFunctions.WindowMethod.Max);
-			wave.Position = 0;
+			var polyline = GeometryFunctions.ISampleToPolyline(stream.ToSampleProvider(), X, Y, resolution, GeometryFunctions.WindowMethod.Max);
+			var factor = (X / wave.TotalTime.TotalSeconds) / polyline.BoundingBox.Max.X;
+			polyline.Transform(Transform.Scale(Plane.WorldXY, factor, 1.0, 1.0));
 
-			//DA.SetData(0, polyline);
-			DA.SetData(1, polyline2);
+			DA.SetData(0, polyline);
 		}
 
 		/// <summary>
