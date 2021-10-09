@@ -56,7 +56,7 @@ namespace Siren.Utilities
                 return;
             }
 
-            RenderComponentCapsule(canvas, graphics, true, false, true, true, true, true);
+            RenderComponentCapsule(canvas, graphics, true, false, false, true, true, true);
             var iconSpacing = GH_Convert.ToRectangle(iconStripBounds).Height / iconImages.Count;
 
             var iconBox = new Rectangle();

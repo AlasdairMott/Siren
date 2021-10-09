@@ -40,7 +40,7 @@ namespace Siren.Components
 			  "Description",
 			  "Siren", "Oscillators")
 		{
-			selectedWave = 1; // Sawtooth default
+			selectedWave = 0; // Sin default
 		}
 
 		/// <summary>
