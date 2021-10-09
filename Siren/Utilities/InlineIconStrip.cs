@@ -15,7 +15,7 @@ namespace Siren.Utilities
     public class InlineIconStrip : Grasshopper.Kernel.Attributes.GH_ComponentAttributes
     {
         private Action<int> iconClickHander;
-        private int indexOfSelectedIcon;
+        public int IndexOfSelectedIcon { get; set; }
         private const int iconDimensions = 9; // Actually 24px; but larger when rendered (despite rect size being accurate?)
         private const int iconPadding = 2; // 24px base; including 2px minimum padding
         private const float unselectedOpacity = 0.35F;
@@ -28,7 +28,7 @@ namespace Siren.Utilities
         public InlineIconStrip(GH_Component owner, Action<int> callback, 
                                List<System.Drawing.Bitmap> icons, int activeIndex) : base(owner)
         {
-            this.indexOfSelectedIcon = activeIndex;
+            this.IndexOfSelectedIcon = activeIndex;
             this.iconClickHander = callback;
             this.iconImages = icons;
             this.iconBounds = new System.Drawing.Rectangle[icons.Count];
@@ -65,7 +65,7 @@ namespace Siren.Utilities
             iconBox.Height = iconDimensions;
 
             var toggleSize = new Size(iconStripBounds.Width, iconDimensions + iconPadding * 2);
-            var toggleLocation = new Point(iconStripBounds.Location.X, iconStripBounds.Location.Y + indexOfSelectedIcon * iconSpacing);
+            var toggleLocation = new Point(iconStripBounds.Location.X, iconStripBounds.Location.Y + IndexOfSelectedIcon * iconSpacing);
             var toggle = new Rectangle(toggleLocation, toggleSize);
             
             DrawToggle(graphics, iconStripBounds, toggle);
@@ -74,7 +74,7 @@ namespace Siren.Utilities
             {
                 iconBox.Y = iconStripBounds.Y + iconPadding + (i * iconSpacing);
                 iconBounds[i] = iconBox;
-                var imageForState = GetImageForState(iconImages[i], i == indexOfSelectedIcon);
+                var imageForState = GetImageForState(iconImages[i], i == IndexOfSelectedIcon);
                 graphics.DrawImage(imageForState, iconBounds[i]);
             }
 
@@ -91,7 +91,7 @@ namespace Siren.Utilities
 
                 if (iconRec.Contains(e.CanvasLocation))
                 {
-                    this.indexOfSelectedIcon = i;
+                    this.IndexOfSelectedIcon = i;
                     this.iconClickHander(i);
                     return GH_ObjectResponse.Handled;
                 }

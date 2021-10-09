@@ -135,7 +135,7 @@ namespace Siren.Components
 			if (reader.TryGetString("wavetype", ref waveformTitle))
 			{
 				selectedWave = waveOptions.FindIndex(w => w.Title == waveformTitle);
-				this.CreateAttributes(); // Need to refresh to pass newly-loaded state
+				(m_attributes as InlineIconStrip).IndexOfSelectedIcon = selectedWave; // Need to refresh to pass newly-loaded state
 			}
 
 			return base.Read(reader);
