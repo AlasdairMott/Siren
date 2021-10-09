@@ -34,8 +34,6 @@ namespace Siren.Utilities
             this.iconBounds = new System.Drawing.Rectangle[icons.Count];
         }
 
-        private int StripMinimumWidth => (iconDimensions + iconPadding * 3) * iconImages.Count;
-
         protected override void Layout()
         {
             base.Layout();
@@ -126,21 +124,25 @@ namespace Siren.Utilities
 
         private void DrawToggle(System.Drawing.Graphics graphics, Rectangle bounds, Rectangle toggle)
         {
-            using (var brush = new SolidBrush(Color.FromArgb(240, 30, 30, 30)))
+            using (var brush = new SolidBrush(Color.FromArgb(30, 30, 30)))
+            using (var penDark = new Pen(Color.Black, 6.6f) { LineJoin = LineJoin.Round})
             {
+                var rectangleSmall = bounds;
+                rectangleSmall.Inflate(-2, -2);
+                graphics.DrawRectangle(penDark, rectangleSmall); //use this inset thick line to get rounder edges
                 graphics.FillRectangle(brush, bounds);
             }
 
             using (var brush = new SolidBrush(Color.FromArgb(150, 150, 150)))
-            using (var penLight = new Pen(Color.FromArgb(20, 255, 255, 255), 2f) { LineJoin = LineJoin.Round, Alignment = PenAlignment.Inset })
-            using (var penMid = new Pen(Color.FromArgb(70, 70, 70), 1.0f))
-            using (var penDark = new Pen(Color.Black, 1.5f) { LineJoin = LineJoin.Round, Alignment = PenAlignment.Outset })
+            using (var penLight = new Pen(Color.FromArgb(10, 220, 220, 220), 2f) { LineJoin = LineJoin.Round, Alignment = PenAlignment.Inset })
+            using (var penMid = new Pen(Color.FromArgb(70, 70, 70), 1.4f))
+            using (var penDark = new Pen(Color.Black, 1.0f) { LineJoin = LineJoin.Round})
             {
                 graphics.FillRectangle(brush, toggle);
-                for (int i = 0; i < toggle.Height / 2 + 2; i++)
+                for (int i = 1; i < toggle.Height / 2; i++)
                 {
-                    graphics.DrawLine(penMid, new PointF(toggle.X, toggle.Y + 1.9f * i),
-                        new PointF(toggle.X + toggle.Width, toggle.Y + 1.9f * i));
+                    graphics.DrawLine(penMid, new PointF(toggle.X, -0.3f + toggle.Y + 2.55f * i),
+                        new PointF(toggle.X + toggle.Width, -0.3f + toggle.Y + 2.55f * i));
                 }
 
                 graphics.DrawRectangle(penLight, bounds);
