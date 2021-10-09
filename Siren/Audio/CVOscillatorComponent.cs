@@ -67,7 +67,7 @@ namespace Siren.Components
 		/// </summary>
 		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
 		{
-			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
+			pManager.AddParameter(new WaveStreamParameter(), "", "", "Wave output", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -107,7 +107,7 @@ namespace Siren.Components
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon => Properties.Resources.sin;
+		protected override System.Drawing.Bitmap Icon => null;
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.
