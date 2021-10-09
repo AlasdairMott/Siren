@@ -16,9 +16,10 @@ namespace Siren.Utilities
     {
         private Action<int> iconClickHander;
         private int indexOfSelectedIcon;
-        private const int iconDimensions = 18; // Actually 24px; but larger when rendered (despite rect size being accurate?)
-        private const int iconPadding = 4; // 24px base; including 2px minimum padding
+        private const int iconDimensions = 9; // Actually 24px; but larger when rendered (despite rect size being accurate?)
+        private const int iconPadding = 2; // 24px base; including 2px minimum padding
         private const float unselectedOpacity = 0.35F;
+        private const int iconOffset = 15;
         List<System.Drawing.Bitmap> iconImages;
 
         private System.Drawing.Rectangle iconStripBounds; // Overall icon area
@@ -33,47 +34,50 @@ namespace Siren.Utilities
             this.iconBounds = new System.Drawing.Rectangle[icons.Count];
         }
 
-        private int StripMinimumWidth => (iconDimensions + iconPadding * 3) * iconImages.Count;
-
         protected override void Layout()
         {
             base.Layout();
 
-            System.Drawing.Rectangle componentRect = GH_Convert.ToRectangle(Bounds);
-            componentRect.Height += iconDimensions + iconPadding * 2;
+            var componentRect = GH_Convert.ToRectangle(Bounds);
+            var iconsRect = new Rectangle();
+            iconsRect.Height = (iconDimensions + iconPadding * 2) * iconBounds.Length;
+            iconsRect.Width = iconDimensions + iconPadding * 2;
+            iconsRect.X = componentRect.X + componentRect.Width - (12 + iconsRect.Width);
+            iconsRect.Y = componentRect.Y + (componentRect.Height - iconsRect.Height) / 2;
 
-            if (componentRect.Width < StripMinimumWidth)
-                componentRect.Width = StripMinimumWidth; // Widen component to fit icons
-
-            System.Drawing.Rectangle iconsRect = componentRect;
-            iconsRect.Height = iconDimensions + iconPadding * 2;
-            iconsRect.Width -= iconPadding;
-            iconsRect.X += iconPadding * 2;
-            iconsRect.Y = componentRect.Y + componentRect.Height - iconDimensions - iconPadding;
-
-            Bounds = componentRect;
             iconStripBounds = iconsRect;
         }
 
         protected override void Render(GH_Canvas canvas, System.Drawing.Graphics graphics, GH_CanvasChannel channel)
         {
-            base.Render(canvas, graphics, channel);
-            var iconSpacing = GH_Convert.ToRectangle(iconStripBounds).Width / iconImages.Count; 
-
-            if (channel == GH_CanvasChannel.Objects)
+            if (channel != Grasshopper.GUI.Canvas.GH_CanvasChannel.Objects)
             {
-                var iconBox = iconStripBounds;
-                iconBox.Width = iconDimensions;
-                iconBox.Height = iconDimensions;
-
-                for (var i = 0; i < iconImages.Count; i++)
-                {
-                    iconBox.X = iconStripBounds.X + (i * iconSpacing);
-                    iconBounds[i] = iconBox;
-                    var imageForState = GetImageForState(iconImages[i], i == indexOfSelectedIcon);
-                    graphics.DrawImage(imageForState, iconBounds[i]);
-                }
+                base.Render(canvas, graphics, channel);
+                return;
             }
+
+            RenderComponentCapsule(canvas, graphics, true, false, true, true, true, true);
+            var iconSpacing = GH_Convert.ToRectangle(iconStripBounds).Height / iconImages.Count;
+
+            var iconBox = new Rectangle();
+            iconBox.X = iconStripBounds.X + iconPadding - iconOffset;
+            iconBox.Width = iconDimensions;
+            iconBox.Height = iconDimensions;
+
+            var toggleSize = new Size(iconStripBounds.Width, iconDimensions + iconPadding * 2);
+            var toggleLocation = new Point(iconStripBounds.Location.X, iconStripBounds.Location.Y + indexOfSelectedIcon * iconSpacing);
+            var toggle = new Rectangle(toggleLocation, toggleSize);
+            
+            DrawToggle(graphics, iconStripBounds, toggle);
+
+            for (var i = 0; i < iconImages.Count; i++)
+            {
+                iconBox.Y = iconStripBounds.Y + iconPadding + (i * iconSpacing);
+                iconBounds[i] = iconBox;
+                var imageForState = GetImageForState(iconImages[i], i == indexOfSelectedIcon);
+                graphics.DrawImage(imageForState, iconBounds[i]);
+            }
+
         }
 
         public override GH_ObjectResponse RespondToMouseDown(GH_Canvas sender, GH_CanvasMouseEvent e)
@@ -83,7 +87,8 @@ namespace Siren.Utilities
              
             for (var i = 0; i < iconImages.Count; i++)
             {
-                System.Drawing.RectangleF iconRec = iconBounds[i];
+                System.Drawing.RectangleF iconRec = new System.Drawing.RectangleF(iconBounds[i].Location.X + iconOffset, iconBounds[i].Location.Y, iconStripBounds.Width, iconDimensions + iconPadding * 2); /*(iconBounds[i]);*/
+
                 if (iconRec.Contains(e.CanvasLocation))
                 {
                     this.indexOfSelectedIcon = i;
@@ -115,6 +120,35 @@ namespace Siren.Utilities
                                                    GraphicsUnit.Pixel, imageAttributes);
             }
             return output;
+        }
+
+        private void DrawToggle(System.Drawing.Graphics graphics, Rectangle bounds, Rectangle toggle)
+        {
+            using (var brush = new SolidBrush(Color.FromArgb(30, 30, 30)))
+            using (var penDark = new Pen(Color.Black, 6.6f) { LineJoin = LineJoin.Round})
+            {
+                var rectangleSmall = bounds;
+                rectangleSmall.Inflate(-2, -2);
+                graphics.DrawRectangle(penDark, rectangleSmall); //use this inset thick line to get rounder edges
+                graphics.FillRectangle(brush, bounds);
+            }
+
+            using (var brush = new SolidBrush(Color.FromArgb(150, 150, 150)))
+            using (var penLight = new Pen(Color.FromArgb(10, 220, 220, 220), 2f) { LineJoin = LineJoin.Round, Alignment = PenAlignment.Inset })
+            using (var penMid = new Pen(Color.FromArgb(70, 70, 70), 1.4f))
+            using (var penDark = new Pen(Color.Black, 1.0f) { LineJoin = LineJoin.Round})
+            {
+                graphics.FillRectangle(brush, toggle);
+                for (int i = 1; i < toggle.Height / 2; i++)
+                {
+                    graphics.DrawLine(penMid, new PointF(toggle.X, -0.3f + toggle.Y + 2.55f * i),
+                        new PointF(toggle.X + toggle.Width, -0.3f + toggle.Y + 2.55f * i));
+                }
+
+                graphics.DrawRectangle(penLight, bounds);
+                graphics.DrawRectangle(penDark, bounds);
+            }
+
         }
 
     }
