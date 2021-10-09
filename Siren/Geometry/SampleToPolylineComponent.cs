@@ -9,6 +9,12 @@ namespace Siren.Geometry
 {
 	public class SampleToPolylineComponent : GH_Component
 	{
+		protected double cachedX;
+		protected double cachedY;
+		protected int cachedResolution;
+		protected int cachedWaveHash;
+		protected Polyline polyline;
+
 		/// <summary>
 		/// Initializes a new instance of the SampleToCurveComponent class.
 		/// </summary>
@@ -28,9 +34,11 @@ namespace Siren.Geometry
 			pManager.AddNumberParameter("Time Factor", "T", "T", GH_ParamAccess.item);
 			pManager.AddNumberParameter("Amplitude Factor", "A", "A", GH_ParamAccess.item);
 			pManager.AddIntegerParameter("Resolution", "R", "Resolution of the display", GH_ParamAccess.item);
+			pManager.AddIntervalParameter("Play Progress", "P", "Provided by the sample player; visualises a playhead on the line", GH_ParamAccess.item);
 
 			pManager[1].Optional = true;
 			pManager[2].Optional = true;
+			pManager[4].Optional = true;
 		}
 
 		/// <summary>
@@ -39,6 +47,7 @@ namespace Siren.Geometry
 		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
 		{
 			pManager.AddCurveParameter("Polyline", "P", "Polyline", GH_ParamAccess.item);
+			pManager.AddCurveParameter("Playhead", "H", "Line representing the current played progress, provided by the corresponding Sample Player ", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -53,16 +62,30 @@ namespace Siren.Geometry
 			double X = SirenSettings.TimeScale;
 			double Y = SirenSettings.AmplitudeScale;
 			int resolution = 10;
+			Interval? T = null;
 
 			DA.GetData(1, ref X); if (X <= 0) throw new Exception("T must be positive");
 			DA.GetData(2, ref Y); if (Y <= 0) throw new Exception("A must be positive");
-			DA.GetData("Resolution", ref resolution); if (resolution <= 0) throw new Exception("Resolution must be positive");
+			DA.GetData(4, ref T);
 
-			wave.Position = 0;
-			var polyline = GeometryFunctions.ISampleToPolyline(wave.ToSampleProvider(), X, Y, resolution);
-			wave.Position = 0;
+			// Don't regenerate the waveform if only the playhead input parameter has updated
+			if (X != cachedX || Y != cachedY || resolution != cachedResolution || wave.GetHashCode() != cachedWaveHash)
+			{
+				wave.Position = 0;
+				polyline = GeometryFunctions.ISampleToPolyline(wave.ToSampleProvider(), X, Y, resolution);
+				wave.Position = 0;
+
+				cachedX = X; cachedY = Y; cachedResolution = resolution;  cachedWaveHash = wave.GetHashCode();
+			}
 
 			DA.SetData(0, polyline);
+
+			if (T.HasValue)
+            {
+				var playheadX = (T.Value.T0 / T.Value.T1) * (polyline[polyline.Count - 1].X - polyline[0].X);
+				var playhead = new Line(new Point3d(playheadX, Y * -1.0, 0), new Point3d(playheadX, Y, 0));
+				DA.SetData(1, playhead);
+			}
 		}
 
 		/// <summary>
