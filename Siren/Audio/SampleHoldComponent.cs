@@ -12,8 +12,8 @@ namespace Siren.Audio
 		/// Initializes a new instance of the SampleAndHoldComponent class.
 		/// </summary>
 		public SampleHoldComponent()
-		  : base("SampleAndHoldComponent", "Nickname",
-			  "Description",
+		  : base("Sample & Hold", "S&H",
+			  "Takes a 'snapshot' of a signal at the provided trigger and maintains it until re-triggered.",
 			  "Siren", "CV Control")
 		{
 		}

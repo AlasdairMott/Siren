@@ -12,7 +12,7 @@ namespace Siren.Audio
 		/// Initializes a new instance of the ProjectSettingsComponent class.
 		/// </summary>
 		public ProjectSettingsComponent()
-		  : base("ProjectSettingsComponent", "Nickname",
+		  : base("Project Settings", "Settings",
 			  "Description",
 			  "Siren", "Utilities")
 		{

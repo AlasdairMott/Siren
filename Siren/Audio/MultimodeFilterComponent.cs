@@ -11,8 +11,8 @@ namespace Siren
 		/// Initializes a new instance of the MultimodeFilterComponent class.
 		/// </summary>
 		public MultimodeFilterComponent()
-		  : base("MultimodeFilterComponent", "Nickname",
-			  "Description",
+		  : base("Multimode Filter", "MMF",
+			  "Subtracts frequencies with a specified range from a signal.",
 			  "Siren", "Effects")
 		{
 		}

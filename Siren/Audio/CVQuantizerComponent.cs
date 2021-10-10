@@ -16,8 +16,8 @@ namespace Siren.Audio
 		/// Initializes a new instance of the CVQuantizer class.
 		/// </summary>
 		public CVQuantizerComponent()
-		  : base("CVQuantizer", "Nickname",
-			  "Description",
+		  : base("CV Quantizer", "Quant",
+			  "Takes a signal and transforms it into discrete steps that match the provided notes.",
 			  "Siren", "CV Control")
 		{
 			scaleName = "Chromatic";

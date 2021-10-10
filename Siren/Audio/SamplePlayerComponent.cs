@@ -15,7 +15,7 @@ namespace Siren.Audio
 		/// Initializes a new instance of the SamplePlayerComponent class.
 		/// </summary>
 		public SamplePlayerComponent()
-		  : base("SamplePlayerComponent", "Nickname",
+		  : base("Sample Player", "SampleP",
 			  "Description",
 			  "Siren", "Oscillators")
 		{

@@ -13,7 +13,7 @@ namespace Siren
 		/// Initializes a new instance of the RepitchComponent class.
 		/// </summary>
 		public RepitchComponent()
-		  : base("RepitchComponent", "Nickname",
+		  : base("Repitch", "Repitch",
 			  "Description",
 			  "Siren", "Effects")
 		{

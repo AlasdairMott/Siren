@@ -21,8 +21,8 @@ namespace Siren
         /// Initializes a new instance of the AudioOutComponent class.
         /// </summary>
         public AudioOutComponent()
-		  : base("AudioOutComponent", "Nickname",
-			  "Description",
+		  : base("Audio Out", "AOut",
+			  "Allows a signal to be played within Grasshopper.",
               "Siren", "Utilities")
 		{
             waveOut = new WaveOut();

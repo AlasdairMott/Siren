@@ -14,8 +14,8 @@ namespace Siren.Components
 		/// Initializes a new instance of the MixerComponent class.
 		/// </summary>
 		public UnityMixerComponent()
-		  : base("MixerComponent", "Nickname",
-			  "Description",
+		  : base("Mixer", "Mixer",
+			  "Additively combines multiple signals into a single signal.",
 			  "Siren", "VCA")
 		{
 		}

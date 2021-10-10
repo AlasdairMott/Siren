@@ -12,7 +12,7 @@ namespace Siren
 		/// Initializes a new instance of the ReadSampleComponent class.
 		/// </summary>
 		public ReadSampleComponent()
-		  : base("ReadSampleComponent", "Nickname",
+		  : base("Read Sample", "SampleR",
 			  "Description",
 			  "Siren", "Oscillators")
 		{
