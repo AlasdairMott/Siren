@@ -11,8 +11,8 @@ namespace Siren
 		/// Initializes a new instance of the MultimodeFilterComponent class.
 		/// </summary>
 		public MultimodeFilterComponent()
-		  : base("MultimodeFilterComponent", "Nickname",
-			  "Description",
+		  : base("Multimode Filter", "MMF",
+			  "Subtracts frequencies with a specified range from a signal.",
 			  "Siren", "Effects")
 		{
 		}
@@ -50,11 +50,11 @@ namespace Siren
 		{
 			int sampleRate = SirenSettings.SampleRate;
 
-			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
-			if (!DA.GetData("Wave", ref wave)) return;
+			var waveIn = CachedSound.Empty;
+			if (!DA.GetData(0, ref waveIn)) return;
 
-			var frequencyCV = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
-			DA.GetData("Frequency CV", ref frequencyCV);
+			var cvIn = CachedSound.Empty;
+			if (!DA.GetData("Frequency CV", ref cvIn)) return;
 
 			var cutoff = 10.0;
 			DA.GetData("Cutoff Frequency", ref cutoff);
@@ -69,23 +69,14 @@ namespace Siren
 			var filter = BiQuadFilter.LowPassFilter(sampleRate, (float) cutoff, (float) q);
 
 			var filtered = new SampleProviders.FilteredAudioProvider(
-				wave.ToSampleProvider(), 
-				frequencyCV.ToSampleProvider(), 
+				waveIn.ToSampleProvider(),
+				cvIn.ToSampleProvider(), 
 				filter,
 				(float) cutoff,
 				(float) cvAmount,
 				(float) q);
 
-			wave.Position = 0;
-			frequencyCV.Position = 0;
-			var stream = NAudioUtilities.WaveProviderToWaveStream(
-				filtered, 
-				(int)wave.Length,
-				wave.WaveFormat);
-			wave.Position = 0;
-			frequencyCV.Position = 0;
-
-			DA.SetData(0, stream);
+			DA.SetData(0, filtered);
 		}
 
 		/// <summary>

@@ -108,12 +108,13 @@
     <Compile Include="Geometry\SpectralCurveComponent.cs" />
     <Compile Include="Geometry\SpectralMeshComponent.cs" />
     <Compile Include="SampleProviders\FFT.cs" />
+    <Compile Include="SampleProviders\CachedSoundProvider.cs" />
     <Compile Include="SirenSettings.cs" />
     <Compile Include="Geometry\GeometryFunctions.cs" />
     <Compile Include="Geometry\SampleToPolylineComponent.cs" />
     <Compile Include="SirenFileMenu.cs" />
     <Compile Include="SampleProviders\AttenuverterProvider.cs" />
-    <Compile Include="SampleProviders\CachedSound.cs" />
+    <Compile Include="CachedSound.cs" />
     <Compile Include="SampleProviders\CVQuantizer.cs" />
     <Compile Include="SampleProviders\FilteredAudioProvider.cs" />
     <Compile Include="SirenInfo.cs" />
@@ -122,6 +123,7 @@
     <Compile Include="SampleProviders\OscillatorProvider.cs" />
     <Compile Include="SampleProviders\NoiseGenerator.cs" />
     <Compile Include="SampleProviders\TriggeredSampleProvider.cs" />
+    <Compile Include="Utilities\InlineIconStrip.cs" />
     <Compile Include="Utilities\NAudioUtilities.cs" />
     <Compile Include="Audio\ReadSampleComponent.cs" />
     <Compile Include="Audio\RepitchComponent.cs" />
@@ -214,6 +216,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\mesh.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wavef_saw.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wavef_sin.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wavef_square.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wavef_triangle.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -184,6 +184,18 @@
   <data name="wave" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\wave.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="wavef_saw" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavef_saw.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="wavef_sin" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavef_sin.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="wavef_square" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavef_square.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="wavef_triangle" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\wavef_triangle.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="waveProperties" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\waveProperties.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>

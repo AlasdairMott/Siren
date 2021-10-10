@@ -13,9 +13,9 @@ namespace Siren.Audio
 		/// Initializes a new instance of the AttenuverterComponent class.
 		/// </summary>
 		public AttenuverterComponent()
-		  : base("AttenuverterComponent", "Nickname",
-			  "Description",
-			  "Siren", "VCA")
+		  : base("Attenuverter", "AttenU",
+				"Reduces or polarises (inverts) a signal's level/amplitude.",
+				"Siren", "VCA")
 		{
 		}
 
@@ -42,23 +42,15 @@ namespace Siren.Audio
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
-			if (!DA.GetData(0, ref wave)) return;
+			var waveIn = CachedSound.Empty;
+			if (!DA.GetData(0, ref waveIn)) return;
 
 			var attenuation = 1.0;
 			if (!DA.GetData(1, ref attenuation)) return;
+			
+			var attenuverter = new SampleProviders.AttenuverterProvider(waveIn.ToSampleProvider(), (float) attenuation);
 
-			wave.Position = 0;
-
-			var attenuverter = new SampleProviders.AttenuverterProvider(wave.ToSampleProvider(), (float) attenuation);
-
-			var stream = NAudioUtilities.WaveProviderToWaveStream
-				(attenuverter,
-				(int)wave.Length,
-				wave.WaveFormat);
-			wave.Position = 0;
-
-			DA.SetData(0, stream);
+			DA.SetData(0, attenuverter);
 		}
 
 		/// <summary>

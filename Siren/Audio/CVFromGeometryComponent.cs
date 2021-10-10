@@ -18,8 +18,8 @@ namespace Siren.Audio
 		/// Initializes a new instance of the CVComponent class.
 		/// </summary>
 		public CVFromGeometryComponent()
-		  : base("CVFromGeometryComponent", "Nickname",
-			  "Description",
+		  : base("CV From Geometry", "CVGeo",
+			  "Produces a wave by sampling a curve at a given resolution.",
 			  "Siren", "CV Control")
 		{
 			bounds = new PolylineCurve();
@@ -161,8 +161,11 @@ namespace Siren.Audio
 			var waveOscillator = new RawSourceWaveStream(bufferOscillatorStream, 0, bufferOscillatorStream.Length, new WaveFormat(SirenSettings.SampleRate, 1));
 			var waveTrigger = new RawSourceWaveStream(bufferTriggerStream, 0, bufferTriggerStream.Length, new WaveFormat(SirenSettings.SampleRate, 1));
 
-			DA.SetData(0, waveOscillator);
-			DA.SetData(1, waveTrigger);
+			var cvOut1 = new CachedSound(waveOscillator);
+			var cvOut2 = new CachedSound(waveTrigger);
+
+			DA.SetData(0, cvOut1);
+			DA.SetData(1, cvOut2);
 		}
 
 		/// <summary>

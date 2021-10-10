@@ -47,8 +47,8 @@ namespace Siren.Geometry
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat()) as WaveStream;
-			if (!DA.GetData(0, ref wave)) return;
+			var waveIn = CachedSound.Empty;
+			if (!DA.GetData(0, ref waveIn)) return;
 
 			double X = SirenSettings.TimeScale;
 			double Y = SirenSettings.AmplitudeScale;
@@ -58,9 +58,7 @@ namespace Siren.Geometry
 			DA.GetData(2, ref Y); if (Y <= 0) throw new Exception("A must be positive");
 			DA.GetData("Resolution", ref resolution); if (resolution <= 0) throw new Exception("Resolution must be positive");
 
-			wave.Position = 0;
-			var polyline = GeometryFunctions.ISampleToPolyline(wave.ToSampleProvider(), X, Y, resolution);
-			wave.Position = 0;
+			var polyline = GeometryFunctions.ISampleToPolyline(waveIn.ToSampleProvider(), X, Y, resolution);
 
 			DA.SetData(0, polyline);
 		}
