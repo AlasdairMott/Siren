@@ -16,8 +16,8 @@ namespace Siren.Audio
 		/// Initializes a new instance of the NoiseComponent class.
 		/// </summary>
 		public NoiseComponent()
-		  : base("NoiseComponent", "Nickname",
-			  "Description",
+		  : base("Noise", "Noise",
+			  "Produces a signal comprised of random pitches.",
 			  "Siren", "Oscillators")
 		{
 			wavetype = "White";

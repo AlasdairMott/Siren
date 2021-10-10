@@ -36,8 +36,8 @@ namespace Siren.Components
 		/// Initializes a new instance of the CVOscillatorComponent class.
 		/// </summary>
 		public CVOscillatorComponent()
-		  : base("CVOscillatorComponent", "Nickname",
-			  "Description",
+		  : base("CV Oscillator", "Osc",
+			  "Produces an audible signal using a specific waveform type at the given pitch.",
 			  "Siren", "Oscillators")
 		{
 			selectedWave = 0; // Sin default

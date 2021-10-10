@@ -13,8 +13,8 @@ namespace Siren
 		/// Initializes a new instance of the VCAComponent class.
 		/// </summary>
 		public VCAComponent()
-		  : base("VCAComponent", "Nickname",
-			  "Description",
+		  : base("VCA", "VCA",
+			  "Reduces a signal's level/amplitude.",
 			  "Siren", "VCA")
 		{
 		}

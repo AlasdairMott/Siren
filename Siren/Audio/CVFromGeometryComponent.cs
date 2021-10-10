@@ -18,8 +18,8 @@ namespace Siren.Audio
 		/// Initializes a new instance of the CVComponent class.
 		/// </summary>
 		public CVFromGeometryComponent()
-		  : base("CVFromGeometryComponent", "Nickname",
-			  "Description",
+		  : base("CV From Geometry", "CVGeo",
+			  "Produces a wave by sampling a curve at a given resolution.",
 			  "Siren", "CV Control")
 		{
 			bounds = new PolylineCurve();

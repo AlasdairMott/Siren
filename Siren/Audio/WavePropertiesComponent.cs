@@ -13,8 +13,8 @@ namespace Siren.Audio
 		/// Initializes a new instance of the WavePropertiesComponent class.
 		/// </summary>
 		public WavePropertiesComponent()
-		  : base("WavePropertiesComponent", "Nickname",
-			  "Description",
+		  : base("Wave Properties", "WaveP",
+			  "Outputs various numeric characteristics of a signal, such as length.",
 			  "Siren", "Utilities")
 		{
 		}

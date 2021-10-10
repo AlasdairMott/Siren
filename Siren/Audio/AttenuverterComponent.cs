@@ -13,9 +13,9 @@ namespace Siren.Audio
 		/// Initializes a new instance of the AttenuverterComponent class.
 		/// </summary>
 		public AttenuverterComponent()
-		  : base("AttenuverterComponent", "Nickname",
-			  "Description",
-			  "Siren", "VCA")
+		  : base("Attenuverter", "AttenU",
+				"Reduces or polarises (inverts) a signal's level/amplitude.",
+				"Siren", "VCA")
 		{
 		}
 
