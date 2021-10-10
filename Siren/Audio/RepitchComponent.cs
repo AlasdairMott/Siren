@@ -42,8 +42,8 @@ namespace Siren
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat()) as WaveStream;
-			if (!DA.GetData(0, ref wave)) return;
+			var waveIn = CachedSound.Empty;
+			if (!DA.GetData(0, ref waveIn)) return;
 
 			double p = 1;
 			if (!DA.GetData(1, ref p)) return;
@@ -52,22 +52,10 @@ namespace Siren
 			var upOneTone = semitone * semitone;
 			var downOneTone = 1.0 / upOneTone;
 			
-			var pitchShifted = new SmbPitchShiftingSampleProvider(wave.ToSampleProvider());
+			var pitchShifted = new SmbPitchShiftingSampleProvider(waveIn.ToSampleProvider());
 			pitchShifted.PitchFactor = (float)(upOneTone * p); // or downOneTone
 
-			wave.Position = 0;
-			var stream = NAudioUtilities.WaveProviderToWaveStream(
-				pitchShifted, 
-				(int)wave.Length,
-				wave.WaveFormat);
-			wave.Position = 0;
-
-			//int count = (int)wave.Length;
-			//byte[] buffer = new byte[wave.Length];
-			//pitch.ToWaveProvider16().Read(buffer, 0, count);
-			//var stream = new RawSourceWaveStream(buffer, 0, count, wave.WaveFormat);
-
-			DA.SetData(0, stream);
+			DA.SetData(0, pitchShifted);
 		}
 
 		/// <summary>

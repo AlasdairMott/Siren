@@ -42,25 +42,15 @@ namespace Siren
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
-			if (!DA.GetData(0, ref wave)) return;
+			var waveIn = CachedSound.Empty;
+			if (!DA.GetData(0, ref waveIn)) return;
 
-			var amplitude = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
-			if (!DA.GetData(1, ref amplitude)) return;
+			var cvIn = CachedSound.Empty;
+			if (!DA.GetData(1, ref cvIn)) return;
 
-			wave.Position = 0;
-			amplitude.Position = 0;
+			var vca = new SampleProviders.VCAProvider(waveIn.ToSampleProvider(), cvIn.ToSampleProvider());
 
-			var vca = new SampleProviders.VCAProvider(wave.ToSampleProvider(), amplitude.ToSampleProvider());
-
-			var stream = NAudioUtilities.WaveProviderToWaveStream
-				(vca, 
-				(int) wave.Length,
-				wave.WaveFormat);
-			wave.Position = 0;
-			amplitude.Position = 0;
-
-			DA.SetData(0, stream);
+			DA.SetData(0, vca);
 		}
 
 		/// <summary>

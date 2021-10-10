@@ -45,8 +45,8 @@ namespace Siren.Audio
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat()) as WaveStream;
-			if (!DA.GetData(0, ref wave)) return;
+			var waveIn = CachedSound.Empty;
+			if (!DA.GetData(0, ref waveIn)) return;
 
 			var points = new List<Point3d>();
 			if (!DA.GetDataList(1, points)) return;
@@ -61,10 +61,8 @@ namespace Siren.Audio
 			var offsets = new List<ISampleProvider>();
 			foreach (double t in triggerTimes) 
 			{
-				wave.Position = 0;
-				var length = (int)(t * SirenSettings.SampleRate + wave.Length);
-				var cachedSound = new CachedSound(wave);
-				var cachedSoundProvider = new CachedSoundSampleProvider(cachedSound);
+				var length = (int)(t * SirenSettings.SampleRate + waveIn.Length);
+				var cachedSoundProvider = new CachedSoundSampleProvider(waveIn);
 
 				var offsetSample = new OffsetSampleProvider(cachedSoundProvider)
 				{
@@ -75,13 +73,7 @@ namespace Siren.Audio
 				mixer.AddMixerInput(offsetSample);
 			}
 
-			int totalLength = (int)(triggerTimes.Max() * SirenSettings.SampleRate + wave.Length) * 2;
-			var stream = NAudioUtilities.WaveProviderToWaveStream(
-				mixer,
-				totalLength,
-				wave.WaveFormat);
-
-			DA.SetData(0, stream);
+			DA.SetData(0, mixer);
 		}
 
 		/// <summary>
