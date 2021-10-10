@@ -6,12 +6,17 @@ using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
 using System.Drawing;
+using System.Timers;
 
 namespace Siren
 {
     public class AudioOutComponent : GH_Component
 	{
         private readonly WaveOut waveOut;
+        public bool waveIsPlaying = false; 
+        public Rhino.Geometry.Interval playState; // Form of (currentTime, totalTime)
+        public readonly int tickRate = 100; // playStateTimer duration, e.g. playhead update rate (in ms)
+        public readonly double latencyCompensation = 1.5; // Magic number; durations of interval don't match length?
 
         public WaveStream Wave { get; private set; }
         public MixingSampleProvider Mixer { get; private set; }
@@ -51,8 +56,9 @@ namespace Siren
 		/// Registers all the output parameters for this component.
 		/// </summary>
 		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
-		{
-		}
+        {
+            pManager.AddIntervalParameter("Play Progress", "P", "The play progress, in seconds, of the sample", GH_ParamAccess.item);
+        }
 
 		/// <summary>
 		/// This is the method that actually does the work.
@@ -60,27 +66,49 @@ namespace Siren
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
+            if (waveIsPlaying && playState != null)
+            {
+                playState.T0 += tickRate / 1000f * latencyCompensation;
+
+                if (playState.T0 > playState.T1)
+                {
+                    waveIsPlaying = false;
+                    playState.T0 = 0.0;
+                }
+                else
+                    OnPingDocument()?.ScheduleSolution(tickRate, TriggerPlayheadUpdate);
+
+                DA.SetData(0, playState);
+                return; // Skip rest of solve
+            }
+
             var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat()) as WaveStream;
 
             if (!DA.GetData(0, ref wave)) return;
             Wave = wave;
+
+            playState = new Rhino.Geometry.Interval(0.0, wave.TotalTime.TotalSeconds);
+            DA.SetData(0, playState);
+        }
+
+        public void TriggerPlayheadUpdate(GH_Document gh)
+        {
+            this.ExpireSolution(false);
         }
 
         public override void AddedToDocument(GH_Document document)
         {
             base.AddedToDocument(document);
-
             waveOut.Play();
         }
 
         public override void RemovedFromDocument(GH_Document document)
         {
             base.RemovedFromDocument(document);
-
             waveOut.Stop();
             waveOut.Dispose();
         }
-
+            
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
@@ -118,8 +146,6 @@ namespace Siren
                                    Convert.ToInt32(Bounds.Y) + buttonOffset,
                                    Convert.ToInt32(Bounds.Height) - (buttonOffset * 2),
                                    Convert.ToInt32(Bounds.Height) - (buttonOffset * 2));
-            
-            
         }
 
         protected override void Layout()
@@ -135,6 +161,13 @@ namespace Siren
             var inputBounds = inputAttributes.Bounds;
             inputBounds.Y += 4;
             inputAttributes.Bounds = inputBounds;
+
+            var componentOutputs = (this.DocObject as IGH_Component).Params.Output;
+            var outputAttributes = componentOutputs[0].Attributes;
+            var outputBounds = outputAttributes.Bounds;
+            outputBounds.Y += 4;
+            outputBounds.X += 28;
+            outputAttributes.Bounds = outputBounds;
         }
 
         protected override void Render(GH_Canvas canvas, Graphics graphics, GH_CanvasChannel channel)
@@ -146,29 +179,33 @@ namespace Siren
 
             if (channel == GH_CanvasChannel.Objects)
             {
-                //Render output grip.
+                //Render input and output grip.
                 GH_CapsuleRenderEngine.RenderInputGrip(graphics, canvas.Viewport.Zoom, InputGrip, true);
+                GH_CapsuleRenderEngine.RenderOutputGrip(graphics, canvas.Viewport.Zoom, OutputGrip, true);
 
                 // Updating the capsule rectangles
                 buttonOffset = 0;//(Convert.ToInt32(Bounds.Height) - 24) / 2;
-                var textBox = new RectangleF(Bounds.X - 12/*+ buttonOffset / 2*/, Bounds.Y, Bounds.Width - Bounds.Height, Bounds.Height);
+                var leftTextBox = new RectangleF(Bounds.X - 12/*+ buttonOffset / 2*/, Bounds.Y, Bounds.Width - Bounds.Height, Bounds.Height);
+                var rightTextBox = new RectangleF(Bounds.X + Bounds.Width - 16, Bounds.Y, 10, Bounds.Height); 
                 button = new Rectangle(Convert.ToInt32(Bounds.X) + Convert.ToInt32(Bounds.Width) - Convert.ToInt32(Bounds.Height) + buttonOffset,
                                        Convert.ToInt32(Bounds.Y) + buttonOffset,
                                        Convert.ToInt32(Bounds.Height) - (buttonOffset * 2),
                                        Convert.ToInt32(Bounds.Height) - (buttonOffset * 2));
 
                 // Creating the capsules
-                GH_Capsule outerCapsule = GH_Capsule.CreateTextCapsule(Bounds, textBox, GH_Palette.Black, "W");
-                //GH_Capsule outerCapsule = GH_Capsule.CreateCapsule(Bounds, GH_Palette.Black);
+                GH_Capsule outerLeftCapsule = GH_Capsule.CreateTextCapsule(Bounds, leftTextBox, GH_Palette.Black, "W");
                 GH_Capsule buttonCapsule = GH_Capsule.CreateCapsule(button, GH_Palette.Transparent, 2, 2);
+                //GH_Capsule outerRightCapsule = GH_Capsule.CreateTextCapsule(Bounds, rightTextBox, GH_Palette.Black, "P");
 
                 // Rendering the capsules
-                outerCapsule.Render(graphics, Selected, Owner.Locked, true);
+                outerLeftCapsule.Render(graphics, Selected, Owner.Locked, true);
                 buttonCapsule.Render(graphics, icon, Color.Transparent);
+                //outerRightCapsule.Render(graphics, Selected, Owner.Locked, true);
 
                 // Disposing of the capsules
-                outerCapsule.Dispose();
+                outerLeftCapsule.Dispose();
                 buttonCapsule.Dispose();
+                //outerRightCapsule.Dispose();
             }
         }
 
@@ -198,11 +235,11 @@ namespace Siren
                 if (!Owner.Locked && e.Clicks >= 1 && ((RectangleF)button).Contains(e.CanvasLocation))
                 {
                     owner.Wave.CurrentTime = TimeSpan.FromMilliseconds(0);
-
-
                     owner.Mixer.AddMixerInput(owner.Wave);
-                    //owner.Mixer.AddMixerInput(new SampleProviders.LoopStream(owner.Wave));
 
+                    owner.waveIsPlaying = true;
+                    owner.ExpireSolution(true);
+                    //owner.Mixer.AddMixerInput(new SampleProviders.LoopStream(owner.Wave));
                 }
             }
             return base.RespondToMouseDown(sender, e);
