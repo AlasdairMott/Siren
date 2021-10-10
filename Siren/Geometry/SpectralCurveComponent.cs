@@ -48,8 +48,8 @@ namespace Siren.Geometry
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
-			if (!DA.GetData("Wave", ref wave)) return;
+			var waveIn = CachedSound.Empty;
+			if (!DA.GetData(0, ref waveIn)) return;
 
 			double X = SirenSettings.TimeScale;
 			double Y = SirenSettings.AmplitudeScale;
@@ -59,18 +59,18 @@ namespace Siren.Geometry
 			DA.GetData(2, ref X); if (X <= 0) throw new Exception("T must be positive");
 			DA.GetData(3, ref Y); if (Y <= 0) throw new Exception("A must be positive");
 			
-			wave.Position = 0;
-			var fft = new SampleProviders.FFT(wave.ToSampleProvider());
-			wave.Position = 0;
 
-			var buffer = new float[wave.Length];
-			int samplesRead = fft.Read(buffer, 0, (int)wave.Length);
+			var fft = new SampleProviders.FFT(waveIn.ToSampleProvider());
+
+
+			var buffer = new float[waveIn.Length];
+			int samplesRead = fft.Read(buffer, 0, (int)waveIn.Length);
 			var stream = fft.GetFFTWave();
 
 			var polyline = GeometryFunctions.ISampleToPolyline(stream.ToSampleProvider(), X, Y, resolution, 
 				GeometryFunctions.WindowMethod.Max, GeometryFunctions.ScalingMethod.Logarithmic);
 
-			var factor = (X / wave.TotalTime.TotalSeconds) / polyline.Last.X;
+			var factor = (X / waveIn.TotalTime.TotalSeconds) / polyline.Last.X;
 			polyline.Transform(Transform.Scale(Plane.WorldXY, factor, 1.0, 1.0));
 
 			DA.SetData(0, polyline);

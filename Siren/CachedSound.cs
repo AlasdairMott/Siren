@@ -13,6 +13,14 @@ namespace Siren
         public WaveFormat WaveFormat { get; private set; }
         public long Length { get; private set; }
         public static CachedSound Empty => new CachedSound(new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat()));
+        public TimeSpan TotalTime 
+        { 
+            get
+            {
+                var seconds = (Length / (double)WaveFormat.SampleRate);
+                return TimeSpan.FromSeconds(seconds);
+            }
+        }
 
         public CachedSound(WaveStream wave)
         {
