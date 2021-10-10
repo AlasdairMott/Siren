@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Grasshopper.Kernel;
+﻿using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
-
+using System;
+using System.Linq;
+using System.Windows.Forms;
+using Siren.SampleProviders;
 
 namespace Siren
 {
-	public class WaveStreamGoo : GH_Goo<WaveStream>
+    public class WaveStreamGoo : GH_Goo<CachedSound>
     {
         public override bool IsValid => Value.Length > 0;
 
@@ -23,36 +18,18 @@ namespace Siren
 
         public WaveStreamGoo()
         {
-            this.Value = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
+            this.Value = CachedSound.Empty;
         }
-        public WaveStreamGoo(WaveStream stream)
+        public WaveStreamGoo(CachedSound stream)
         {
-            if (stream == null) stream = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
+            if (stream == null) stream = CachedSound.Empty;
             this.Value = stream;
         }
 
         #region casting methods
         public override bool CastTo<Q>(ref Q target)
         {
-            if (typeof(Q).IsAssignableFrom(typeof(WaveStream)))
-            {
-                if (Value == null) target = default(Q);
-                else target = (Q)(object)Value;
-                return true;
-            }
-            else if (typeof(Q).IsAssignableFrom(typeof(SampleToWaveProvider)))
-            {
-                if (Value == null) target = default(Q);
-                else target = (Q)(object)Value;
-                return true;
-            }
-            else if (typeof(Q).IsAssignableFrom(typeof(RawSourceWaveStream)))
-            {
-                if (Value == null) target = default(Q);
-                else target = (Q)(object)Value;
-                return true;
-            }
-            else if (typeof(Q).IsAssignableFrom(typeof(AudioFileReader)))
+            if (typeof(Q).IsAssignableFrom(typeof(CachedSound)))
             {
                 if (Value == null) target = default(Q);
                 else target = (Q)(object)Value;
@@ -64,14 +41,14 @@ namespace Siren
         public override bool CastFrom(object source)
         {
             if (source == null) { return false; }
-            if (typeof(WaveStream).IsAssignableFrom(source.GetType()))
+            if (typeof(CachedSound).IsAssignableFrom(source.GetType()))
             {
-                Value = (WaveStream)source;
+                Value = (CachedSound)source;
                 return true;
             }
-            else if (typeof(SampleToWaveProvider).IsAssignableFrom(source.GetType()))
+            else if (typeof(ISampleProvider).IsAssignableFrom(source.GetType()))
             {
-                Value = (WaveStream) source;
+                Value = (CachedSound) new CachedSound(source as ISampleProvider);
                 return true;
             }
             return false;
@@ -80,13 +57,7 @@ namespace Siren
 
         public override IGH_Goo Duplicate()
 		{
-			RawSourceWaveStream stream;
-			using (MemoryStream memoryStream = new MemoryStream()) 
-			{
-				(Value as WaveStream).CopyTo(memoryStream);
-				stream = new RawSourceWaveStream(memoryStream, new WaveFormat(SirenSettings.SampleRate, 16, 1));
-			}
-			return new WaveStreamGoo(stream);
+			return new WaveStreamGoo(Value.Clone());
 		}
 
 		public override string ToString()
@@ -136,9 +107,8 @@ namespace Siren
             {
                 var goo = this.m_data.get_FirstItem(true);
                 if (goo == null) return;
-                var waveStream = goo.Value;
-                waveStream.Position = 0;
-                WaveFileWriter.CreateWaveFile(fd.FileName, waveStream);
+                var provider = new CachedSoundSampleProvider(goo.Value);
+                WaveFileWriter.CreateWaveFile(fd.FileName, provider.ToWaveProvider());
             }
         }
     }

@@ -16,8 +16,8 @@ namespace Siren.Audio
 		/// Initializes a new instance of the NoiseComponent class.
 		/// </summary>
 		public NoiseComponent()
-		  : base("NoiseComponent", "Nickname",
-			  "Description",
+		  : base("Noise", "Noise",
+			  "Produces a signal comprised of random pitches.",
 			  "Siren", "Oscillators")
 		{
 			wavetype = "White";
@@ -56,13 +56,9 @@ namespace Siren.Audio
 				case "Pink": type = SignalGeneratorType.Pink; break;
 				default: throw new ArgumentOutOfRangeException("wavetype not valid");
 			}
-			var oscillator = SampleProviders.NoiseGenerator.Oscillator(440, duration * 2, type);
-			var wave = NAudioUtilities.WaveProviderToWaveStream(
-				oscillator.ToWaveProvider16().ToSampleProvider(),
-				oscillator.TakeSamples,
-				new WaveFormat(sampleRate, 1));
+			var noise = SampleProviders.NoiseGenerator.Oscillator(440, duration * 2, type);
 
-			DA.SetData(0, wave);
+			DA.SetData(0, noise);
 		}
 
 		/// <summary>

@@ -13,8 +13,8 @@ namespace Siren.Audio
 		/// Initializes a new instance of the WavePropertiesComponent class.
 		/// </summary>
 		public WavePropertiesComponent()
-		  : base("WavePropertiesComponent", "Nickname",
-			  "Description",
+		  : base("Wave Properties", "WaveP",
+			  "Outputs various numeric characteristics of a signal, such as length.",
 			  "Siren", "Utilities")
 		{
 		}
@@ -45,28 +45,14 @@ namespace Siren.Audio
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat()) as WaveStream;
-			if (!DA.GetData(0, ref wave)) return;
+			var cvIn = CachedSound.Empty;
+			if (!DA.GetData(0, ref cvIn)) return;
 
-			DA.SetData(0, wave.Length);
-			DA.SetData(1, wave.TotalTime.TotalSeconds);
-			DA.SetData(2, wave.WaveFormat.SampleRate);
-
-			wave.Position = 0;
-			var readBuffer = new float[wave.Length];
-			int samplesRead = wave.ToSampleProvider().Read(readBuffer, 0, (int) wave.Length);
-			wave.Position = 0;
-
-			if (samplesRead > 0)
-			{
-				var max = readBuffer.Max();
-				var min = readBuffer.Min();
-
-				DA.SetData(3, max);
-				DA.SetData(4, min);
-			}
-
-
+			DA.SetData(0, cvIn.Length);
+			DA.SetData(1, (cvIn.Length / (double) cvIn.WaveFormat.SampleRate)); 
+			DA.SetData(2, cvIn.WaveFormat.SampleRate);
+			DA.SetData(3, cvIn.AudioData.Max());
+			DA.SetData(4, cvIn.AudioData.Min());
 		}
 
 		/// <summary>
