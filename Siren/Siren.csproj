@@ -105,12 +105,13 @@
     <Compile Include="Audio\SamplePlayerComponent.cs" />
     <Compile Include="Audio\UnityMixerComponent.cs" />
     <Compile Include="Audio\WavePropertiesComponent.cs" />
+    <Compile Include="SampleProviders\CachedSoundProvider.cs" />
     <Compile Include="SirenSettings.cs" />
     <Compile Include="Geometry\GeometryFunctions.cs" />
     <Compile Include="Geometry\SampleToPolylineComponent.cs" />
     <Compile Include="SirenFileMenu.cs" />
     <Compile Include="SampleProviders\AttenuverterProvider.cs" />
-    <Compile Include="SampleProviders\CachedSound.cs" />
+    <Compile Include="CachedSound.cs" />
     <Compile Include="SampleProviders\CVQuantizer.cs" />
     <Compile Include="SampleProviders\FilteredAudioProvider.cs" />
     <Compile Include="SirenInfo.cs" />

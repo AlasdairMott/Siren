@@ -13,7 +13,7 @@ namespace Siren
 	{
         private readonly WaveOut waveOut;
 
-        public WaveStream Wave { get; private set; }
+        public CachedSound Wave { get; private set; }
         public MixingSampleProvider Mixer { get; private set; }
         public float Volume { get; set; }
 
@@ -30,7 +30,7 @@ namespace Siren
             Mixer.ReadFully = true;
             waveOut.Init(Mixer);
 
-            Wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
+            Wave = CachedSound.Empty;
             Volume = 1.0f;
         }
 
@@ -60,10 +60,10 @@ namespace Siren
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-            var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat()) as WaveStream;
+            var waveIn = CachedSound.Empty;
+            if (!DA.GetData(0, ref waveIn)) return;
 
-            if (!DA.GetData(0, ref wave)) return;
-            Wave = wave;
+            Wave = waveIn;
         }
 
         public override void AddedToDocument(GH_Document document)
@@ -197,10 +197,7 @@ namespace Siren
                 // Checking if it was clicked, and if it's in the right area
                 if (!Owner.Locked && e.Clicks >= 1 && ((RectangleF)button).Contains(e.CanvasLocation))
                 {
-                    owner.Wave.CurrentTime = TimeSpan.FromMilliseconds(0);
-
-
-                    owner.Mixer.AddMixerInput(owner.Wave);
+                    owner.Mixer.AddMixerInput(owner.Wave.ToSampleProvider());
                     //owner.Mixer.AddMixerInput(new SampleProviders.LoopStream(owner.Wave));
 
                 }
