@@ -66,6 +66,19 @@ namespace Siren
 
         public CachedSoundSampleProvider ToSampleProvider() => new CachedSoundSampleProvider(this);
 
+        public RawSourceWaveStream ToRawSourceWaveStream() 
+        {
+            var stream = new List<byte>();
+            for (int n =0; n < AudioData.Length; n++)
+            {
+                short valShort = Convert.ToInt16(short.MaxValue * NAudioUtilities.Limit(AudioData[n]));
+                var valByte = BitConverter.GetBytes(valShort);
+                stream.AddRange(valByte);
+            }
+
+            return new RawSourceWaveStream(stream.ToArray(), 0, stream.Count, WaveFormat);
+        }
+
         public CachedSound Clone() { return new CachedSound(this); }
 
         object ICloneable.Clone() => Clone();

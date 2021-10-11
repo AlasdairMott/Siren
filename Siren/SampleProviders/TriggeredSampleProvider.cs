@@ -33,6 +33,8 @@ namespace Siren.SampleProviders
 			if (samplesRead == 0) return 0;
 
 			var outBuffer = new float[samplesRead + sample.AudioData.Length];
+			Array.Copy(cache.ToArray(), 0, outBuffer, 0, Math.Min(cache.Count, outBuffer.Length));
+			cache.Clear();
 
 			bool triggered = false;
 			for (int n = 0; n < samplesRead; n++)
@@ -47,14 +49,19 @@ namespace Siren.SampleProviders
 					var remaining = buffer.Count() - location;
 					var length = Math.Min(sample.AudioData.Length, remaining);
 
+					if (length < sample.AudioData.Length) 
+					{ 
+						var samplesToCache = new float[sample.AudioData.Length - length];
+						Array.Copy(sample.AudioData, length, samplesToCache, 0, samplesToCache.Length);
+						cache.AddRange(samplesToCache);
+					}
+
 					Array.Copy(sample.AudioData, 0, outBuffer, offset + n, length);
 				}
 			}
 			//buffer = outBuffer.Take(samplesRead).ToArray();
-			for (int n =0; n < samplesRead; n++)
-			{
-				buffer[n] = outBuffer[n];
-			}
+
+			Array.Copy(outBuffer, 0, buffer, 0, Math.Min(buffer.Length, outBuffer.Length));
 
 			Position += count;
 

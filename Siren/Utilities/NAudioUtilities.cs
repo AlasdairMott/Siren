@@ -25,5 +25,10 @@ namespace Siren
 		{
 			return Math.Max(Math.Min(value, ceiling), floor);
 		}
+
+		public static float Limit(float value) 
+		{
+			return Math.Max(Math.Min(value, 1.0f), -1.0f);
+		}
 	}
 }
