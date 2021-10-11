@@ -56,8 +56,8 @@ namespace Siren.Geometry
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat()) as WaveStream;
-			if (!DA.GetData(0, ref wave)) return;
+			var waveIn = CachedSound.Empty;
+			if (!DA.GetData(0, ref waveIn)) return;
 
 			double X = SirenSettings.TimeScale;
 			double Y = SirenSettings.AmplitudeScale;
@@ -66,16 +66,14 @@ namespace Siren.Geometry
 
 			DA.GetData(1, ref X); if (X <= 0) throw new Exception("T must be positive");
 			DA.GetData(2, ref Y); if (Y <= 0) throw new Exception("A must be positive");
-			DA.GetData(4, ref T);
+			DA.GetData("Resolution", ref resolution); if (resolution <= 0) throw new Exception("Resolution must be positive");
+			DA.GetData(4, ref T); 
 
 			// Don't regenerate the waveform if only the playhead input parameter has updated
-			if (X != cachedX || Y != cachedY || resolution != cachedResolution || wave.GetHashCode() != cachedWaveHash)
+			if (X != cachedX || Y != cachedY || resolution != cachedResolution || waveIn.GetHashCode() != cachedWaveHash)
 			{
-				wave.Position = 0;
-				polyline = GeometryFunctions.ISampleToPolyline(wave.ToSampleProvider(), X, Y, resolution);
-				wave.Position = 0;
-
-				cachedX = X; cachedY = Y; cachedResolution = resolution;  cachedWaveHash = wave.GetHashCode();
+				polyline = GeometryFunctions.ISampleToPolyline(waveIn.ToSampleProvider(), X, Y, resolution);
+				cachedX = X; cachedY = Y; cachedResolution = resolution;  cachedWaveHash = waveIn.GetHashCode();
 			}
 
 			DA.SetData(0, polyline);

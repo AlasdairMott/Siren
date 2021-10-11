@@ -36,11 +36,11 @@ namespace Siren.Components
 		/// Initializes a new instance of the CVOscillatorComponent class.
 		/// </summary>
 		public CVOscillatorComponent()
-		  : base("CVOscillatorComponent", "Nickname",
-			  "Description",
+		  : base("CV Oscillator", "Osc",
+			  "Produces an audible signal using a specific waveform type at the given pitch.",
 			  "Siren", "Oscillators")
 		{
-			selectedWave = 1; // Sawtooth default
+			selectedWave = 0; // Sin default
 		}
 
 		/// <summary>
@@ -67,7 +67,7 @@ namespace Siren.Components
 		/// </summary>
 		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
 		{
-			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
+			pManager.AddParameter(new WaveStreamParameter(), "", "", "Wave output", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -76,15 +76,13 @@ namespace Siren.Components
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			var cv = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
-			if (!DA.GetData(0, ref cv)) return;
+			var cvIn = CachedSound.Empty;
+			if (!DA.GetData(0, ref cvIn)) return;
 
 			int octave = 0;
 			double semi = 0;
 			DA.GetData(1, ref octave);
 			DA.GetData(2, ref semi);
-
-			cv.Position = 0;
 
 			var signalGenerator = new SignalGenerator(SirenSettings.SampleRate, 1)
 			{
@@ -93,15 +91,9 @@ namespace Siren.Components
 				Gain = 0.25
 			};
 
-			var oscillator = new SampleProviders.OscillatorProvider(cv.ToSampleProvider(), signalGenerator, octave, semi);
+			var oscillator = new SampleProviders.OscillatorProvider(cvIn.ToSampleProvider(), signalGenerator, octave, semi);
 
-			var stream = NAudioUtilities.WaveProviderToWaveStream
-				(oscillator,
-				(int)cv.Length,
-				cv.WaveFormat);
-			cv.Position = 0;
-
-			DA.SetData(0, stream);
+			DA.SetData(0, oscillator);
 		}
 
 		/// <summary>
@@ -135,7 +127,7 @@ namespace Siren.Components
 			if (reader.TryGetString("wavetype", ref waveformTitle))
 			{
 				selectedWave = waveOptions.FindIndex(w => w.Title == waveformTitle);
-				this.CreateAttributes(); // Need to refresh to pass newly-loaded state
+				(m_attributes as InlineIconStrip).IndexOfSelectedIcon = selectedWave; // Need to refresh to pass newly-loaded state
 			}
 
 			return base.Read(reader);

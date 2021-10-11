@@ -16,8 +16,8 @@ namespace Siren.Audio
 		/// Initializes a new instance of the CVQuantizer class.
 		/// </summary>
 		public CVQuantizerComponent()
-		  : base("CVQuantizer", "Nickname",
-			  "Description",
+		  : base("CV Quantizer", "Quant",
+			  "Takes a signal and transforms it into discrete steps that match the provided notes.",
 			  "Siren", "CV Control")
 		{
 			scaleName = "Chromatic";
@@ -47,8 +47,8 @@ namespace Siren.Audio
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			var cv = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
-			if (!DA.GetData(0, ref cv)) return;
+			var cvIn = CachedSound.Empty;
+			if (!DA.GetData(0, ref cvIn)) return;
 
 			var scale = new List<double>();
 			if (!DA.GetDataList(1, scale)) 
@@ -59,15 +59,9 @@ namespace Siren.Audio
 			if (scale.Min() < 0 || scale.Max() >= 12) throw new ArgumentOutOfRangeException("Values in scale must be from [0,12)");
 			scale = scale.Select(s => s * (1.0 / 12.0)).ToList();
 
-			var quantized = new SampleProviders.CVQuantizer(cv.ToSampleProvider(), scale);
+			var quantizer = new SampleProviders.CVQuantizer(cvIn.ToSampleProvider(), scale);
 
-			var stream = NAudioUtilities.WaveProviderToWaveStream
-				(quantized,
-				(int)cv.Length,
-				cv.WaveFormat);
-			cv.Position = 0;
-
-			DA.SetData(0, stream);
+			DA.SetData(0, quantizer);
 		}
 
 		/// <summary>

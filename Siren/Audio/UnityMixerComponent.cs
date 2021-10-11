@@ -14,8 +14,8 @@ namespace Siren.Components
 		/// Initializes a new instance of the MixerComponent class.
 		/// </summary>
 		public UnityMixerComponent()
-		  : base("MixerComponent", "Nickname",
-			  "Description",
+		  : base("Mixer", "Mixer",
+			  "Additively combines multiple signals into a single signal.",
 			  "Siren", "VCA")
 		{
 		}
@@ -42,25 +42,18 @@ namespace Siren.Components
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-			var waves = new List<WaveStream>();
-			if (!DA.GetDataList(0, waves)) return;
-			if (waves.Contains(null))
+			var wavesIn = new List<CachedSound>();
+			if (!DA.GetDataList(0, wavesIn)) return;
+			if (wavesIn.Contains(null))
             {
 				AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "An invalid wave input was provided; check for issues with earlier components.");
 				return;
 			}
 
-			var multiplier = 1 / waves.Count;
-			var mixer = new MixingSampleProvider(waves.Select(s => s.ToSampleProvider()));
+			var multiplier = 1 / wavesIn.Count;
+			var mixer = new MixingSampleProvider(wavesIn.Select(s => s.ToSampleProvider()));
 
-			waves.ForEach(w => w.Position = 0);
-			var stream = NAudioUtilities.WaveProviderToWaveStream(
-				mixer,
-				(int)waves.Max(s => s.Length),
-				waves[0].WaveFormat);
-			waves.ForEach(w => w.Position = 0);
-
-			DA.SetData(0, stream);
+			DA.SetData(0, mixer);
 		}
 
 		/// <summary>

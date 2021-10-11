@@ -18,7 +18,7 @@ namespace Siren
         public readonly int tickRate = 100; // playStateTimer duration, e.g. playhead update rate (in ms)
         public readonly double latencyCompensation = 1.5; // Magic number; durations of interval don't match length?
 
-        public WaveStream Wave { get; private set; }
+        public CachedSound Wave { get; private set; }
         public MixingSampleProvider Mixer { get; private set; }
         public float Volume { get; set; }
 
@@ -26,8 +26,8 @@ namespace Siren
         /// Initializes a new instance of the AudioOutComponent class.
         /// </summary>
         public AudioOutComponent()
-		  : base("AudioOutComponent", "Nickname",
-			  "Description",
+		  : base("Audio Out", "AOut",
+			  "Allows a signal to be played within Grasshopper.",
               "Siren", "Utilities")
 		{
             waveOut = new WaveOut();
@@ -35,7 +35,7 @@ namespace Siren
             Mixer.ReadFully = true;
             waveOut.Init(Mixer);
 
-            Wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat());
+            Wave = CachedSound.Empty;
             Volume = 1.0f;
         }
 
@@ -82,12 +82,12 @@ namespace Siren
                 return; // Skip rest of solve
             }
 
-            var wave = new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat()) as WaveStream;
+            var waveIn = CachedSound.Empty;
+            if (!DA.GetData(0, ref waveIn)) return;
 
-            if (!DA.GetData(0, ref wave)) return;
-            Wave = wave;
+            Wave = waveIn;
 
-            playState = new Rhino.Geometry.Interval(0.0, wave.TotalTime.TotalSeconds);
+            playState = new Rhino.Geometry.Interval(0.0, (double)waveIn.Length / waveIn.WaveFormat.SampleRate);
             DA.SetData(0, playState);
         }
 
@@ -234,8 +234,7 @@ namespace Siren
                 // Checking if it was clicked, and if it's in the right area
                 if (!Owner.Locked && e.Clicks >= 1 && ((RectangleF)button).Contains(e.CanvasLocation))
                 {
-                    owner.Wave.CurrentTime = TimeSpan.FromMilliseconds(0);
-                    owner.Mixer.AddMixerInput(owner.Wave);
+                    owner.Mixer.AddMixerInput(owner.Wave.ToSampleProvider());
 
                     owner.waveIsPlaying = true;
                     owner.ExpireSolution(true);

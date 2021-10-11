@@ -12,7 +12,7 @@ namespace Siren
 		/// Initializes a new instance of the ReadSampleComponent class.
 		/// </summary>
 		public ReadSampleComponent()
-		  : base("ReadSampleComponent", "Nickname",
+		  : base("Read Sample", "SampleR",
 			  "Description",
 			  "Siren", "Oscillators")
 		{
@@ -44,22 +44,6 @@ namespace Siren
 			if (!DA.GetData(0, ref path)) return;
 
 			var audioFile = new AudioFileReader(path);
-
-			//var cachedWave = new SampleProviders.CachedSound(audioFile);
-
-			//audioFile.Position = 0;
-			//var raw = NAudioUtilities.WaveProviderToWaveStream(
-			//	new SampleProviders.CachedSoundSampleProvider(cachedWave),
-			//	(int)audioFile.Length,
-			//	cachedWave.WaveFormat);
-			//audioFile.Position = 0;
-
-			//audioFile.Position = 0;
-			//var raw = NAudioUtilities.WaveProviderToWaveStream(
-			//	audioFile.ToSampleProvider(),
-			//	(int)audioFile.Length,
-			//	audioFile.WaveFormat);
-			//audioFile.Position = 0;
 
 			DA.SetData(0, audioFile);
 		}
