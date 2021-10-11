@@ -16,7 +16,7 @@ namespace Siren
         public bool waveIsPlaying = false; 
         public Rhino.Geometry.Interval playState; // Form of (currentTime, totalTime)
         public readonly int tickRate = 100; // playStateTimer duration, e.g. playhead update rate (in ms)
-        public readonly double latencyCompensation = 1.5; // Magic number; durations of interval don't match length?
+        public double defaultLatency;
 
         public CachedSound Wave { get; private set; }
         public MixingSampleProvider Mixer { get; private set; }
@@ -34,6 +34,7 @@ namespace Siren
             Mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(SirenSettings.SampleRate, 1));
             Mixer.ReadFully = true;
             waveOut.Init(Mixer);
+            defaultLatency = waveOut.DesiredLatency / 1000f;
 
             Wave = CachedSound.Empty;
             Volume = 1.0f;
@@ -68,7 +69,8 @@ namespace Siren
 		{
             if (waveIsPlaying && playState != null)
             {
-                playState.T0 += tickRate / 1000f * latencyCompensation;
+                var playedProgress = waveOut.GetPosition() / Wave.Length; // Bytes played vs bytes total
+                playState.T0 = playedProgress * playState.T1; // %played back to seconds
 
                 if (playState.T0 > playState.T1)
                 {
@@ -236,8 +238,9 @@ namespace Siren
                 {
                     owner.Mixer.AddMixerInput(owner.Wave.ToSampleProvider());
 
+                    owner.playState.T0 = owner.defaultLatency;
                     owner.waveIsPlaying = true;
-                    owner.ExpireSolution(true);
+                    owner.OnPingDocument()?.ScheduleSolution(owner.tickRate, owner.TriggerPlayheadUpdate);
                     //owner.Mixer.AddMixerInput(new SampleProviders.LoopStream(owner.Wave));
                 }
             }
