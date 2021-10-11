@@ -17,11 +17,11 @@ namespace Siren.SampleProviders
 
 		public PulseProvider(List<double> times, WaveFormat waveFormat)
 		{
-			WaveFormat = waveFormat;
 			pulseLength = (int) (TimeSpan.FromMilliseconds(1).TotalSeconds * waveFormat.SampleRate);
 			this.times = times.OrderBy(t => t).ToArray().Select(t => (int)(t * waveFormat.SampleRate)).ToArray();
 			cache = new List<float>();
 
+			WaveFormat = waveFormat;
 			Length = this.times.Last() + pulseLength;
 			Position = 0;
 		}
@@ -31,11 +31,6 @@ namespace Siren.SampleProviders
 			if (Position > Length) return 0; //end of pulses
 
 			int samplesRead = Math.Min((int) Length - Position, count);
-
-			for (int n = 0; n < samplesRead; n++) {
-				var val = n * 1.0001;
-				buffer[offset + n] = (float) (val - Math.Truncate(val)) * 0.3f;
-			}
 
 			var pulse = Enumerable.Repeat(0.5f, pulseLength).ToArray();
 			foreach (var t in times)
