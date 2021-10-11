@@ -1,55 +1,43 @@
-﻿//using NAudio.Wave;
-//using NAudio.Wave.SampleProviders;
-//using System;
-//using System.Linq;
-//using System.Collections.Generic;
+﻿using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
+using System;
+using System.Linq;
+using System.Collections.Generic;
 
-//namespace Siren.SampleProviders
-//{
-//	public class TriggeredSampleProvider : ISampleProvider
-//	{
-//		private RawSourceWaveStream sample;
-//		private MixingSampleProvider mixer;
-//		private List<double> triggers;
-//		public WaveFormat WaveFormat => sample.WaveFormat;
+namespace Siren.SampleProviders
+{
+	public class TriggeredSampleProvider : ISampleProvider
+	{
+		private CachedSound sample;
+		private ISampleProvider pulses;
 
-//		public TriggeredSampleProvider(RawSourceWaveStream sample, List<double> triggers)
-//		{
-//			this.sample = sample;
-//			this.triggers = triggers;
+		public WaveFormat WaveFormat => sample.WaveFormat;
 
-//			mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(SirenSettings.SampleRate, 1));
-//			var offsets = triggers.Select(t =>
-//				new OffsetSampleProvider(sample.ToSampleProvider())
-//				{ DelayBy = TimeSpan.FromSeconds(t) });
-//			foreach (var offset in offsets) { mixer.AddMixerInput(offset); }
-//		}
+		public TriggeredSampleProvider(CachedSound sample, ISampleProvider pulses) 
+		{
+			this.sample = sample;
+			this.pulses = pulses;
+		}
 
-//		public int Read(float[] buffer, int offset, int count)
-//		{
-//			int sampleRead = mixer.Read(buffer, offset, count);
+		public int Read(float[] buffer, int offset, int count)
+		{
+			int sampleRead = pulses.Read(buffer, offset, count);
+			var outBuffer = new float[sampleRead + sample.AudioData.Length];
 
-//			var triggersQueue = new Queue<double>(triggers);
-//			var sampled = sample.Read()
+			bool triggered = false;
 
-//			for (int n = 0; n < triggers.Last() + sample.Length; n++)
-//			{
-//				if ((int) (triggersQueue.Peek() * WaveFormat.SampleRate) == n) 
-//				{
-//					sample.Position = 0;
-//					triggersQueue.Dequeue();
-//				}
-//				buffer[offset + n] = sample[offset + n]
-//				//read mixed down output
-//				//if trigger at a time, reset sample position?
-
-//				//var cv = (buffer[offset + n]) * 10 - 1 + semi * (1.0 / 12.0);
-//				//signalGenerator.Frequency = (float)Math.Pow(2, cv + octave - 1) * 55;
-//				//var sample = new float[1];
-//				//signalGenerator.Read(sample, 0, 1);
-//				//buffer[offset + n] = sample[0];
-//			}
-//			return sampleRead;
-//		}
-//	}
-//}
+			for (int n = 0; n < sampleRead; n++)
+			{
+				var value = buffer[offset + n];
+				if (value < 0.1) triggered = false;
+				else if (value > 0.1 & !triggered)
+				{
+					triggered = true;
+					Array.Copy(sample.AudioData, 0, outBuffer, offset + n, sample.AudioData.Length);
+				}
+			}
+			buffer = outBuffer;
+			return outBuffer.Length;
+		}
+	}
+}

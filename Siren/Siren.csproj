@@ -101,11 +101,13 @@
     <Compile Include="Audio\NoiseComponent.cs" />
     <Compile Include="Audio\CVOscillatorComponent.cs" />
     <Compile Include="Audio\ProjectSettingsComponent.cs" />
+    <Compile Include="Audio\PulseFromPointsComponent.cs" />
     <Compile Include="Audio\SampleHoldComponent.cs" />
     <Compile Include="Audio\SamplePlayerComponent.cs" />
     <Compile Include="Audio\UnityMixerComponent.cs" />
     <Compile Include="Audio\WavePropertiesComponent.cs" />
     <Compile Include="SampleProviders\CachedSoundProvider.cs" />
+    <Compile Include="SampleProviders\PulseProvider.cs" />
     <Compile Include="SirenSettings.cs" />
     <Compile Include="Geometry\GeometryFunctions.cs" />
     <Compile Include="Geometry\SampleToPolylineComponent.cs" />

@@ -36,10 +36,10 @@ namespace Siren
             var buffer = new List<float>();
 
             int count = sampleProvider.WaveFormat.SampleRate;
-            int samplesRead;
+            int samplesRead = 0;
             do
             {
-                var readBuffer = new float[count]; ;
+                var readBuffer = new float[count];
                 samplesRead = sampleProvider.Read(readBuffer, 0, count);
                 buffer.AddRange(readBuffer.Take(samplesRead));
 
