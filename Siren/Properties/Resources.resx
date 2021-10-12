@@ -154,6 +154,9 @@
   <data name="playback_On" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\playback_On.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="pointToPulse" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\pointToPulse.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="quantize" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\quantize.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -165,6 +168,12 @@
   </data>
   <data name="sampleHold" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\sampleHold.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="sampleToPoints" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\sampleToPoints.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="sampleToPolyline" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\sampleToPolyline.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="sampleTrigger" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\sampleTrigger.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -183,6 +192,9 @@
   </data>
   <data name="wave" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\wave.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="waveforms" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\waveforms.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="wavef_saw" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\wavef_saw.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

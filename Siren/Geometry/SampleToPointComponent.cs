@@ -1,23 +1,20 @@
-﻿using Siren.SampleProviders;
-using Grasshopper.Kernel;
-using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
-using Rhino.Geometry;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace Siren.Audio
+using Grasshopper.Kernel;
+using Rhino.Geometry;
+
+namespace Siren.Geometry
 {
-	public class SamplePlayerComponent : GH_Component
+	public class SampleToPointComponent : GH_Component
 	{
 		/// <summary>
-		/// Initializes a new instance of the SamplePlayerComponent class.
+		/// Initializes a new instance of the SampleToPointComponent class.
 		/// </summary>
-		public SamplePlayerComponent()
-		  : base("Sample Player", "SampleP",
+		public SampleToPointComponent()
+		  : base("Sample To Point", "Nickname",
 			  "Description",
-			  "Siren", "Oscillators")
+			  "Siren", "Geometry")
 		{
 		}
 
@@ -26,8 +23,12 @@ namespace Siren.Audio
 		/// </summary>
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
-			pManager.AddParameter(new WaveStreamParameter(), "Sample", "W", "Sample input", GH_ParamAccess.item);
-			pManager.AddParameter(new WaveStreamParameter(), "Pulse", "P", "Pulse input", GH_ParamAccess.item);
+			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Time Factor", "T", "T", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Threshold", "A", "Amplitude Threshold", GH_ParamAccess.item);
+
+			pManager[1].Optional = true;
+			pManager[2].Optional = true;
 		}
 
 		/// <summary>
@@ -35,7 +36,7 @@ namespace Siren.Audio
 		/// </summary>
 		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
 		{
-			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
+			pManager.AddPointParameter("Points", "P", "Points", GH_ParamAccess.list);
 		}
 
 		/// <summary>
@@ -47,25 +48,20 @@ namespace Siren.Audio
 			var waveIn = CachedSound.Empty;
 			if (!DA.GetData(0, ref waveIn)) return;
 
-			var pulseIn = CachedSound.Empty;
-			if (!DA.GetData(1, ref pulseIn)) return;
-
-			var waveOut = new TriggeredSampleProvider(waveIn, pulseIn.ToSampleProvider());
-
-			DA.SetData(0, waveOut);
+			throw new NotImplementedException();
 		}
 
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon => Properties.Resources.sampleTrigger;
+		protected override System.Drawing.Bitmap Icon => Properties.Resources.sampleToPoints;
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.
 		/// </summary>
 		public override Guid ComponentGuid
 		{
-			get { return new Guid("75a5ac64-a05c-4639-8532-a7935ae30e39"); }
+			get { return new Guid("39b82b62-f090-404b-8e8f-fe7b95ed4cbf"); }
 		}
 	}
 }
