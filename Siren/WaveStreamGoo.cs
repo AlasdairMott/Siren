@@ -70,8 +70,8 @@ namespace Siren
     {
 		public WaveStreamParameter()
 			: base(new GH_InstanceDescription(
-                "WaveStreamParameter",
-                "WaveStreamParameter", 
+                "Wave",
+                "W", 
 				"Audio wave", 
 				"Siren",
                 "Utilities")) { }

@@ -12,7 +12,7 @@ namespace Siren.Geometry
 		/// Initializes a new instance of the SampleToPointComponent class.
 		/// </summary>
 		public SampleToPointComponent()
-		  : base("SampleToPointComponent", "Nickname",
+		  : base("Sample To Point", "Nickname",
 			  "Description",
 			  "Siren", "Geometry")
 		{
@@ -23,6 +23,12 @@ namespace Siren.Geometry
 		/// </summary>
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
+			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Time Factor", "T", "T", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Threshold", "A", "Amplitude Threshold", GH_ParamAccess.item);
+
+			pManager[1].Optional = true;
+			pManager[2].Optional = true;
 		}
 
 		/// <summary>
@@ -30,6 +36,7 @@ namespace Siren.Geometry
 		/// </summary>
 		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
 		{
+			pManager.AddPointParameter("Points", "P", "Points", GH_ParamAccess.list);
 		}
 
 		/// <summary>
@@ -38,20 +45,16 @@ namespace Siren.Geometry
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
+			var waveIn = CachedSound.Empty;
+			if (!DA.GetData(0, ref waveIn)) return;
+
+			throw new NotImplementedException();
 		}
 
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon
-		{
-			get
-			{
-				//You can add image files to your project resources and access them like this:
-				// return Resources.IconForThisComponent;
-				return null;
-			}
-		}
+		protected override System.Drawing.Bitmap Icon => Properties.Resources.sampleToPoints;
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.
