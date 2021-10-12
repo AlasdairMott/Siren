@@ -101,11 +101,14 @@
     <Compile Include="Audio\NoiseComponent.cs" />
     <Compile Include="Audio\CVOscillatorComponent.cs" />
     <Compile Include="Audio\ProjectSettingsComponent.cs" />
+    <Compile Include="Audio\PulseFromPointsComponent.cs" />
     <Compile Include="Audio\SampleHoldComponent.cs" />
     <Compile Include="Audio\SamplePlayerComponent.cs" />
     <Compile Include="Audio\UnityMixerComponent.cs" />
     <Compile Include="Audio\WavePropertiesComponent.cs" />
+    <Compile Include="Geometry\SampleToPointComponent.cs" />
     <Compile Include="SampleProviders\CachedSoundProvider.cs" />
+    <Compile Include="SampleProviders\PulseProvider.cs" />
     <Compile Include="SirenSettings.cs" />
     <Compile Include="Geometry\GeometryFunctions.cs" />
     <Compile Include="Geometry\SampleToPolylineComponent.cs" />
@@ -155,13 +158,7 @@
     <None Include="Resources\playback_On.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\quantize.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\repitch.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\wave.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\filter.png" />
@@ -186,9 +183,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\noise.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\waveProperties.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Hz.png" />
@@ -219,6 +213,27 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\wavef_triangle.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\pointToPulse.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wave.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\waveforms.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\waveProperties.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\quantize.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sampleToPoints.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\sampleToPolyline.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -6,7 +6,7 @@ namespace Siren.SampleProviders
     public class CachedSoundSampleProvider : ISampleProvider
     {
         private readonly CachedSound cachedSound;
-        private long position;
+        public long Position { get; private set; }
 
         public CachedSoundSampleProvider(CachedSound cachedSound)
         {
@@ -15,10 +15,10 @@ namespace Siren.SampleProviders
 
         public int Read(float[] buffer, int offset, int count)
         {
-            var availableSamples = cachedSound.AudioData.Length - position;
+            var availableSamples = cachedSound.AudioData.Length - Position;
             var samplesToCopy = Math.Min(availableSamples, count);
-            Array.Copy(cachedSound.AudioData, position, buffer, offset, samplesToCopy);
-            position += samplesToCopy;
+            Array.Copy(cachedSound.AudioData, Position, buffer, offset, samplesToCopy);
+            Position += samplesToCopy;
             return (int)samplesToCopy;
         }
 

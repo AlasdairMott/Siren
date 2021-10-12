@@ -27,8 +27,7 @@ namespace Siren.Audio
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
 			pManager.AddParameter(new WaveStreamParameter(), "Sample", "W", "Sample input", GH_ParamAccess.item);
-			pManager.AddPointParameter("Points", "P", "Points", GH_ParamAccess.list);
-			pManager.AddNumberParameter("Time Factor", "T", "T", GH_ParamAccess.item);
+			pManager.AddParameter(new WaveStreamParameter(), "Pulse", "P", "Pulse input", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -48,32 +47,12 @@ namespace Siren.Audio
 			var waveIn = CachedSound.Empty;
 			if (!DA.GetData(0, ref waveIn)) return;
 
-			var points = new List<Point3d>();
-			if (!DA.GetDataList(1, points)) return;
+			var pulseIn = CachedSound.Empty;
+			if (!DA.GetData(1, ref pulseIn)) return;
 
-			double X = 1;
-			DA.GetData(2, ref X); if (X <= 0) throw new Exception("T must be positive");
+			var waveOut = new TriggeredSampleProvider(waveIn, pulseIn.ToSampleProvider());
 
-			var triggerTimes = points.Select(p => p.X / X).ToList();
-
-			var mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(SirenSettings.SampleRate, 1));
-
-			var offsets = new List<ISampleProvider>();
-			foreach (double t in triggerTimes) 
-			{
-				var length = (int)(t * SirenSettings.SampleRate + waveIn.Length);
-				var cachedSoundProvider = new CachedSoundSampleProvider(waveIn);
-
-				var offsetSample = new OffsetSampleProvider(cachedSoundProvider)
-				{
-					DelayBy = TimeSpan.FromSeconds(t),
-					TakeSamples = length
-				};
-				
-				mixer.AddMixerInput(offsetSample);
-			}
-
-			DA.SetData(0, mixer);
+			DA.SetData(0, waveOut);
 		}
 
 		/// <summary>
