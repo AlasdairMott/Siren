@@ -173,6 +173,16 @@ namespace Siren.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap pointToPulse {
+            get {
+                object obj = ResourceManager.GetObject("pointToPulse", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap quantize {
             get {
                 object obj = ResourceManager.GetObject("quantize", resourceCulture);
@@ -296,6 +306,16 @@ namespace Siren.Properties {
         internal static System.Drawing.Bitmap wavef_triangle {
             get {
                 object obj = ResourceManager.GetObject("wavef_triangle", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap waveforms {
+            get {
+                object obj = ResourceManager.GetObject("waveforms", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
