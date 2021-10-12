@@ -223,6 +223,26 @@ namespace Siren.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap sampleToPoints {
+            get {
+                object obj = ResourceManager.GetObject("sampleToPoints", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap sampleToPolyline {
+            get {
+                object obj = ResourceManager.GetObject("sampleToPolyline", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap sampleTrigger {
             get {
                 object obj = ResourceManager.GetObject("sampleTrigger", resourceCulture);
