@@ -7,7 +7,20 @@ namespace Siren.Geometry
 {
 	public class GeometryFunctions
 	{
-		public static Polyline ISampleToPolyline(ISampleProvider sample, double X, double Y, int resolution) 
+		public enum WindowMethod
+		{
+			First,
+			Max
+		}
+
+		public enum ScalingMethod 
+		{
+			Unit,
+			Logarithmic
+		}
+
+		public static Polyline ISampleToPolyline(ISampleProvider sample, double X, double Y, int resolution, 
+			WindowMethod windowMethod = WindowMethod.First, ScalingMethod scalingMethod = ScalingMethod.Unit)
 		{
 			if (resolution < 1) throw new ArgumentOutOfRangeException("Must be greater than 0");
 
@@ -16,51 +29,29 @@ namespace Siren.Geometry
 				lenBuffer = 1;
 			else lenBuffer = (sample.WaveFormat.SampleRate * sample.WaveFormat.Channels) / resolution;
 			var polyline = new Polyline();
-			
+
 			var readBuffer = new float[lenBuffer];
 			int samplesRead;
 
-			var xPos = 0.0;
+			var xPos = 0.01;
 			var count = 0;
+
 			do
 			{
 				samplesRead = sample.Read(readBuffer, 0, lenBuffer);
 				if (samplesRead > 0)
 				{
-					var value = readBuffer.Take(samplesRead).First();
-					polyline.Add(new Point3d(xPos, value * Y, 0));
-					xPos += (X / (double) sample.WaveFormat.SampleRate) * lenBuffer; //*500
+					var value = windowMethod == WindowMethod.First ? readBuffer.Take(samplesRead).First() : readBuffer.Take(samplesRead).Max();
+					double x = (scalingMethod == ScalingMethod.Unit) ? xPos : Math.Log(xPos, 2);
+					polyline.Add(new Point3d(x, value * Y, 0));
+					xPos += (X / (double)sample.WaveFormat.SampleRate) * lenBuffer; 
 					count += 1;
 				}
 
 			} while (samplesRead > 0);
-			//var scale1d = Transform.Scale(Plane.WorldXY, ((double) resolution) / ((double) count * lenBuffer), 1, 1);
-			//polyline.Transform(scale1d);
-			return polyline;
-		}
 
-		public static Polyline ISampleToSurface(ISampleProvider sample, int resolution)
-		{
-			if (resolution < 1) throw new ArgumentOutOfRangeException("Must be greater than 0");
+			polyline.Transform(Transform.Translation(-new Vector3d(polyline.First().X, 0, 0)));
 
-			var polyline = new Polyline();
-			var samplesPerSecond = (sample.WaveFormat.SampleRate * sample.WaveFormat.Channels) / resolution;
-			var readBuffer = new float[samplesPerSecond];
-			int samplesRead;
-
-			var xPos = 0.1;
-			var yScale = 1;
-			do
-			{
-				samplesRead = sample.Read(readBuffer, 0, samplesPerSecond);
-				if (samplesRead > 0)
-				{
-					var max = readBuffer.Take(samplesRead).Max();
-					polyline.Add(new Point3d(xPos, yScale + max * yScale, 0));
-					xPos += 0.1;
-				}
-
-			} while (samplesRead > 0);
 			return polyline;
 		}
 	}

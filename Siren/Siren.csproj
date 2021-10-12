@@ -106,6 +106,9 @@
     <Compile Include="Audio\SamplePlayerComponent.cs" />
     <Compile Include="Audio\UnityMixerComponent.cs" />
     <Compile Include="Audio\WavePropertiesComponent.cs" />
+    <Compile Include="Geometry\SpectralCurveComponent.cs" />
+    <Compile Include="Geometry\SpectralMeshComponent.cs" />
+    <Compile Include="SampleProviders\FFT.cs" />
     <Compile Include="Geometry\SampleToPointComponent.cs" />
     <Compile Include="SampleProviders\CachedSoundProvider.cs" />
     <Compile Include="SampleProviders\PulseProvider.cs" />
@@ -201,6 +204,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\attenuverter.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\spectrum.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\mesh.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\wavef_saw.png" />

@@ -49,7 +49,7 @@ namespace Siren.Audio
 			if (!DA.GetData(0, ref cvIn)) return;
 
 			DA.SetData(0, cvIn.Length);
-			DA.SetData(1, (cvIn.Length / (double) cvIn.WaveFormat.SampleRate)); 
+			DA.SetData(1, cvIn.TotalTime.TotalSeconds); 
 			DA.SetData(2, cvIn.WaveFormat.SampleRate);
 			DA.SetData(3, cvIn.AudioData.Max());
 			DA.SetData(4, cvIn.AudioData.Min());
