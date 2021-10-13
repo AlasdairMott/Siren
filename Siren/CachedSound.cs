@@ -36,10 +36,10 @@ namespace Siren
             var buffer = new List<float>();
 
             int count = sampleProvider.WaveFormat.SampleRate;
-            int samplesRead;
+            int samplesRead = 0;
             do
             {
-                var readBuffer = new float[count]; ;
+                var readBuffer = new float[count];
                 samplesRead = sampleProvider.Read(readBuffer, 0, count);
                 buffer.AddRange(readBuffer.Take(samplesRead));
 
@@ -65,6 +65,19 @@ namespace Siren
         }
 
         public CachedSoundSampleProvider ToSampleProvider() => new CachedSoundSampleProvider(this);
+
+        public RawSourceWaveStream ToRawSourceWaveStream() 
+        {
+            var stream = new List<byte>();
+            for (int n =0; n < AudioData.Length; n++)
+            {
+                short valShort = Convert.ToInt16(short.MaxValue * NAudioUtilities.Limit(AudioData[n]));
+                var valByte = BitConverter.GetBytes(valShort);
+                stream.AddRange(valByte);
+            }
+
+            return new RawSourceWaveStream(stream.ToArray(), 0, stream.Count, WaveFormat);
+        }
 
         public CachedSound Clone() { return new CachedSound(this); }
 

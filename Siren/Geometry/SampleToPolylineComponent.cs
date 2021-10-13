@@ -19,9 +19,9 @@ namespace Siren.Geometry
 		/// Initializes a new instance of the SampleToCurveComponent class.
 		/// </summary>
 		public SampleToPolylineComponent()
-		  : base("SampleToCurveComponent", "Nickname",
+		  : base("Sample To Polyline", "Nickname",
 			  "Description",
-			  "Siren", "Utilities")
+			  "Siren", "Geometry")
 		{
 		}
 
@@ -89,7 +89,7 @@ namespace Siren.Geometry
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon => Properties.Resources.curve;
+		protected override System.Drawing.Bitmap Icon => Properties.Resources.sampleToPolyline;
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.

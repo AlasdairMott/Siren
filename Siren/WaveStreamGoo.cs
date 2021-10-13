@@ -70,8 +70,8 @@ namespace Siren
     {
 		public WaveStreamParameter()
 			: base(new GH_InstanceDescription(
-                "WaveStreamParameter",
-                "WaveStreamParameter", 
+                "Wave",
+                "W", 
 				"Audio wave", 
 				"Siren",
                 "Utilities")) { }
@@ -107,8 +107,9 @@ namespace Siren
             {
                 var goo = this.m_data.get_FirstItem(true);
                 if (goo == null) return;
-                var provider = new CachedSoundSampleProvider(goo.Value);
-                WaveFileWriter.CreateWaveFile(fd.FileName, provider.ToWaveProvider());
+                var stream = goo.Value.ToRawSourceWaveStream();
+                
+                WaveFileWriter.CreateWaveFile(fd.FileName, stream);
             }
         }
     }
