@@ -8,20 +8,20 @@ namespace Siren.SampleProviders
 	{
 		private ISampleProvider pulses;
 
-		private int attackLength;
-		private int decayLength;
 		private float power;
-		private float decay;
+		private float rise;
+		private float fall;
+		private float exponent;
 
 		public WaveFormat WaveFormat => pulses.WaveFormat;
 
-		public ADEnvelopeProvider(ISampleProvider pulses, float decay)
+		public ADEnvelopeProvider(ISampleProvider pulses, TimeSpan attack, TimeSpan decay, float exponent)
 		{
 			this.pulses = pulses;
-			//attackLength = (int) attack.TotalSeconds * pulses.WaveFormat.SampleRate;
-			//decayLength = (int) decay.TotalSeconds * pulses.WaveFormat.SampleRate;
 			power = 0;
-			this.decay = NAudioUtilities.Clamp(decay, 0.0f, 0.9999f);
+			this.rise = (float) (1.0 / (attack.TotalSeconds * pulses.WaveFormat.SampleRate));
+			this.fall = (float) (1.0 / (decay.TotalSeconds * pulses.WaveFormat.SampleRate));
+			this.exponent = Math.Max(0f, exponent);
 		}
 
 		public int Read(float[] buffer, int offset, int count)
@@ -47,9 +47,9 @@ namespace Siren.SampleProviders
 					triggered = true;
 					power = 1.0f;
 				}
-				power *= decay;
-				if (power < 0.01f) power = 0.0f;
-				buffer[offset + n] = power;
+				power -= fall;
+				power = Math.Max(0.0f, power);
+				buffer[offset + n] = (float) Math.Pow(power, exponent);
 			}
 
 			return samplesRead;

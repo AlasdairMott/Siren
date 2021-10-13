@@ -24,7 +24,9 @@ namespace Siren.Audio
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
 			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
-			pManager.AddNumberParameter("Attenuation", "A", "Attenuation", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Attack", "A", "Attack", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Decay", "D", "Decay", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Exponent", "E", "Exponent", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -44,10 +46,14 @@ namespace Siren.Audio
 			var waveIn = CachedSound.Empty;
 			if (!DA.GetData(0, ref waveIn)) return;
 
+			var attack = 1.0;
 			var decay = 1.0;
-			if (!DA.GetData(1, ref decay)) return;
+			var exponent = 1.0;
+			if (!DA.GetData(1, ref attack)) return;
+			if (!DA.GetData(2, ref decay)) return;
+			if (!DA.GetData(3, ref exponent)) return;
 
-			var AD = new SampleProviders.ADEnvelopeProvider(waveIn.ToSampleProvider(), (float) decay);
+			var AD = new SampleProviders.ADEnvelopeProvider(waveIn.ToSampleProvider(), TimeSpan.FromSeconds(attack), TimeSpan.FromSeconds(decay), (float) exponent);
 
 			DA.SetData(0, AD);
 		}

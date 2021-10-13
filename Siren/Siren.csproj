@@ -95,6 +95,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Audio\ADEnvelopeComponent.cs" />
     <Compile Include="Audio\AttenuverterComponent.cs" />
     <Compile Include="Audio\CVFromGeometryComponent.cs" />
     <Compile Include="Audio\CVQuantizerComponent.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="Audio\UnityMixerComponent.cs" />
     <Compile Include="Audio\WavePropertiesComponent.cs" />
     <Compile Include="Geometry\SampleToPointComponent.cs" />
+    <Compile Include="SampleProviders\ADEnvelopeProvider.cs" />
     <Compile Include="SampleProviders\CachedSoundProvider.cs" />
     <Compile Include="SampleProviders\PulseProvider.cs" />
     <Compile Include="SirenSettings.cs" />
