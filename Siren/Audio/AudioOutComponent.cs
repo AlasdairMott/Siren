@@ -6,13 +6,13 @@ using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
 using System.Drawing;
-using System.Timers;
+using System.Drawing.Drawing2D;
 
 namespace Siren
 {
     public class AudioOutComponent : GH_Component
 	{
-        private readonly WaveOut waveOut;
+        public readonly WaveOut waveOut;
         public bool waveIsPlaying = false; 
         public Rhino.Geometry.Interval playState; // Form of (currentTime, totalTime)
         public readonly int tickRate = 100; // playStateTimer duration, e.g. playhead update rate (in ms)
@@ -69,13 +69,14 @@ namespace Siren
 		{
             if (waveIsPlaying && playState != null)
             {
-                var playedProgress = waveOut.GetPosition() / Wave.Length; // Bytes played vs bytes total
-                playState.T0 = playedProgress * playState.T1; // %played back to seconds
+                var mixerWave = (m_attributes as CustomGHButton).playingWave;
+                playState.T0 = mixerWave.CurrentTime.TotalSeconds;
 
-                if (playState.T0 > playState.T1)
+                if (playState.T0 + 0.099 > playState.T1) // 99 because currentTime ~0.001 less than total
                 {
                     waveIsPlaying = false;
                     playState.T0 = 0.0;
+                    (m_attributes as CustomGHButton).playIcon = Properties.Resources.playback_On;
                 }
                 else
                     OnPingDocument()?.ScheduleSolution(tickRate, TriggerPlayheadUpdate);
@@ -123,101 +124,67 @@ namespace Siren
 		{
 			get { return new Guid("55f99243-1902-4ae3-a1e4-b2041ac6abf1"); }
 		}
-
-        //protected override void AppendAdditionalComponentMenuItems(ToolStripDropDown menu)
-        //{
-        //    base.AppendAdditionalComponentMenuItems(menu);
-            
-        //}
     }
 
     public class CustomGHButton : GH_ComponentAttributes
     {
-        private Bitmap icon;
-        private int buttonOffset;
-        private Rectangle button;
-        private AudioOutComponent owner;
-        
+        public Bitmap playIcon;
+        private int iconSize = 24;
+        private int iconPadding = 4;
+        private RectangleF playButtonBounds;
+        private AudioOutComponent owner; 
+        public WaveStream playingWave;
+
         public CustomGHButton(AudioOutComponent owner) : base(owner)
         {
-            icon = Properties.Resources.playback_Off;
+            playIcon = Properties.Resources.playback_On;
             this.owner = owner;
-            buttonOffset = (Convert.ToInt32(Bounds.Height) - 24) / 2;
-            //textBox = new RectangleF(Bounds.X + buttonOffset / 2, Bounds.Y, Bounds.Width - Bounds.Height, Bounds.Height);
-            button = new Rectangle(Convert.ToInt32(Bounds.X) + Convert.ToInt32(Bounds.Width) - Convert.ToInt32(Bounds.Height) + buttonOffset,
-                                   Convert.ToInt32(Bounds.Y) + buttonOffset,
-                                   Convert.ToInt32(Bounds.Height) - (buttonOffset * 2),
-                                   Convert.ToInt32(Bounds.Height) - (buttonOffset * 2));
         }
 
         protected override void Layout()
         {
-            base.Layout();
-            RectangleF updatedBounds = Bounds;
-            updatedBounds.Width = 96;
-            updatedBounds.Height = 36;
-            Bounds = updatedBounds;
+            Pivot = GH_Convert.ToPoint(Pivot);
 
-            var componentInputs = (this.DocObject as IGH_Component).Params.Input;
-            var inputAttributes = componentInputs[0].Attributes;
-            var inputBounds = inputAttributes.Bounds;
-            inputBounds.Y += 4;
-            inputAttributes.Bounds = inputBounds;
-
-            var componentOutputs = (this.DocObject as IGH_Component).Params.Output;
-            var outputAttributes = componentOutputs[0].Attributes;
-            var outputBounds = outputAttributes.Bounds;
-            outputBounds.Y += 4;
-            outputBounds.X += 28;
-            outputAttributes.Bounds = outputBounds;
+            playButtonBounds = new RectangleF(Pivot.X, Pivot.Y, iconSize + iconPadding, iconSize + iconPadding);
+            LayoutInputParams(Owner, playButtonBounds);
+            LayoutOutputParams(Owner, playButtonBounds);
+            Bounds = LayoutBounds(Owner, playButtonBounds);
         }
 
         protected override void Render(GH_Canvas canvas, Graphics graphics, GH_CanvasChannel channel)
         {
-            if (channel == GH_CanvasChannel.Wires || channel == GH_CanvasChannel.Overlay)
+            if (channel != Grasshopper.GUI.Canvas.GH_CanvasChannel.Objects)
             {
                 base.Render(canvas, graphics, channel);
+                return;
             }
+            RenderComponentCapsule(canvas, graphics, true, false, false, true, true, true); // Standard UI
 
-            if (channel == GH_CanvasChannel.Objects)
+            Rectangle capsuleMiddle = GH_Convert.ToRectangle(playButtonBounds); // Icon inset space
+            capsuleMiddle.Inflate(-3, -3);
+
+            using (var brush = new SolidBrush(Color.FromArgb(30, 30, 30)))
+            using (var penDark = new Pen(Color.Black, 6.6f) { LineJoin = LineJoin.Round })
             {
-                //Render input and output grip.
-                GH_CapsuleRenderEngine.RenderInputGrip(graphics, canvas.Viewport.Zoom, InputGrip, true);
-                GH_CapsuleRenderEngine.RenderOutputGrip(graphics, canvas.Viewport.Zoom, OutputGrip, true);
-
-                // Updating the capsule rectangles
-                buttonOffset = 0;//(Convert.ToInt32(Bounds.Height) - 24) / 2;
-                var leftTextBox = new RectangleF(Bounds.X - 12/*+ buttonOffset / 2*/, Bounds.Y, Bounds.Width - Bounds.Height, Bounds.Height);
-                var rightTextBox = new RectangleF(Bounds.X + Bounds.Width - 16, Bounds.Y, 10, Bounds.Height); 
-                button = new Rectangle(Convert.ToInt32(Bounds.X) + Convert.ToInt32(Bounds.Width) - Convert.ToInt32(Bounds.Height) + buttonOffset,
-                                       Convert.ToInt32(Bounds.Y) + buttonOffset,
-                                       Convert.ToInt32(Bounds.Height) - (buttonOffset * 2),
-                                       Convert.ToInt32(Bounds.Height) - (buttonOffset * 2));
-
-                // Creating the capsules
-                GH_Capsule outerLeftCapsule = GH_Capsule.CreateTextCapsule(Bounds, leftTextBox, GH_Palette.Black, "W");
-                GH_Capsule buttonCapsule = GH_Capsule.CreateCapsule(button, GH_Palette.Transparent, 2, 2);
-                //GH_Capsule outerRightCapsule = GH_Capsule.CreateTextCapsule(Bounds, rightTextBox, GH_Palette.Black, "P");
-
-                // Rendering the capsules
-                outerLeftCapsule.Render(graphics, Selected, Owner.Locked, true);
-                buttonCapsule.Render(graphics, icon, Color.Transparent);
-                //outerRightCapsule.Render(graphics, Selected, Owner.Locked, true);
-
-                // Disposing of the capsules
-                outerLeftCapsule.Dispose();
-                buttonCapsule.Dispose();
-                //outerRightCapsule.Dispose();
+                var rectangleSmall = capsuleMiddle;
+                rectangleSmall.Inflate(-2, -2);
+                graphics.DrawRectangle(penDark, rectangleSmall); //use this inset thick line to get rounder edges
+                graphics.FillRectangle(brush, capsuleMiddle);
             }
+
+            // Make space for icon and draw it
+            capsuleMiddle.Width = iconSize;
+            capsuleMiddle.Height = iconSize;
+            graphics.DrawImage(playIcon, capsuleMiddle);
         }
 
         public override GH_ObjectResponse RespondToMouseDown(GH_Canvas sender, GH_CanvasMouseEvent e)
         {
             // Checking if it's a left click, and if it's in the button's area
-            if (e.Button == System.Windows.Forms.MouseButtons.Left && ((RectangleF)button).Contains(e.CanvasLocation))
+            if (e.Button == System.Windows.Forms.MouseButtons.Left && ((RectangleF)playButtonBounds).Contains(e.CanvasLocation))
             {
                 // Changing the image
-                icon = Properties.Resources.playback_On;
+                playIcon = Properties.Resources.playback_On;
             }
 
             return base.RespondToMouseDown(sender, e);
@@ -228,20 +195,27 @@ namespace Siren
             // Checking if the left mouse button is the one being used
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
-                // Updating the icon
-                icon = Properties.Resources.playback_Off;
-
                 sender.ScheduleRegen(1);
 
                 // Checking if it was clicked, and if it's in the right area
-                if (!Owner.Locked && e.Clicks >= 1 && ((RectangleF)button).Contains(e.CanvasLocation))
+                if (!Owner.Locked && e.Clicks >= 1 && ((RectangleF)playButtonBounds).Contains(e.CanvasLocation))
                 {
-                    owner.Mixer.AddMixerInput(owner.Wave.ToSampleProvider());
+                    if (!owner.waveIsPlaying) // Start playing
+                    {
+                        this.playingWave = owner.Wave.ToRawSourceWaveStream();
+                        owner.Mixer.AddMixerInput(this.playingWave);
 
-                    owner.playState.T0 = owner.defaultLatency;
-                    owner.waveIsPlaying = true;
-                    owner.OnPingDocument()?.ScheduleSolution(owner.tickRate, owner.TriggerPlayheadUpdate);
-                    //owner.Mixer.AddMixerInput(new SampleProviders.LoopStream(owner.Wave));
+                        owner.playState.T0 = owner.defaultLatency;
+                        owner.waveIsPlaying = true;
+                        playIcon = Properties.Resources.playback_Off;
+                        owner.OnPingDocument()?.ScheduleSolution(owner.tickRate, owner.TriggerPlayheadUpdate);
+                    }
+                    else // Stop playing
+                    {
+                        playIcon = Properties.Resources.playback_On;
+                        owner.waveIsPlaying = false;
+                        // TODO: properly reset playing position of mixer or wave
+                    }
                 }
             }
             return base.RespondToMouseDown(sender, e);
