@@ -63,6 +63,16 @@ namespace Siren.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap AD {
+            get {
+                object obj = ResourceManager.GetObject("AD", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap attenuverter {
             get {
                 object obj = ResourceManager.GetObject("attenuverter", resourceCulture);

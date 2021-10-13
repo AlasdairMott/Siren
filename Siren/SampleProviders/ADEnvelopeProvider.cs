@@ -12,6 +12,7 @@ namespace Siren.SampleProviders
 		private float rise;
 		private float fall;
 		private float exponent;
+		private bool rising;
 
 		public WaveFormat WaveFormat => pulses.WaveFormat;
 
@@ -19,9 +20,10 @@ namespace Siren.SampleProviders
 		{
 			this.pulses = pulses;
 			power = 0;
-			this.rise = (float) (1.0 / (attack.TotalSeconds * pulses.WaveFormat.SampleRate));
-			this.fall = (float) (1.0 / (decay.TotalSeconds * pulses.WaveFormat.SampleRate));
+			this.rise = Math.Min((float) (1.0 / (attack.TotalSeconds * pulses.WaveFormat.SampleRate)), 1.0f);
+			this.fall = Math.Min((float) (1.0 / (decay.TotalSeconds * pulses.WaveFormat.SampleRate)), 1.0f);
 			this.exponent = Math.Max(0f, exponent);
+			rising = false;
 		}
 
 		public int Read(float[] buffer, int offset, int count)
@@ -45,11 +47,20 @@ namespace Siren.SampleProviders
 				else if (p > 0.1 & !triggered)
 				{
 					triggered = true;
-					power = 1.0f;
+					rising = true;
 				}
-				power -= fall;
-				power = Math.Max(0.0f, power);
-				buffer[offset + n] = (float) Math.Pow(power, exponent);
+				if (rising && power < 1.0f)
+				{
+					power += rise;
+				}
+				else
+				{
+					rising = false;
+					power -= fall;
+				}
+
+				power = NAudioUtilities.Clamp(power, 0.0f, 1.0f);
+				buffer[offset + n] = (float) Math.Pow(power, rising ? 1.0f/exponent : exponent);
 			}
 
 			return samplesRead;
