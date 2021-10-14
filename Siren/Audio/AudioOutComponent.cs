@@ -76,7 +76,6 @@ namespace Siren
                 {
                     waveIsPlaying = false;
                     playState.T0 = 0.0;
-                    (m_attributes as CustomGHButton).playIcon = Properties.Resources.playback_On;
                 }
                 else
                     OnPingDocument()?.ScheduleSolution(tickRate, TriggerPlayheadUpdate);
@@ -129,15 +128,17 @@ namespace Siren
     public class CustomGHButton : GH_ComponentAttributes
     {
         public Bitmap playIcon;
-        private int iconSize = 24;
-        private int iconPadding = 4;
-        private RectangleF playButtonBounds;
+        private int dragSpace = 15;
+        private int buttonWidth = 46;
+        private int componentHeight = 24;
+        public bool aboutToPlay = false;
+        private RectangleF outerButtonBounds; // Includes draghandle space
+        private Rectangle playButtonBounds; // Triggers click
         private AudioOutComponent owner; 
         public WaveStream playingWave;
 
         public CustomGHButton(AudioOutComponent owner) : base(owner)
         {
-            playIcon = Properties.Resources.playback_On;
             this.owner = owner;
         }
 
@@ -145,10 +146,10 @@ namespace Siren
         {
             Pivot = GH_Convert.ToPoint(Pivot);
 
-            playButtonBounds = new RectangleF(Pivot.X, Pivot.Y, iconSize + iconPadding, iconSize + iconPadding);
-            LayoutInputParams(Owner, playButtonBounds);
-            LayoutOutputParams(Owner, playButtonBounds);
-            Bounds = LayoutBounds(Owner, playButtonBounds);
+            outerButtonBounds = new RectangleF(Pivot.X, Pivot.Y, buttonWidth + dragSpace * 2, componentHeight); 
+            LayoutInputParams(Owner, outerButtonBounds);
+            LayoutOutputParams(Owner, outerButtonBounds);
+            Bounds = LayoutBounds(Owner, outerButtonBounds);
         }
 
         protected override void Render(GH_Canvas canvas, Graphics graphics, GH_CanvasChannel channel)
@@ -160,32 +161,90 @@ namespace Siren
             }
             RenderComponentCapsule(canvas, graphics, true, false, false, true, true, true); // Standard UI
 
-            Rectangle capsuleMiddle = GH_Convert.ToRectangle(playButtonBounds); // Icon inset space
-            capsuleMiddle.Inflate(-3, -3);
+            playButtonBounds = GH_Convert.ToRectangle(outerButtonBounds); // Icon inset space
+            playButtonBounds.X += dragSpace;
+            playButtonBounds.Width = buttonWidth;
 
-            using (var brush = new SolidBrush(Color.FromArgb(30, 30, 30)))
-            using (var penDark = new Pen(Color.Black, 6.6f) { LineJoin = LineJoin.Round })
+            // Black button background
+            GH_Capsule button;
+            if (aboutToPlay)
+                button = GH_Capsule.CreateTextCapsule(playButtonBounds, playButtonBounds, GH_Palette.Grey, "", 1, 0);
+            else
+                button = GH_Capsule.CreateTextCapsule(playButtonBounds, playButtonBounds, GH_Palette.Black, "", 1, componentHeight / 2);
+
+            button.Render(graphics, Selected, Owner.Locked, false);
+
+            if (!owner.waveIsPlaying)
+                DrawPlayTriangle(graphics, playButtonBounds);
+            else
+                DrawStopSquare(graphics, playButtonBounds);
+        }
+
+        private void DrawStopSquare(Graphics graphics, Rectangle playButtonBounds)
+        {
+            using (var fill = new SolidBrush(Color.White))
             {
-                var rectangleSmall = capsuleMiddle;
-                rectangleSmall.Inflate(-2, -2);
-                graphics.DrawRectangle(penDark, rectangleSmall); //use this inset thick line to get rounder edges
-                graphics.FillRectangle(brush, capsuleMiddle);
-            }
+                using (var outerstroke = new Pen(Color.Black, 4f))
+                {
+                    using (var innerstroke = new Pen(Color.LightGray, 2f))
+                    {
+                        var topLeft = new Point(playButtonBounds.X + 17, playButtonBounds.Y + 6);
+                        var square = new Rectangle(topLeft, new Size(12, 12));
+                        graphics.DrawRectangle(outerstroke, square);
+                        graphics.DrawRectangle(innerstroke, square);
+                        graphics.FillRectangle(fill, square);
 
-            // Make space for icon and draw it
-            capsuleMiddle.Width = iconSize;
-            capsuleMiddle.Height = iconSize;
-            graphics.DrawImage(playIcon, capsuleMiddle);
+                        var gradientEnd = new Point(topLeft.X, topLeft.Y + 4);
+                        using (var highlight = new LinearGradientBrush(topLeft, gradientEnd, Color.LightGray, Color.Transparent))
+                        {
+                            var highlightSquare = new Rectangle(topLeft, new Size(square.Width, 4));
+                            graphics.FillRectangle(highlight, highlightSquare);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void DrawPlayTriangle(Graphics graphics, Rectangle playButtonBounds)
+        {
+            using (var fill = new SolidBrush(Color.White))
+            {
+                using (var outerstroke = new Pen(Color.Black, 4f))
+                {
+                    using (var innerstroke = new Pen(Color.LightGray, 2f))
+                    {
+                        int Xleft = playButtonBounds.X + 20;
+                        int YTop = playButtonBounds.Y + 7;
+                        int iconHeight = 10;
+                        Point[] trianglePts = new Point[] {
+                            new Point(Xleft, YTop), // Top
+                            new Point(Xleft + 7, YTop + iconHeight / 2), // Middle-Right
+                            new Point(Xleft, YTop + iconHeight) // Bottom
+                        };
+                        graphics.DrawPolygon(outerstroke, trianglePts); // Black rim
+                        graphics.DrawPolygon(innerstroke, trianglePts); // Gray border
+                        graphics.FillPolygon(fill, trianglePts);
+
+                        var gradientEnd = new Point(Xleft, YTop + 5); // Stop-point of highlight
+                        using (var highlight = new LinearGradientBrush(trianglePts[0], gradientEnd, Color.LightGray, Color.Transparent))
+                        {
+                            Point[] triangleHighlightPts = new Point[] {
+                                trianglePts[0], // Top
+                                new Point(Xleft + 7, gradientEnd.Y), // Middle-Right
+                                gradientEnd // Bottom
+                            };
+                            graphics.FillPolygon(highlight, triangleHighlightPts); 
+                        }
+                    }
+                }
+            }
         }
 
         public override GH_ObjectResponse RespondToMouseDown(GH_Canvas sender, GH_CanvasMouseEvent e)
         {
             // Checking if it's a left click, and if it's in the button's area
             if (e.Button == System.Windows.Forms.MouseButtons.Left && ((RectangleF)playButtonBounds).Contains(e.CanvasLocation))
-            {
-                // Changing the image
-                playIcon = Properties.Resources.playback_On;
-            }
+                aboutToPlay = true;
 
             return base.RespondToMouseDown(sender, e);
         }
@@ -200,6 +259,8 @@ namespace Siren
                 // Checking if it was clicked, and if it's in the right area
                 if (!Owner.Locked && e.Clicks >= 1 && ((RectangleF)playButtonBounds).Contains(e.CanvasLocation))
                 {
+                    aboutToPlay = false;
+
                     if (!owner.waveIsPlaying) // Start playing
                     {
                         this.playingWave = owner.Wave.ToRawSourceWaveStream();
@@ -207,14 +268,12 @@ namespace Siren
 
                         owner.playState.T0 = owner.defaultLatency;
                         owner.waveIsPlaying = true;
-                        playIcon = Properties.Resources.playback_Off;
                         owner.OnPingDocument()?.ScheduleSolution(owner.tickRate, owner.TriggerPlayheadUpdate);
                     }
                     else // Stop playing
                     {
-                        playIcon = Properties.Resources.playback_On;
-                        owner.waveIsPlaying = false;
-                        // TODO: properly reset playing position of mixer or wave
+                        owner.waveIsPlaying = false; 
+                        owner.Mixer.RemoveAllMixerInputs();
                     }
                 }
             }
