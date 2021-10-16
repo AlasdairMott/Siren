@@ -183,24 +183,20 @@ namespace Siren
         private void DrawStopSquare(Graphics graphics, Rectangle playButtonBounds)
         {
             using (var fill = new SolidBrush(Color.White))
+            using (var outerstroke = new Pen(Color.Black, 4f) { LineJoin = LineJoin.Round })
+            using (var innerstroke = new Pen(Color.LightGray, 2f) { LineJoin = LineJoin.Round }) 
             {
-                using (var outerstroke = new Pen(Color.Black, 4f))
-                {
-                    using (var innerstroke = new Pen(Color.LightGray, 2f))
-                    {
-                        var topLeft = new Point(playButtonBounds.X + 17, playButtonBounds.Y + 6);
-                        var square = new Rectangle(topLeft, new Size(12, 12));
-                        graphics.DrawRectangle(outerstroke, square);
-                        graphics.DrawRectangle(innerstroke, square);
-                        graphics.FillRectangle(fill, square);
+                var topLeft = new Point(playButtonBounds.X + 17, playButtonBounds.Y + 6);
+                var square = new Rectangle(topLeft, new Size(12, 12));
+                graphics.DrawRectangle(outerstroke, square);
+                graphics.DrawRectangle(innerstroke, square);
+                graphics.FillRectangle(fill, square);
 
-                        var gradientEnd = new Point(topLeft.X, topLeft.Y + 4);
-                        using (var highlight = new LinearGradientBrush(topLeft, gradientEnd, Color.LightGray, Color.Transparent))
-                        {
-                            var highlightSquare = new Rectangle(topLeft, new Size(square.Width, 4));
-                            graphics.FillRectangle(highlight, highlightSquare);
-                        }
-                    }
+                var gradientEnd = new Point(topLeft.X, topLeft.Y + 4);
+                using (var highlight = new LinearGradientBrush(topLeft, gradientEnd, Color.LightGray, Color.Transparent))
+                {
+                    var highlightSquare = new Rectangle(topLeft, new Size(square.Width, 4));
+                    graphics.FillRectangle(highlight, highlightSquare);
                 }
             }
         }
@@ -208,34 +204,30 @@ namespace Siren
         private void DrawPlayTriangle(Graphics graphics, Rectangle playButtonBounds)
         {
             using (var fill = new SolidBrush(Color.White))
+            using (var outerstroke = new Pen(Color.Black, 4f) { LineJoin = LineJoin.Round })
+            using (var innerstroke = new Pen(Color.LightGray, 2f) { LineJoin = LineJoin.Round })
             {
-                using (var outerstroke = new Pen(Color.Black, 4f))
-                {
-                    using (var innerstroke = new Pen(Color.LightGray, 2f))
-                    {
-                        int Xleft = playButtonBounds.X + 20;
-                        int YTop = playButtonBounds.Y + 7;
-                        int iconHeight = 10;
-                        Point[] trianglePts = new Point[] {
-                            new Point(Xleft, YTop), // Top
-                            new Point(Xleft + 7, YTop + iconHeight / 2), // Middle-Right
-                            new Point(Xleft, YTop + iconHeight) // Bottom
-                        };
-                        graphics.DrawPolygon(outerstroke, trianglePts); // Black rim
-                        graphics.DrawPolygon(innerstroke, trianglePts); // Gray border
-                        graphics.FillPolygon(fill, trianglePts);
+                int Xleft = playButtonBounds.X + 20;
+                int YTop = playButtonBounds.Y + 7;
+                int iconHeight = 10;
+                Point[] trianglePts = new Point[] {
+                    new Point(Xleft, YTop), // Top
+                    new Point(Xleft + 7, YTop + iconHeight / 2), // Middle-Right
+                    new Point(Xleft, YTop + iconHeight) // Bottom
+                };
+                graphics.DrawPolygon(outerstroke, trianglePts); // Black rim
+                graphics.DrawPolygon(innerstroke, trianglePts); // Gray border
+                graphics.FillPolygon(fill, trianglePts);
 
-                        var gradientEnd = new Point(Xleft, YTop + 5); // Stop-point of highlight
-                        using (var highlight = new LinearGradientBrush(trianglePts[0], gradientEnd, Color.LightGray, Color.Transparent))
-                        {
-                            Point[] triangleHighlightPts = new Point[] {
-                                trianglePts[0], // Top
-                                new Point(Xleft + 7, gradientEnd.Y), // Middle-Right
-                                gradientEnd // Bottom
-                            };
-                            graphics.FillPolygon(highlight, triangleHighlightPts); 
-                        }
-                    }
+                var gradientEnd = new Point(Xleft, YTop + 5); // Stop-point of highlight
+                using (var highlight = new LinearGradientBrush(trianglePts[0], gradientEnd, Color.LightGray, Color.Transparent))
+                {
+                    Point[] triangleHighlightPts = new Point[] {
+                        trianglePts[0], // Top
+                        new Point(Xleft + 7, gradientEnd.Y), // Middle-Right
+                        gradientEnd // Bottom
+                    };
+                    graphics.FillPolygon(highlight, triangleHighlightPts); 
                 }
             }
         }
