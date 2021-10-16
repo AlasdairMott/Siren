@@ -33,9 +33,9 @@ namespace Siren.SampleProviders
 			for (int n = 0; n < sampleRead; n++)
 			{
 				var cv = cvBuffer[offset + n];
-				var filterCutoff = NAudioUtilities.Clamp(cutoff * 0.1f + cv * cvAmount, -1,1);
+				var filterCutoff = SirenUtilities.Clamp(cutoff * 0.1f + cv * cvAmount, -1,1);
 
-				filterCutoff = NAudioUtilities.Remap(filterCutoff, -1, 1, 88200, 100000);
+				filterCutoff = SirenUtilities.Remap(filterCutoff, -1, 1, 88200, 100000);
 				//cvCutoff += cutoff;
 
 				filter.SetLowPassFilter(SirenSettings.SampleRate, filterCutoff, q);

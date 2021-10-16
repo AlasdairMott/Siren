@@ -3,7 +3,7 @@ using System;
 
 namespace Siren
 {
-	public class NAudioUtilities
+	public class SirenUtilities
 	{
 		public static RawSourceWaveStream WaveProviderToWaveStream(ISampleProvider provider, int length, WaveFormat waveFormat) 
 		{

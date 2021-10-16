@@ -58,7 +58,7 @@ namespace Siren
 
 			var cutoff = 10.0;
 			DA.GetData("Cutoff Frequency", ref cutoff);
-			cutoff = NAudioUtilities.Clamp((float) cutoff, -10f, 10f);
+			cutoff = SirenUtilities.Clamp((float) cutoff, -10f, 10f);
 
 			var cvAmount = 0.0;
 			DA.GetData("Frequency CV amount", ref cvAmount);

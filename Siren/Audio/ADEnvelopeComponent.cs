@@ -53,7 +53,7 @@ namespace Siren.Audio
 			if (!DA.GetData(2, ref decay)) return;
 			if (!DA.GetData(3, ref exponent)) return;
 
-			var AD = new SampleProviders.ADEnvelopeProvider(waveIn.ToSampleProvider(), TimeSpan.FromSeconds(attack), TimeSpan.FromSeconds(decay), (float) exponent);
+			var AD = new SampleProviders.ADEnvelopeProvider(waveIn.ToSampleProvider(), (float) attack, (float) decay, (float) exponent);
 
 			DA.SetData(0, AD);
 		}

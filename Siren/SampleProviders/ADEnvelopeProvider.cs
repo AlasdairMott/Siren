@@ -9,6 +9,7 @@ namespace Siren.SampleProviders
 		private ISampleProvider pulses;
 
 		private float power;
+		private float envelope;
 		private float rise;
 		private float fall;
 		private float exponent;
@@ -16,14 +17,27 @@ namespace Siren.SampleProviders
 
 		public WaveFormat WaveFormat => pulses.WaveFormat;
 
-		public ADEnvelopeProvider(ISampleProvider pulses, TimeSpan attack, TimeSpan decay, float exponent)
+		public ADEnvelopeProvider(ISampleProvider pulses, float attack, float decay, float exponent)
 		{
 			this.pulses = pulses;
 			power = 0;
-			this.rise = Math.Min((float) (1.0 / (attack.TotalSeconds * pulses.WaveFormat.SampleRate)), 1.0f);
-			this.fall = Math.Min((float) (1.0 / (decay.TotalSeconds * pulses.WaveFormat.SampleRate)), 1.0f);
+			envelope = 0;
+			this.rise = (float) Math.Pow(SirenUtilities.Clamp(attack, 0.0f, 1.0f), 0.005);
+			this.fall = (float) Math.Pow(SirenUtilities.Clamp(decay, 0.0f, 1.0f), 0.005);
+			this.rise = SirenUtilities.Remap(this.rise, 0.0f, 1.0f, 0.03f, 0.0001f);
+			this.fall = SirenUtilities.Remap(this.fall, 0.0f, 1.0f, 0.03f, 0.0001f);
+
+			//this.rise = (float) (1.0f / Math.Log(Math.Max(attack, 1.001), 2)) * 0.01f;
+			//this.fall = (float) (1.0f / Math.Log(Math.Max(decay, 1.001), 2)) * 0.01f;
+			//this.rise = 1.0f / SirenUtilities.Clamp(attack, 0.1f, 0.9f) * 0.0001f; Math.Log(attack, 2);
+			//this.fall = 1.0f / SirenUtilities.Clamp(decay, 0.1f, 0.9f) * 0.0001f;
 			this.exponent = Math.Max(0f, exponent);
 			rising = false;
+		}
+
+		private float Process(float a, float b, float by)
+		{
+			return b * by + a * (1 - by);
 		}
 
 		public int Read(float[] buffer, int offset, int count)
@@ -32,8 +46,8 @@ namespace Siren.SampleProviders
 			int samplesRead = pulses.Read(pulseBuffer, offset, count); //read the pulse signal
 			if (samplesRead == 0)
 			{
-				if (power == 0f) return 0;
-				else if (samplesRead == 0) samplesRead = WaveFormat.SampleRate;
+				if (envelope == 0f) return 0;
+				else samplesRead = WaveFormat.SampleRate;
 			}
 
 			bool triggered = false;
@@ -49,18 +63,19 @@ namespace Siren.SampleProviders
 					triggered = true;
 					rising = true;
 				}
-				if (rising && power < 1.0f)
+				if (rising)
 				{
-					power += rise;
+					envelope = Process(envelope, 1.0f, rise);
+
+					if (envelope >= 1.0 - 0.001f) rising = false;
 				}
 				else
 				{
-					rising = false;
-					power -= fall;
+					envelope = Process(envelope, 0.0f, fall);
+					if (envelope <= 0.001f) envelope = 0.0f;
 				}
 
-				power = NAudioUtilities.Clamp(power, 0.0f, 1.0f);
-				buffer[offset + n] = (float) Math.Pow(power, rising ? 1.0f/exponent : exponent);
+				buffer[offset + n] = envelope;
 			}
 
 			return samplesRead;

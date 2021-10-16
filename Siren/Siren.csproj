@@ -126,7 +126,7 @@
     <Compile Include="SampleProviders\NoiseGenerator.cs" />
     <Compile Include="SampleProviders\TriggeredSampleProvider.cs" />
     <Compile Include="Utilities\InlineIconStrip.cs" />
-    <Compile Include="Utilities\NAudioUtilities.cs" />
+    <Compile Include="Utilities\SirenUtilities.cs" />
     <Compile Include="Audio\ReadSampleComponent.cs" />
     <Compile Include="Audio\RepitchComponent.cs" />
     <Compile Include="SampleProviders\VCAProvider.cs" />
