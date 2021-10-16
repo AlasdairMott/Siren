@@ -153,26 +153,6 @@ namespace Siren.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap playback_Off {
-            get {
-                object obj = ResourceManager.GetObject("playback_Off", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap playback_On {
-            get {
-                object obj = ResourceManager.GetObject("playback_On", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap pointToPulse {
             get {
                 object obj = ResourceManager.GetObject("pointToPulse", resourceCulture);
