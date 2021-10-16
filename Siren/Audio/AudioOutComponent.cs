@@ -4,6 +4,7 @@ using Grasshopper.Kernel;
 using Grasshopper.Kernel.Attributes;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
+using Siren.SampleProviders;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -12,12 +13,12 @@ namespace Siren
 {
     public class AudioOutComponent : GH_Component
 	{
-        public readonly WaveOut waveOut;
-        public bool waveIsPlaying = false; 
-        public Rhino.Geometry.Interval playState; // Form of (currentTime, totalTime)
-        public readonly int tickRate = 100; // playStateTimer duration, e.g. playhead update rate (in ms)
-        public double defaultLatency;
+        private readonly WaveOut waveOut;
 
+        public bool WaveIsPlaying = false; 
+        public Rhino.Geometry.Interval PlayState; // Form of (currentTime, totalTime)
+        public readonly int TickRate = 100; // playStateTimer duration, e.g. playhead update rate (in ms)
+        public double DefaultLatency;
         public CachedSound Wave { get; private set; }
         public MixingSampleProvider Mixer { get; private set; }
         public float Volume { get; set; }
@@ -34,7 +35,7 @@ namespace Siren
             Mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(SirenSettings.SampleRate, 1));
             Mixer.ReadFully = true;
             waveOut.Init(Mixer);
-            defaultLatency = waveOut.DesiredLatency / 1000f;
+            DefaultLatency = waveOut.DesiredLatency / 1000f;
 
             Wave = CachedSound.Empty;
             Volume = 1.0f;
@@ -67,20 +68,20 @@ namespace Siren
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
-            if (waveIsPlaying && playState != null)
+            if (WaveIsPlaying && PlayState != null)
             {
-                var mixerWave = (m_attributes as CustomGHButton).playingWave;
-                playState.T0 = mixerWave.CurrentTime.TotalSeconds;
+                var mixerWave = (m_attributes as CustomGHButton).PlayingWave;
+                PlayState.T0 = mixerWave.CurrentTime.TotalSeconds;
 
-                if (playState.T0 + 0.099 > playState.T1) // 99 because currentTime ~0.001 less than total
+                if (PlayState.T0 + 0.099 > PlayState.T1) // 99 because currentTime ~0.001 less than total
                 {
-                    waveIsPlaying = false;
-                    playState.T0 = 0.0;
+                    WaveIsPlaying = false;
+                    PlayState.T0 = 0.0;
                 }
                 else
-                    OnPingDocument()?.ScheduleSolution(tickRate, TriggerPlayheadUpdate);
+                    OnPingDocument()?.ScheduleSolution(TickRate, TriggerPlayheadUpdate);
 
-                DA.SetData(0, playState);
+                DA.SetData(0, PlayState);
                 return; // Skip rest of solve
             }
 
@@ -89,8 +90,8 @@ namespace Siren
 
             Wave = waveIn;
 
-            playState = new Rhino.Geometry.Interval(0.0, (double)waveIn.Length / waveIn.WaveFormat.SampleRate);
-            DA.SetData(0, playState);
+            PlayState = new Rhino.Geometry.Interval(0.0, (double)waveIn.Length / waveIn.WaveFormat.SampleRate);
+            DA.SetData(0, PlayState);
         }
 
         public void TriggerPlayheadUpdate(GH_Document gh)
@@ -127,16 +128,16 @@ namespace Siren
 
     public class CustomGHButton : GH_ComponentAttributes
     {
-        public Bitmap playIcon;
         private int dragSpace = 15;
         private int buttonWidth = 46;
         private int componentHeight = 24;
-        public bool aboutToPlay = false;
         private RectangleF outerButtonBounds; // Includes draghandle space
         private Rectangle playButtonBounds; // Triggers click
-        private AudioOutComponent owner; 
-        public WaveStream playingWave;
+        private AudioOutComponent owner;
+        private bool aboutToPlay = false;
 
+        public CachedSoundSampleProvider PlayingWave { get; private set; }
+        
         public CustomGHButton(AudioOutComponent owner) : base(owner)
         {
             this.owner = owner;
@@ -174,7 +175,7 @@ namespace Siren
 
             button.Render(graphics, Selected, Owner.Locked, false);
 
-            if (!owner.waveIsPlaying)
+            if (!owner.WaveIsPlaying)
                 DrawPlayTriangle(graphics, playButtonBounds);
             else
                 DrawStopSquare(graphics, playButtonBounds);
@@ -253,18 +254,18 @@ namespace Siren
                 {
                     aboutToPlay = false;
 
-                    if (!owner.waveIsPlaying) // Start playing
+                    if (!owner.WaveIsPlaying) // Start playing
                     {
-                        this.playingWave = owner.Wave.ToRawSourceWaveStream();
-                        owner.Mixer.AddMixerInput(this.playingWave);
+                        PlayingWave = owner.Wave.ToSampleProvider();
+                        owner.Mixer.AddMixerInput(PlayingWave);
 
-                        owner.playState.T0 = owner.defaultLatency;
-                        owner.waveIsPlaying = true;
-                        owner.OnPingDocument()?.ScheduleSolution(owner.tickRate, owner.TriggerPlayheadUpdate);
+                        owner.PlayState.T0 = owner.DefaultLatency;
+                        owner.WaveIsPlaying = true;
+                        owner.OnPingDocument()?.ScheduleSolution(owner.TickRate, owner.TriggerPlayheadUpdate);
                     }
                     else // Stop playing
                     {
-                        owner.waveIsPlaying = false; 
+                        owner.WaveIsPlaying = false; 
                         owner.Mixer.RemoveAllMixerInputs();
                     }
                 }

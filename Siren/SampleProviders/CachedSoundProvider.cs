@@ -8,7 +8,7 @@ namespace Siren.SampleProviders
         private readonly CachedSound cachedSound;
         public long Position { get; private set; }
         public long Length => cachedSound.Length;
-        public TimeSpan CurrentTime => TimeSpan.FromSeconds(((double) Position) / cachedSound.WaveFormat.SampleRate * Length);
+        public TimeSpan CurrentTime => TimeSpan.FromSeconds((double) Position / cachedSound.WaveFormat.SampleRate);
 
         public CachedSoundSampleProvider(CachedSound cachedSound)
         {
