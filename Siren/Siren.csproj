@@ -97,6 +97,7 @@
   <ItemGroup>
     <Compile Include="Audio\ADEnvelopeComponent.cs" />
     <Compile Include="Audio\AttenuverterComponent.cs" />
+    <Compile Include="Audio\ConvolutionComponent.cs" />
     <Compile Include="Audio\CVFromGeometryComponent.cs" />
     <Compile Include="Audio\CVQuantizerComponent.cs" />
     <Compile Include="Audio\NoiseComponent.cs" />
@@ -110,6 +111,7 @@
     <Compile Include="Geometry\SampleToPointComponent.cs" />
     <Compile Include="SampleProviders\ADEnvelopeProvider.cs" />
     <Compile Include="SampleProviders\CachedSoundProvider.cs" />
+    <Compile Include="SampleProviders\ConvolutionProvider.cs" />
     <Compile Include="SampleProviders\PulseProvider.cs" />
     <Compile Include="SirenSettings.cs" />
     <Compile Include="Geometry\GeometryFunctions.cs" />
@@ -152,12 +154,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\metronome.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\playback_Off.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\playback_On.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\repitch.png" />
@@ -239,6 +235,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AD.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\convolution.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
