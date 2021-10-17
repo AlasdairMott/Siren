@@ -2,20 +2,19 @@
 using System.Collections.Generic;
 
 using Grasshopper.Kernel;
-using NAudio.Wave;
 using Rhino.Geometry;
 
 namespace Siren.Audio
 {
-	public class AttenuverterComponent : GH_Component
+	public class ConvolutionComponent : GH_Component
 	{
 		/// <summary>
-		/// Initializes a new instance of the AttenuverterComponent class.
+		/// Initializes a new instance of the ConvolutionComponent class.
 		/// </summary>
-		public AttenuverterComponent()
-		  : base("Attenuverter", "AttenU",
-				"Reduces or polarises (inverts) a signal's level/amplitude.",
-				"Siren", "VCA")
+		public ConvolutionComponent()
+		  : base("Convolution", "Nickname",
+			  "Description",
+			  "Siren", "Effects")
 		{
 		}
 
@@ -25,7 +24,8 @@ namespace Siren.Audio
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
 			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
-			pManager.AddNumberParameter("Attenuation", "A", "Attenuation", GH_ParamAccess.item);
+			pManager.AddParameter(new WaveStreamParameter(), "Kernel", "K", "Wave input 2", GH_ParamAccess.item);
+			pManager.AddIntegerParameter("Kernel Size", "Ks", "Size of the Kernel", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -45,25 +45,36 @@ namespace Siren.Audio
 			var waveIn = CachedSound.Empty;
 			if (!DA.GetData(0, ref waveIn)) return;
 
-			var attenuation = 1.0;
-			if (!DA.GetData(1, ref attenuation)) return;
-			
-			var attenuverter = new SampleProviders.AttenuverterProvider(waveIn.ToSampleProvider(), (float) attenuation);
+			var kernel = CachedSound.Empty;
+			if (!DA.GetData(1, ref kernel)) return;
 
-			DA.SetData(0, attenuverter);
+			int kSize = 1;
+			if (!DA.GetData(2, ref kSize)) return;
+
+			var convolution = new SampleProviders.ConvolutionProvider(waveIn.ToSampleProvider(), kernel, kSize);
+
+			DA.SetData(0, convolution);
 		}
 
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon => Properties.Resources.attenuverter;
+		protected override System.Drawing.Bitmap Icon
+		{
+			get
+			{
+				//You can add image files to your project resources and access them like this:
+				// return Resources.IconForThisComponent;
+				return null;
+			}
+		}
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.
 		/// </summary>
 		public override Guid ComponentGuid
 		{
-			get { return new Guid("aa66bb45-be86-4aa7-83ad-f3cc2666ecab"); }
+			get { return new Guid("eb763e42-a8be-4e4c-a338-977e48126a57"); }
 		}
 	}
 }
