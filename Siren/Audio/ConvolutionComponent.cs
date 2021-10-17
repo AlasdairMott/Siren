@@ -12,8 +12,8 @@ namespace Siren.Audio
 		/// Initializes a new instance of the ConvolutionComponent class.
 		/// </summary>
 		public ConvolutionComponent()
-		  : base("Convolution", "Nickname",
-			  "Description",
+		  : base("Convolution Reverb", "ConvReb",
+			  "Convolution reverb. Convole audio with an impulse resonse (or any other audio)",
 			  "Siren", "Effects")
 		{
 		}
@@ -25,8 +25,8 @@ namespace Siren.Audio
 		{
 			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
 			pManager.AddParameter(new WaveStreamParameter(), "Kernel", "K", "Wave input 2", GH_ParamAccess.item);
-			pManager.AddIntegerParameter("Kernel Size", "Sz", "Size of the Kernel", GH_ParamAccess.item);
-			pManager.AddIntegerParameter("Kernel Skip", "Sk", "Samples to skip ( > 0)", GH_ParamAccess.item);
+			pManager.AddIntegerParameter("Kernel Size", "Sz", "Size of the Kernel. Higher values have a longer decay but are slower to bounce", GH_ParamAccess.item);
+			pManager.AddIntegerParameter("Kernel Skip", "Sk", "Samples to skip ( > 0). Higher values are less accurate but faster", GH_ParamAccess.item);
 
 			pManager[3].Optional = true;
 		}
