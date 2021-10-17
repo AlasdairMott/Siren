@@ -25,7 +25,10 @@ namespace Siren.Audio
 		{
 			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
 			pManager.AddParameter(new WaveStreamParameter(), "Kernel", "K", "Wave input 2", GH_ParamAccess.item);
-			pManager.AddIntegerParameter("Kernel Size", "Ks", "Size of the Kernel", GH_ParamAccess.item);
+			pManager.AddIntegerParameter("Kernel Size", "Sz", "Size of the Kernel", GH_ParamAccess.item);
+			pManager.AddIntegerParameter("Kernel Skip", "Sk", "Samples to skip ( > 0)", GH_ParamAccess.item);
+
+			pManager[3].Optional = true;
 		}
 
 		/// <summary>
@@ -51,7 +54,10 @@ namespace Siren.Audio
 			int kSize = 1;
 			if (!DA.GetData(2, ref kSize)) return;
 
-			var convolution = new SampleProviders.ConvolutionProvider(waveIn.ToSampleProvider(), kernel, kSize);
+			int kSkip = 4;
+			DA.GetData(3, ref kSkip);
+
+			var convolution = new SampleProviders.ConvolutionProvider(waveIn.ToSampleProvider(), kernel, kSize, kSkip);
 
 			DA.SetData(0, convolution);
 		}

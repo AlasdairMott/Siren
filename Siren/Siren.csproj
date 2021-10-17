@@ -156,12 +156,6 @@
     <None Include="Resources\metronome.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\playback_Off.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\playback_On.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\repitch.png" />
   </ItemGroup>
   <ItemGroup>
