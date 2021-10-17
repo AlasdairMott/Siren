@@ -1,7 +1,5 @@
 ﻿using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace Siren.SampleProviders

@@ -95,6 +95,7 @@
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Audio\ADEnvelopeComponent.cs" />
     <Compile Include="Audio\AttenuverterComponent.cs" />
     <Compile Include="Audio\CVFromGeometryComponent.cs" />
     <Compile Include="Audio\CVQuantizerComponent.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="Audio\UnityMixerComponent.cs" />
     <Compile Include="Audio\WavePropertiesComponent.cs" />
     <Compile Include="Geometry\SampleToPointComponent.cs" />
+    <Compile Include="SampleProviders\ADEnvelopeProvider.cs" />
     <Compile Include="SampleProviders\CachedSoundProvider.cs" />
     <Compile Include="SampleProviders\PulseProvider.cs" />
     <Compile Include="SirenSettings.cs" />
@@ -124,7 +126,7 @@
     <Compile Include="SampleProviders\NoiseGenerator.cs" />
     <Compile Include="SampleProviders\TriggeredSampleProvider.cs" />
     <Compile Include="Utilities\InlineIconStrip.cs" />
-    <Compile Include="Utilities\NAudioUtilities.cs" />
+    <Compile Include="Utilities\SirenUtilities.cs" />
     <Compile Include="Audio\ReadSampleComponent.cs" />
     <Compile Include="Audio\RepitchComponent.cs" />
     <Compile Include="SampleProviders\VCAProvider.cs" />
@@ -234,6 +236,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\sampleToPolyline.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AD.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -71,7 +71,7 @@ namespace Siren
             var stream = new List<byte>();
             for (int n =0; n < AudioData.Length; n++)
             {
-                short valShort = Convert.ToInt16(short.MaxValue * NAudioUtilities.Limit(AudioData[n]));
+                short valShort = Convert.ToInt16(short.MaxValue * SirenUtilities.Limit(AudioData[n]));
                 var valByte = BitConverter.GetBytes(valShort);
                 stream.AddRange(valByte);
             }
