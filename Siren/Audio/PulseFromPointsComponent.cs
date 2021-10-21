@@ -13,7 +13,7 @@ namespace Siren.Audio
 		/// Initializes a new instance of the PulseFromPointsComponent class.
 		/// </summary>
 		public PulseFromPointsComponent()
-		  : base("Pulse From Points", "Nickname",
+		  : base("Pulse From Points", "CVPt",
 			  "Description",
 			  "Siren", "CV Control")
 		{

@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-
-using Grasshopper.Kernel;
-using Rhino.Geometry;
+﻿using Grasshopper.Kernel;
+using NAudio.Wave.SampleProviders;
+using System;
 
 namespace Siren.Audio
 {
-	public class ADEnvelopeComponent : GH_Component
+	public class TrimSampleComponent : GH_Component
 	{
 		/// <summary>
-		/// Initializes a new instance of the ADEnvelopeComponent class.
+		/// Initializes a new instance of the TrimSampleComponent class.
 		/// </summary>
-		public ADEnvelopeComponent()
-		  : base("AD Envelope Generator", "Nickname",
-			  "Attack/Decay Envelope Generator",
-			  "Siren", "Envelope")
+		public TrimSampleComponent()
+		  : base("Trim Sample", "Trim",
+			  "Trim a sample's start and end point",
+			  "Siren", "Utilities")
 		{
 		}
 
@@ -24,10 +22,11 @@ namespace Siren.Audio
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
 			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
-			pManager.AddNumberParameter("Attack", "A", "Attack", GH_ParamAccess.item);
-			pManager.AddNumberParameter("Decay", "D", "Decay", GH_ParamAccess.item);
-			pManager.AddNumberParameter("Exponent", "E", "Exponent (> 0)", GH_ParamAccess.item);
-			pManager[3].Optional = true;
+			pManager.AddNumberParameter("Start", "S", "Start (in seconds)", GH_ParamAccess.item);
+			pManager.AddNumberParameter("End", "E", "End (in seconds)", GH_ParamAccess.item);
+
+			pManager[1].Optional = true;
+			pManager[2].Optional = true;
 		}
 
 		/// <summary>
@@ -47,32 +46,35 @@ namespace Siren.Audio
 			var waveIn = CachedSound.Empty;
 			if (!DA.GetData(0, ref waveIn)) return;
 
-			var attack = 1.0;
-			var decay = 1.0;
-			var exponent = 1.0;
-			if (!DA.GetData(1, ref attack)) return;
-			else if (attack < 0) return;
-			if (!DA.GetData(2, ref decay)) return;
-			else if (decay < 0) return;
-			DA.GetData(3, ref exponent);
-			if (exponent <= 0) return;
+			double start = 0;
+			double end = 0;
 
-			var AD = new SampleProviders.ADEnvelopeProvider(waveIn.ToSampleProvider(), TimeSpan.FromSeconds(attack), TimeSpan.FromSeconds(decay), (float)exponent);
+			DA.GetData(1, ref start);
+			DA.GetData(2, ref end);
 
-			DA.SetData(0, AD);
+			var a = TimeSpan.FromSeconds(start);
+			var b = waveIn.TotalTime - TimeSpan.FromSeconds(start + end);
+
+			var trimmed = new OffsetSampleProvider(waveIn.ToSampleProvider())
+			{
+				SkipOver = TimeSpan.FromSeconds(start),
+				Take = waveIn.TotalTime - TimeSpan.FromSeconds(start + end)
+			};
+
+			DA.SetData(0, trimmed);
 		}
 
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon => Properties.Resources.AD;
+		protected override System.Drawing.Bitmap Icon => Properties.Resources.trim;
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.
 		/// </summary>
 		public override Guid ComponentGuid
 		{
-			get { return new Guid("62e6c701-bd59-4e03-9898-7bf953043b4b"); }
+			get { return new Guid("5a282ab2-22af-452f-b968-d7dc75ba8d96"); }
 		}
 	}
 }
