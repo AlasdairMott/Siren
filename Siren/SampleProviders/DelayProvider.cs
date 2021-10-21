@@ -10,15 +10,17 @@ namespace Siren.SampleProviders
 		private int delay;
 		private float feedback;
 		private float delayedSample;
+		private float colour;
 		private float[] cache;
 
 		public WaveFormat WaveFormat => source.WaveFormat;
 
-		public DelayProvider(ISampleProvider source, TimeSpan time, float feedback)
+		public DelayProvider(ISampleProvider source, TimeSpan time, float feedback, float colour)
 		{
 			this.source = source;
 			this.delay = (int) (time.TotalSeconds * source.WaveFormat.SampleRate);
 			this.feedback = feedback;
+			this.colour = SirenUtilities.Clamp(colour, 0.0f, 1.0f);
 		}
 
 		public int Read(float[] buffer, int offset, int count)
@@ -27,14 +29,17 @@ namespace Siren.SampleProviders
 
 			for (int n = 0; n < sampleRead; n++)
 			{
+				float s = 0f;
 				if (n > delay)
 				{
-					delayedSample = buffer[offset + n - delay];
+					s = buffer[offset + n - delay];
 				}
 				else if ( cache != null && cache.Length > delay)
 				{
-					delayedSample = cache[cache.Length - (delay - n) - 1];
+					s = cache[cache.Length - (delay - n) - 1];
 				}
+
+				delayedSample = s * colour + delayedSample * (1 - colour);
 
 				var sample = buffer[offset + n] + delayedSample * feedback;
 				sample = SirenUtilities.Clamp(sample, -1.0f, 1.0f);
