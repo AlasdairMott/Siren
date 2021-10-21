@@ -18,9 +18,9 @@ Make sure to copy NAudio dlls from Siren\bin into the grasshopper libraries fold
 
 ## Todo
 - ~~Wave goo to wrap "Cached wave", not "wave stream"~~
+- ~~Delay effect~~
 - Endless stream goo
 - voltage offset
-- Delay effect
 - Midi parser
 - Looping
 - Sample trim and stitch
