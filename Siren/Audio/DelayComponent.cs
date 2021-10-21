@@ -42,13 +42,13 @@ namespace Siren.Audio
 			var waveIn = CachedSound.Empty;
 			if (!DA.GetData(0, ref waveIn)) return;
 
-			var delayTime = 1.0;
-			if (!DA.GetData(1, ref delayTime)) return;
+			double time = 1.0;
+			if (!DA.GetData(1, ref time)) return;
 
-			var feedback = 0.0;
+			double feedback = 0.0;
 			if (!DA.GetData(2, ref feedback)) return;
 
-			var delay = new SampleProviders.AttenuverterProvider(waveIn.ToSampleProvider(), (float)attenuation);
+			var delay = new SampleProviders.DelayProvider(waveIn.ToSampleProvider(), TimeSpan.FromSeconds(time), (float) feedback);
 
 			DA.SetData(0, delay);
 		}
