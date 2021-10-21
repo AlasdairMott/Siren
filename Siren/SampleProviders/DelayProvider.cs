@@ -1,5 +1,6 @@
 ﻿using NAudio.Wave;
 using System;
+using System.Linq;
 
 namespace Siren.SampleProviders
 {
@@ -18,7 +19,6 @@ namespace Siren.SampleProviders
 			this.source = source;
 			this.delay = (int) (time.TotalSeconds * source.WaveFormat.SampleRate);
 			this.feedback = feedback;
-			cache = new float[this.delay];
 		}
 
 		public int Read(float[] buffer, int offset, int count)
@@ -27,19 +27,24 @@ namespace Siren.SampleProviders
 
 			for (int n = 0; n < sampleRead; n++)
 			{
-				if (n > delay) {
-					var n_0 = buffer[offset + n - delay + 2];
-					var n_1 = buffer[offset + n - delay + 1];
-					var n_3 = buffer[offset + n - delay];
-
-					delayedSample = (n_0 + n_1 + n_3) * 0.333f;
+				if (n > delay)
+				{
+					delayedSample = buffer[offset + n - delay];
+				}
+				else if ( cache != null && cache.Length > delay)
+				{
+					delayedSample = cache[cache.Length - (delay - n) - 1];
 				}
 
 				var sample = buffer[offset + n] + delayedSample * feedback;
 				sample = SirenUtilities.Clamp(sample, -1.0f, 1.0f);
 				buffer[offset + n] = sample;
 			}
+
+			cache = buffer;
 			return sampleRead;
 		}
+
+
 	}
 }
