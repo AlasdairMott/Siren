@@ -3,15 +3,15 @@ using System;
 
 namespace Siren.Audio
 {
-	public class AttenuverterComponent : GH_Component
+	public class DelayComponent : GH_Component
 	{
 		/// <summary>
-		/// Initializes a new instance of the AttenuverterComponent class.
+		/// Initializes a new instance of the DelayComponent class.
 		/// </summary>
-		public AttenuverterComponent()
-		  : base("Attenuverter", "AttenU",
-				"Reduces or polarises (inverts) a signal's level/amplitude.",
-				"Siren", "VCA")
+		public DelayComponent()
+		  : base("Delay", "Dly",
+			  "Delay",
+			  "Siren", "Effects")
 		{
 		}
 
@@ -21,7 +21,9 @@ namespace Siren.Audio
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
 			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
-			pManager.AddNumberParameter("Attenuation", "A", "Attenuation", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Delay", "D", "Delay Amount", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Feedback", "F", "Feedback", GH_ParamAccess.item);
+			pManager.AddNumberParameter("Colour", "C", "Colour", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -41,25 +43,34 @@ namespace Siren.Audio
 			var waveIn = CachedSound.Empty;
 			if (!DA.GetData(0, ref waveIn)) return;
 
-			var attenuation = 1.0;
-			if (!DA.GetData(1, ref attenuation)) return;
-			
-			var attenuverter = new SampleProviders.AttenuverterProvider(waveIn.ToSampleProvider(), (float) attenuation);
+			double time = 1.0;
+			double feedback = 0.0;
+			double colour = 0.5;
 
-			DA.SetData(0, attenuverter);
+			if (!DA.GetData(1, ref time)) return;
+			if (!DA.GetData(2, ref feedback)) return;
+			if (!DA.GetData(3, ref colour)) return;
+
+			if (!(0 <= colour || colour <= 1.0)) { AddRuntimeMessage(GH_RuntimeMessageLevel.Warning,"Colour must be between 0 and 1"); return; }
+
+			colour = Math.Pow(colour, 2);
+
+			var delay = new SampleProviders.DelayProvider(waveIn.ToSampleProvider(), TimeSpan.FromSeconds(time), (float) feedback, (float) colour);
+
+			DA.SetData(0, delay);
 		}
 
 		/// <summary>
 		/// Provides an Icon for the component.
 		/// </summary>
-		protected override System.Drawing.Bitmap Icon => Properties.Resources.attenuverter;
+		protected override System.Drawing.Bitmap Icon => Properties.Resources.echo;
 
 		/// <summary>
 		/// Gets the unique ID for this component. Do not change this ID after release.
 		/// </summary>
 		public override Guid ComponentGuid
 		{
-			get { return new Guid("aa66bb45-be86-4aa7-83ad-f3cc2666ecab"); }
+			get { return new Guid("38a64e7e-f367-4ffe-9065-9c8b1e9735d5"); }
 		}
 	}
 }

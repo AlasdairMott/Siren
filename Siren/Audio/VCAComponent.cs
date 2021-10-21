@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-
-using Grasshopper.Kernel;
-using NAudio.Wave;
-using Rhino.Geometry;
+﻿using Grasshopper.Kernel;
+using System;
 
 namespace Siren
 {

@@ -1,10 +1,8 @@
 ﻿using Grasshopper.Kernel;
-using NAudio.Wave;
-using NAudio.Dsp;
-using System;
-using System.Linq;
-using System.Collections.Generic;
 using NAudio.Wave.SampleProviders;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Siren.Components
 {
