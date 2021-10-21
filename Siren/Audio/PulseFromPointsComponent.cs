@@ -1,9 +1,9 @@
 ﻿using Grasshopper.Kernel;
+using NAudio.Wave;
 using Rhino.Geometry;
 using Siren.SampleProviders;
 using System;
 using System.Collections.Generic;
-using NAudio.Wave;
 
 namespace Siren.Audio
 {

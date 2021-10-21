@@ -100,6 +100,7 @@
     <Compile Include="Audio\ConvolutionComponent.cs" />
     <Compile Include="Audio\CVFromGeometryComponent.cs" />
     <Compile Include="Audio\CVQuantizerComponent.cs" />
+    <Compile Include="Audio\DelayComponent.cs" />
     <Compile Include="Audio\NoiseComponent.cs" />
     <Compile Include="Audio\CVOscillatorComponent.cs" />
     <Compile Include="Audio\ProjectSettingsComponent.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="SampleProviders\ADEnvelopeProvider.cs" />
     <Compile Include="SampleProviders\CachedSoundProvider.cs" />
     <Compile Include="SampleProviders\ConvolutionProvider.cs" />
+    <Compile Include="SampleProviders\DelayProvider.cs" />
     <Compile Include="SampleProviders\PulseProvider.cs" />
     <Compile Include="SirenSettings.cs" />
     <Compile Include="Geometry\GeometryFunctions.cs" />

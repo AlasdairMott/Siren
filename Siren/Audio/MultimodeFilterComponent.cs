@@ -1,5 +1,4 @@
 ﻿using Grasshopper.Kernel;
-using NAudio.Wave;
 using NAudio.Dsp;
 using System;
 

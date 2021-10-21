@@ -1,6 +1,5 @@
 ﻿using GH_IO.Serialization;
 using Grasshopper.Kernel;
-using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using System;
 using System.Collections.Generic;

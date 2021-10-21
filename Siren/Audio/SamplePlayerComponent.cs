@@ -1,11 +1,6 @@
-﻿using Siren.SampleProviders;
-using Grasshopper.Kernel;
-using NAudio.Wave;
-using NAudio.Wave.SampleProviders;
-using Rhino.Geometry;
+﻿using Grasshopper.Kernel;
+using Siren.SampleProviders;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Siren.Audio
 {

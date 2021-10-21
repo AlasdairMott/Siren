@@ -1,12 +1,10 @@
 ﻿using GH_IO.Serialization;
 using Grasshopper.Kernel;
-using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using Siren.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Forms;
 
 namespace Siren.Components
 {

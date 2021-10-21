@@ -1,8 +1,6 @@
 ﻿using Grasshopper.Kernel;
 using NAudio.Wave;
 using System;
-using Rhino.Geometry;
-using System.Linq;
 
 namespace Siren
 {
