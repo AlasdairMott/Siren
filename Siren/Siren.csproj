@@ -132,7 +132,9 @@
     <Compile Include="SampleProviders\OscillatorProvider.cs" />
     <Compile Include="SampleProviders\NoiseGenerator.cs" />
     <Compile Include="SampleProviders\TriggeredSampleProvider.cs" />
+    <Compile Include="Utilities\GH_KnobAttributes.cs" />
     <Compile Include="Utilities\GH_ToggleAttributes.cs" />
+    <Compile Include="Utilities\KnobComponent.cs" />
     <Compile Include="Utilities\SirenUtilities.cs" />
     <Compile Include="Audio\ReadSampleComponent.cs" />
     <Compile Include="Audio\RepitchComponent.cs" />
