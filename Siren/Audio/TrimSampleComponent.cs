@@ -12,7 +12,7 @@ namespace Siren.Audio
 		public TrimSampleComponent()
 		  : base("Trim Sample", "Trim",
 			  "Trim a sample's start and end point",
-			  "Siren", "Utilities")
+			  "Siren", "Editing")
 		{
 		}
 

@@ -107,6 +107,7 @@
     <Compile Include="Audio\PulseFromPointsComponent.cs" />
     <Compile Include="Audio\SampleHoldComponent.cs" />
     <Compile Include="Audio\SamplePlayerComponent.cs" />
+    <Compile Include="Audio\StitchComponent.cs" />
     <Compile Include="Audio\TrimSampleComponent.cs" />
     <Compile Include="Audio\UnityMixerComponent.cs" />
     <Compile Include="Audio\WavePropertiesComponent.cs" />
@@ -131,7 +132,7 @@
     <Compile Include="SampleProviders\OscillatorProvider.cs" />
     <Compile Include="SampleProviders\NoiseGenerator.cs" />
     <Compile Include="SampleProviders\TriggeredSampleProvider.cs" />
-    <Compile Include="Utilities\InlineIconStrip.cs" />
+    <Compile Include="Utilities\GH_ToggleAttributes.cs" />
     <Compile Include="Utilities\SirenUtilities.cs" />
     <Compile Include="Audio\ReadSampleComponent.cs" />
     <Compile Include="Audio\RepitchComponent.cs" />
@@ -248,6 +249,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\echo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\stitch.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
