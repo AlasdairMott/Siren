@@ -116,6 +116,7 @@
     <Compile Include="SampleProviders\ConvolutionProvider.cs" />
     <Compile Include="SampleProviders\DelayProvider.cs" />
     <Compile Include="SampleProviders\PulseProvider.cs" />
+    <Compile Include="SampleProviders\SampleHoldProvider.cs" />
     <Compile Include="SirenSettings.cs" />
     <Compile Include="Geometry\GeometryFunctions.cs" />
     <Compile Include="Geometry\SampleToPolylineComponent.cs" />

@@ -20,6 +20,8 @@ namespace Siren.Audio
 		/// </summary>
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
+			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
+			pManager.AddParameter(new WaveStreamParameter(), "Trigger", "T", "Trigger input", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -27,6 +29,7 @@ namespace Siren.Audio
 		/// </summary>
 		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
 		{
+			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -35,6 +38,15 @@ namespace Siren.Audio
 		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
 		protected override void SolveInstance(IGH_DataAccess DA)
 		{
+			var waveIn = CachedSound.Empty;
+			if (!DA.GetData(0, ref waveIn)) return;
+
+			var triggerIn = CachedSound.Empty;
+			if (!DA.GetData(1, ref triggerIn)) return;
+
+			var SH = new SampleProviders.SampleHoldProvider(waveIn.ToSampleProvider(), triggerIn.ToSampleProvider());
+
+			DA.SetData(0, SH);
 		}
 
 		/// <summary>
