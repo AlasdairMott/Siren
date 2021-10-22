@@ -12,7 +12,7 @@ namespace Siren.Utilities
     /// <summary>
     /// Draws icons inline and below the component; manages selection state and callbacks via icon index
     /// </summary>
-    public class InlineIconStrip : Grasshopper.Kernel.Attributes.GH_ComponentAttributes
+    public class GH_ToggleAttributes : Grasshopper.Kernel.Attributes.GH_ComponentAttributes
     {
         private Action<int> iconClickHander;
         public int IndexOfSelectedIcon { get; set; }
@@ -25,7 +25,7 @@ namespace Siren.Utilities
         private System.Drawing.Rectangle iconStripBounds; // Overall icon area
         System.Drawing.Rectangle[] iconBounds; // Track per-icon boundaries to ID click events
 
-        public InlineIconStrip(GH_Component owner, Action<int> callback, 
+        public GH_ToggleAttributes(GH_Component owner, Action<int> callback, 
                                List<System.Drawing.Bitmap> icons, int activeIndex) : base(owner)
         {
             this.IndexOfSelectedIcon = activeIndex;

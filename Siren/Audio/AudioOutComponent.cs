@@ -43,7 +43,7 @@ namespace Siren
 
 		public override void CreateAttributes()
 		{
-			m_attributes = new CustomGHButton(this);
+			m_attributes = new GH_PlayButtonAttributes(this);
 		}
 
 		/// <summary>
@@ -70,7 +70,7 @@ namespace Siren
 		{
             if (WaveIsPlaying && PlayState != null)
             {
-                var mixerWave = (m_attributes as CustomGHButton).PlayingWave;
+                var mixerWave = (m_attributes as GH_PlayButtonAttributes).PlayingWave;
                 PlayState.T0 = mixerWave.CurrentTime.TotalSeconds;
 
                 if (PlayState.T0 + 0.099 > PlayState.T1) // 99 because currentTime ~0.001 less than total
@@ -126,7 +126,7 @@ namespace Siren
 		}
     }
 
-    public class CustomGHButton : GH_ComponentAttributes
+    public class GH_PlayButtonAttributes : GH_ComponentAttributes
     {
         private int dragSpace = 15;
         private int buttonWidth = 46;
@@ -138,7 +138,7 @@ namespace Siren
 
         public CachedSoundSampleProvider PlayingWave { get; private set; }
         
-        public CustomGHButton(AudioOutComponent owner) : base(owner)
+        public GH_PlayButtonAttributes(AudioOutComponent owner) : base(owner)
         {
             this.owner = owner;
         }
@@ -160,6 +160,8 @@ namespace Siren
                 base.Render(canvas, graphics, channel);
                 return;
             }
+
+            if (aboutToPlay) Selected = false;
             RenderComponentCapsule(canvas, graphics, true, false, false, true, true, true); // Standard UI
 
             playButtonBounds = GH_Convert.ToRectangle(outerButtonBounds); // Icon inset space

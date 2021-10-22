@@ -57,7 +57,7 @@ namespace Siren.Components
 		public override void CreateAttributes() // Setup custom inline icons within component
 		{
 			var waveIcons = waveOptions.Select(o => o.Icon).ToList();
-			m_attributes = new InlineIconStrip(this, this.SetWaveformFromIcon, waveIcons, selectedWave);
+			m_attributes = new GH_ToggleAttributes(this, this.SetWaveformFromIcon, waveIcons, selectedWave);
 		}
 
 		/// <summary>
@@ -125,7 +125,7 @@ namespace Siren.Components
 			if (reader.TryGetString("wavetype", ref waveformTitle))
 			{
 				selectedWave = waveOptions.FindIndex(w => w.Title == waveformTitle);
-				(m_attributes as InlineIconStrip).IndexOfSelectedIcon = selectedWave; // Need to refresh to pass newly-loaded state
+				(m_attributes as GH_ToggleAttributes).IndexOfSelectedIcon = selectedWave; // Need to refresh to pass newly-loaded state
 			}
 
 			return base.Read(reader);
