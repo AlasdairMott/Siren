@@ -1,4 +1,6 @@
-﻿using Grasshopper.Kernel;
+﻿using GH_IO.Serialization;
+using Grasshopper.Kernel;
+using Siren.Utilities;
 using System;
 
 namespace Siren.Audio
@@ -15,13 +17,17 @@ namespace Siren.Audio
 		{
 		}
 
+		public override void CreateAttributes()
+		{
+			m_attributes = new GH_KnobAttributes(this, "-       +", 40f, 50f);
+		}
+
 		/// <summary>
 		/// Registers all the input parameters for this component.
 		/// </summary>
 		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
 		{
 			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
-			pManager.AddNumberParameter("Attenuation", "A", "Attenuation", GH_ParamAccess.item);
 		}
 
 		/// <summary>
@@ -41,10 +47,12 @@ namespace Siren.Audio
 			var waveIn = CachedSound.Empty;
 			if (!DA.GetData(0, ref waveIn)) return;
 
-			var attenuation = 1.0;
-			if (!DA.GetData(1, ref attenuation)) return;
-			
-			var attenuverter = new SampleProviders.AttenuverterProvider(waveIn.ToSampleProvider(), (float) attenuation);
+			var attributes = m_attributes as GH_KnobAttributes;
+
+			var atten = attributes.P;
+			atten = SirenUtilities.Remap(atten, attributes.Min, attributes.Max, -2.0f, 2.0f);
+
+			var attenuverter = new SampleProviders.AttenuverterProvider(waveIn.ToSampleProvider(), atten);
 
 			DA.SetData(0, attenuverter);
 		}
@@ -60,6 +68,22 @@ namespace Siren.Audio
 		public override Guid ComponentGuid
 		{
 			get { return new Guid("aa66bb45-be86-4aa7-83ad-f3cc2666ecab"); }
+		}
+
+		public override bool Write(GH_IWriter writer)
+		{
+			writer.SetDouble("attenuation", (m_attributes as GH_KnobAttributes).P);
+			return base.Write(writer);
+		}
+
+		public override bool Read(GH_IReader reader)
+		{
+			double att = 0.0;
+			if (reader.TryGetDouble("attenuation", ref att)) 
+			{
+				(m_attributes as GH_KnobAttributes).P = (float) att;
+			}
+			return base.Read(reader);
 		}
 	}
 }

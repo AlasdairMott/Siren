@@ -9,29 +9,36 @@ namespace Siren.Utilities
 {
 	public class GH_KnobAttributes : GH_ComponentAttributes
 	{
-		//private float width = 70f;
-		//private float height = 70f;
+		private float width;
+		private float height;
 		private float knobDiameter = 36f;
 
 		private float p0;
-		private float p1;
-		private float min = (float)-Math.PI * 0.75f;
-		private float max = (float) Math.PI * 0.75f;
+		public readonly float Min = (float)-Math.PI * 0.75f;
+		public readonly float Max = (float) Math.PI * 0.75f;
 
 		private GH_Knob knob;
 		private RectangleF knobBounds;
 		private PointF canvasLocation;
 		private Point  systemLocation;
 
-		public GH_KnobAttributes(GH_Component owner, string text) : base(owner) 
+		public float P { get; set; }
+
+		public GH_KnobAttributes(GH_Component owner, string text, float width = 0, float height = 0) : base(owner) 
 		{
 			knob = new GH_Knob(text);
+
+			this.width = width;
+			this.height = height;
 		}
 
 		protected override void Layout()
 		{
 			base.Layout();
-			var bounds = new RectangleF(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height);
+			if (width == 0) width = Bounds.Width;
+			if (height == 0) height = Bounds.Height;
+
+			var bounds = new RectangleF(Bounds.X, Bounds.Y, width, height);
 			LayoutInputParams(Owner, bounds);
 			LayoutOutputParams(Owner, bounds);
 			Bounds = LayoutBounds(Owner, bounds);
@@ -52,7 +59,7 @@ namespace Siren.Utilities
 			knobBounds.Y += (Bounds.Height - knobDiameter) * 0.5f;
 			knobBounds.Width = knobBounds.Height = knobDiameter;
 
-			knob.Draw(graphics, knobBounds, p1);
+			knob.Draw(graphics, knobBounds, P);
 		}
 
 		public override GH_ObjectResponse RespondToMouseDown(GH_Canvas sender, GH_CanvasMouseEvent e)
@@ -77,7 +84,7 @@ namespace Siren.Utilities
 		{
 			var canvas = sender as GH_Canvas;
 
-			p0 = p1;
+			p0 = P;
 			canvas.MouseMove -= Sender_MouseMove;
 			canvas.MouseUp -= Sender_MouseUp;
 
@@ -92,7 +99,7 @@ namespace Siren.Utilities
 			var canvas = sender as GH_Canvas;
 			var dp = (canvasLocation.Y - canvas.CursorCanvasPosition.Y) * 0.01f;
 
-			p1 = SirenUtilities.Clamp(p0 + dp, min, max);
+			P = SirenUtilities.Clamp(p0 + dp, Min, Max);
 
 			ExpireLayout();
 			canvas.Refresh();
@@ -100,7 +107,17 @@ namespace Siren.Utilities
 
 		public override GH_ObjectResponse RespondToMouseDoubleClick(GH_Canvas sender, GH_CanvasMouseEvent e)
 		{
-			p0 = 0;
+			if (!Owner.Locked && e.Button == System.Windows.Forms.MouseButtons.Left && knobBounds.Contains(e.CanvasLocation))
+			{
+				P = 0;
+
+				ExpireLayout();
+				sender.Refresh();
+				Owner.ExpireSolution(true);
+
+				return GH_ObjectResponse.Handled;
+			}
+
 			return base.RespondToMouseDoubleClick(sender, e);
 		}
 	}
