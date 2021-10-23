@@ -20,7 +20,7 @@ namespace Siren.Utilities
 
 		public override void CreateAttributes()
 		{
-			m_attributes = new GH_KnobAttributes(this);
+			m_attributes = new GH_KnobAttributes(this, "Frequency");
 		}
 
 		/// <summary>

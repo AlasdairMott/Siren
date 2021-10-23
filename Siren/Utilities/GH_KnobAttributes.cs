@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using Grasshopper.GUI;
+﻿using Grasshopper.GUI;
 using Grasshopper.GUI.Canvas;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Attributes;
+using System;
+using System.Drawing;
 
 namespace Siren.Utilities
 {
@@ -20,12 +18,14 @@ namespace Siren.Utilities
 		private float min = (float)-Math.PI * 0.75f;
 		private float max = (float) Math.PI * 0.75f;
 
+		private GH_Knob knob;
 		private RectangleF knobBounds;
 		private PointF canvasLocation;
 		private Point  systemLocation;
 
-		public GH_KnobAttributes(GH_Component owner) : base(owner) 
-		{ 
+		public GH_KnobAttributes(GH_Component owner, string text) : base(owner) 
+		{
+			knob = new GH_Knob(text);
 		}
 
 		protected override void Layout()
@@ -51,37 +51,8 @@ namespace Siren.Utilities
 			knobBounds.X += (Bounds.Width - knobDiameter) * 0.5f;
 			knobBounds.Y += (Bounds.Height - knobDiameter) * 0.5f;
 			knobBounds.Width = knobBounds.Height = knobDiameter;
-			DrawKnob(graphics, knobBounds, p1);
-		}
 
-		private void DrawKnob(Graphics graphics, RectangleF bounds, float angle)
-		{
-			var pt1 = new PointF(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2);
-			var pt2 = new PointF(
-				(float) Math.Cos(angle - Math.PI/2) * bounds.Width * 0.5f + pt1.X, 
-				(float) Math.Sin(angle - Math.PI/2) * bounds.Width * 0.5f + pt1.Y);
-
-			using (var whiteBrush = new SolidBrush(Color.White))
-			using (var shadowBrush = new SolidBrush(Color.FromArgb(20,0,0,0)))
-			using (var blackBrush = new SolidBrush(Color.Black))
-			using (var grey = new Pen(Color.FromArgb(80, 255, 255, 255), 1f))
-			using (var white = new Pen(Color.White, 3f))
-			{
-				var shadow = bounds;
-				shadow.Inflate(1f, 1f);
-				shadow.Y += 2f;
-
-				graphics.FillEllipse(shadowBrush, shadow);
-				graphics.FillEllipse(blackBrush, bounds);
-				
-				bounds.Inflate(-4f, -4f);
-				graphics.DrawEllipse(grey, bounds);
-
-				bounds.Inflate(-4f, -4f);
-				graphics.FillEllipse(whiteBrush, bounds);
-
-				graphics.DrawLine(white, pt1, pt2);
-			}
+			knob.Draw(graphics, knobBounds, p1);
 		}
 
 		public override GH_ObjectResponse RespondToMouseDown(GH_Canvas sender, GH_CanvasMouseEvent e)
@@ -112,6 +83,8 @@ namespace Siren.Utilities
 
 			System.Windows.Forms.Cursor.Show();
 			System.Windows.Forms.Cursor.Position = systemLocation;
+
+			Owner.ExpireSolution(true);
 		}
 
 		private void Sender_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
