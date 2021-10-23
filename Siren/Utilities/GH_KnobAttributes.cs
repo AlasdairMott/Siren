@@ -51,10 +51,10 @@ namespace Siren.Utilities
 			knobBounds.X += (Bounds.Width - knobDiameter) * 0.5f;
 			knobBounds.Y += (Bounds.Height - knobDiameter) * 0.5f;
 			knobBounds.Width = knobBounds.Height = knobDiameter;
-			DrawKnob(graphics, knobBounds, p1, Selected);
+			DrawKnob(graphics, knobBounds, p1);
 		}
 
-		private void DrawKnob(Graphics graphics, RectangleF bounds, float angle, bool selected)
+		private void DrawKnob(Graphics graphics, RectangleF bounds, float angle)
 		{
 			var pt1 = new PointF(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2);
 			var pt2 = new PointF(
@@ -67,13 +67,6 @@ namespace Siren.Utilities
 			using (var grey = new Pen(Color.FromArgb(80, 255, 255, 255), 1f))
 			using (var white = new Pen(Color.White, 3f))
 			{
-				if (selected)
-				{
-					whiteBrush.Color = GH_GraphicsUtil.BlendColour(Color.Transparent, whiteBrush.Color, 0.5);
-					blackBrush.Color = GH_GraphicsUtil.BlendColour(Color.Transparent, blackBrush.Color, 0.5);
-					white.Color = GH_GraphicsUtil.BlendColour(Color.Transparent, white.Color, 0.5);
-				}
-
 				var shadow = bounds;
 				shadow.Inflate(1f, 1f);
 				shadow.Y += 2f;
