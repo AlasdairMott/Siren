@@ -132,6 +132,8 @@
     <Compile Include="SampleProviders\OscillatorProvider.cs" />
     <Compile Include="SampleProviders\NoiseGenerator.cs" />
     <Compile Include="SampleProviders\TriggeredSampleProvider.cs" />
+    <Compile Include="Utilities\GH_Knob.cs" />
+    <Compile Include="Utilities\GH_KnobAttributes.cs" />
     <Compile Include="Utilities\GH_ToggleAttributes.cs" />
     <Compile Include="Utilities\SirenUtilities.cs" />
     <Compile Include="Audio\ReadSampleComponent.cs" />
@@ -180,9 +182,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\curve.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\cv.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\noise.png" />
@@ -252,6 +251,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\stitch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cv.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
