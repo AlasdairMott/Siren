@@ -31,9 +31,8 @@ namespace Siren.Utilities
 			pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
 			pManager.AddNumberParameter("Delay", "D", "Delay Amount", GH_ParamAccess.item);
 			pManager.AddNumberParameter("Feedback", "F", "Feedback", GH_ParamAccess.item);
-			pManager.AddNumberParameter("Colour", "C", "Colour", GH_ParamAccess.item);
 
-			for (int i = 0; i < 4; i++) pManager[i].Optional = true;
+			for (int i = 0; i < 3; i++) pManager[i].Optional = true;
 		}
 
 		/// <summary>

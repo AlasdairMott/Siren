@@ -11,15 +11,15 @@ namespace Siren.Utilities
 {
 	public class GH_KnobAttributes : GH_ComponentAttributes
 	{
-		private float width = 80f;
-		private float height = 80f;
-		private float knobDiameter = 40f;
+		private float width = 70f;
+		//private float height = 70f;
+		private float knobDiameter = 36f;
 		private float p0;
 		private float p1;
+		private bool lowerKnob;
 		private RectangleF knobBounds;
-
-		private bool clicked;
 		private PointF mouseLocation;
+		private PointF debugLocation;
 
 		public GH_KnobAttributes(GH_Component owner) : base(owner) 
 		{ 
@@ -28,7 +28,7 @@ namespace Siren.Utilities
 		protected override void Layout()
 		{
 			base.Layout();
-			var bounds = new RectangleF(Bounds.X, Bounds.Y, width, height);
+			var bounds = new RectangleF(Bounds.X, Bounds.Y, width, Bounds.Height);
 			LayoutInputParams(Owner, bounds);
 			LayoutOutputParams(Owner, bounds);
 			Bounds = LayoutBounds(Owner, bounds);
@@ -50,14 +50,10 @@ namespace Siren.Utilities
 			knobBounds.Width = knobBounds.Height = knobDiameter;
 			DrawKnob(graphics, knobBounds, p1);
 
-
-			//if (Selected) {
-			//	using (var green = new SolidBrush(Color.FromArgb(100, 95, 195, 25)))
-			//	{
-			//		knobBounds.Inflate(10, 10);
-			//		graphics.FillRectangle(green, knobBounds);
-			//	}
-			//}
+			using (var pen = new Pen(Color.Cyan, 3f))
+			{
+				graphics.DrawLine(pen, mouseLocation, debugLocation);
+			}
 		}
 
 		private void DrawKnob(Graphics graphics, RectangleF bounds, float angle)
@@ -94,6 +90,9 @@ namespace Siren.Utilities
 		{
 			if (!Owner.Locked && e.Button == System.Windows.Forms.MouseButtons.Left && knobBounds.Contains(e.CanvasLocation))
 			{
+				//if (e.CanvasLocation.Y > (knobBounds.Y + knobBounds.Height) * 0.5f) lowerKnob = true;
+				//else lowerKnob = false;
+
 				sender.MouseMove += Sender_MouseMove;
 				sender.MouseUp += Sender_MouseUp;
 
@@ -114,7 +113,11 @@ namespace Siren.Utilities
 		private void Sender_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
 		{
 			var dp = (mouseLocation.Y - e.Location.Y) * 0.01f;
+			//if (lowerKnob) dp *= -1;
 			p1 = p0 + dp;
+
+			debugLocation = e.Location;
+			debugLocation = (sender as GH_Canvas).CursorCanvasPosition;
 
 			ExpireLayout();
 			(sender as GH_Canvas).Refresh();
