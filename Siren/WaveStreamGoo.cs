@@ -1,10 +1,9 @@
-﻿using Grasshopper.Kernel;
-using Grasshopper.Kernel.Types;
-using NAudio.Wave;
-using System;
+﻿using System;
 using System.Linq;
 using System.Windows.Forms;
-using Siren.SampleProviders;
+using Grasshopper.Kernel;
+using Grasshopper.Kernel.Types;
+using NAudio.Wave;
 
 namespace Siren
 {
@@ -14,7 +13,7 @@ namespace Siren
 
         public override string TypeName => "Gooey type name" + Value.GetType().ToString();
 
-		public override string TypeDescription => "Gooey type description" + Value.WaveFormat.ToString();
+        public override string TypeDescription => "Gooey type description" + Value.WaveFormat.ToString();
 
         public WaveStreamGoo()
         {
@@ -48,7 +47,7 @@ namespace Siren
             }
             else if (typeof(ISampleProvider).IsAssignableFrom(source.GetType()))
             {
-                Value = (CachedSound) new CachedSound(source as ISampleProvider);
+                Value = (CachedSound)new CachedSound(source as ISampleProvider);
                 return true;
             }
             return false;
@@ -56,29 +55,30 @@ namespace Siren
         #endregion
 
         public override IGH_Goo Duplicate()
-		{
-			return new WaveStreamGoo(Value.Clone());
-		}
+        {
+            return new WaveStreamGoo(Value.Clone());
+        }
 
-		public override string ToString()
-		{
-			return Value.ToString();
-		}
-	}
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
+    }
 
-	public class WaveStreamParameter : GH_Param<WaveStreamGoo>
+    public class WaveStreamParameter : GH_Param<WaveStreamGoo>
     {
-		public WaveStreamParameter()
-			: base(new GH_InstanceDescription(
+        public WaveStreamParameter()
+            : base(new GH_InstanceDescription(
                 "Wave",
-                "W", 
-				"Audio wave", 
-				"Siren",
-                "Utilities")) { }
+                "W",
+                "Audio wave",
+                "Siren",
+                "Utilities"))
+        { }
 
-		protected override System.Drawing.Bitmap Icon => Properties.Resources.wave;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.wave;
 
-		public override Guid ComponentGuid => new Guid("08a1577a-7dff-4163-a2c9-2dbd928626c4");
+        public override Guid ComponentGuid => new Guid("08a1577a-7dff-4163-a2c9-2dbd928626c4");
 
         public override void AppendAdditionalMenuItems(ToolStripDropDown menu)
         {
@@ -100,7 +100,7 @@ namespace Siren
                 Filter = "wav files (*.wav)|*.wav|All files (*.*)|*.*",
                 InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 FileName = "Audio"
-        };
+            };
 
             var result = fd.ShowSaveDialog();
             if (result)
@@ -108,7 +108,7 @@ namespace Siren
                 var goo = this.m_data.get_FirstItem(true);
                 if (goo == null) return;
                 var stream = goo.Value.ToRawSourceWaveStream();
-                
+
                 WaveFileWriter.CreateWaveFile(fd.FileName, stream);
             }
         }

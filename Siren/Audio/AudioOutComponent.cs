@@ -1,21 +1,21 @@
-﻿using Grasshopper.GUI;
+﻿using System;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using Grasshopper.GUI;
 using Grasshopper.GUI.Canvas;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Attributes;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 using Siren.SampleProviders;
-using System;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 
 namespace Siren
 {
     public class AudioOutComponent : GH_Component
-	{
+    {
         private readonly WaveOut waveOut;
 
-        public bool WaveIsPlaying = false; 
+        public bool WaveIsPlaying = false;
         public Rhino.Geometry.Interval PlayState; // Form of (currentTime, totalTime)
         public readonly int TickRate = 100; // playStateTimer duration, e.g. playhead update rate (in ms)
         public double DefaultLatency;
@@ -27,10 +27,10 @@ namespace Siren
         /// Initializes a new instance of the AudioOutComponent class.
         /// </summary>
         public AudioOutComponent()
-		  : base("Audio Out", "AOut",
-			  "Allows a signal to be played within Grasshopper.",
+          : base("Audio Out", "AOut",
+              "Allows a signal to be played within Grasshopper.",
               "Siren", "Utilities")
-		{
+        {
             waveOut = new WaveOut();
             Mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(SirenSettings.SampleRate, 1));
             Mixer.ReadFully = true;
@@ -41,33 +41,33 @@ namespace Siren
             Volume = 1.0f;
         }
 
-		public override void CreateAttributes()
-		{
-			m_attributes = new GH_PlayButtonAttributes(this);
-		}
+        public override void CreateAttributes()
+        {
+            m_attributes = new GH_PlayButtonAttributes(this);
+        }
 
-		/// <summary>
-		/// Registers all the input parameters for this component.
-		/// </summary>
-		protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
-		{
+        /// <summary>
+        /// Registers all the input parameters for this component.
+        /// </summary>
+        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        {
             pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
         }
 
-		/// <summary>
-		/// Registers all the output parameters for this component.
-		/// </summary>
-		protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        /// <summary>
+        /// Registers all the output parameters for this component.
+        /// </summary>
+        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddIntervalParameter("Play Progress", "P", "The play progress, in seconds, of the sample", GH_ParamAccess.item);
         }
 
-		/// <summary>
-		/// This is the method that actually does the work.
-		/// </summary>
-		/// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
-		protected override void SolveInstance(IGH_DataAccess DA)
-		{
+        /// <summary>
+        /// This is the method that actually does the work.
+        /// </summary>
+        /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
+        protected override void SolveInstance(IGH_DataAccess DA)
+        {
             if (WaveIsPlaying && PlayState != null)
             {
                 var mixerWave = (m_attributes as GH_PlayButtonAttributes).PlayingWave;
@@ -111,19 +111,19 @@ namespace Siren
             waveOut.Stop();
             waveOut.Dispose();
         }
-            
+
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
         protected override System.Drawing.Bitmap Icon => Properties.Resources.playback;
 
-		/// <summary>
-		/// Gets the unique ID for this component. Do not change this ID after release.
-		/// </summary>
-		public override Guid ComponentGuid
-		{
-			get { return new Guid("55f99243-1902-4ae3-a1e4-b2041ac6abf1"); }
-		}
+        /// <summary>
+        /// Gets the unique ID for this component. Do not change this ID after release.
+        /// </summary>
+        public override Guid ComponentGuid
+        {
+            get { return new Guid("55f99243-1902-4ae3-a1e4-b2041ac6abf1"); }
+        }
     }
 
     public class GH_PlayButtonAttributes : GH_ComponentAttributes
@@ -137,7 +137,7 @@ namespace Siren
         private bool aboutToPlay = false;
 
         public CachedSoundSampleProvider PlayingWave { get; private set; }
-        
+
         public GH_PlayButtonAttributes(AudioOutComponent owner) : base(owner)
         {
             this.owner = owner;
@@ -147,7 +147,7 @@ namespace Siren
         {
             Pivot = GH_Convert.ToPoint(Pivot);
 
-            outerButtonBounds = new RectangleF(Pivot.X, Pivot.Y, buttonWidth + dragSpace * 2, componentHeight); 
+            outerButtonBounds = new RectangleF(Pivot.X, Pivot.Y, buttonWidth + dragSpace * 2, componentHeight);
             LayoutInputParams(Owner, outerButtonBounds);
             LayoutOutputParams(Owner, outerButtonBounds);
             Bounds = LayoutBounds(Owner, outerButtonBounds);
@@ -187,7 +187,7 @@ namespace Siren
         {
             using (var fill = new SolidBrush(Color.White))
             using (var outerstroke = new Pen(Color.Black, 4f) { LineJoin = LineJoin.Round })
-            using (var innerstroke = new Pen(Color.LightGray, 2f) { LineJoin = LineJoin.Round }) 
+            using (var innerstroke = new Pen(Color.LightGray, 2f) { LineJoin = LineJoin.Round })
             {
                 var topLeft = new Point(playButtonBounds.X + 17, playButtonBounds.Y + 6);
                 var square = new Rectangle(topLeft, new Size(12, 12));
@@ -230,7 +230,7 @@ namespace Siren
                         new Point(Xleft + 7, gradientEnd.Y), // Middle-Right
                         gradientEnd // Bottom
                     };
-                    graphics.FillPolygon(highlight, triangleHighlightPts); 
+                    graphics.FillPolygon(highlight, triangleHighlightPts);
                 }
             }
         }
@@ -267,7 +267,7 @@ namespace Siren
                     }
                     else // Stop playing
                     {
-                        owner.WaveIsPlaying = false; 
+                        owner.WaveIsPlaying = false;
                         owner.Mixer.RemoveAllMixerInputs();
                     }
                 }

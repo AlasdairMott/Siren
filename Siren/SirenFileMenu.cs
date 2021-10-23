@@ -52,7 +52,8 @@ namespace Siren
                     ("Tempo", null)
                 };
 
-                foreach (var setting in intSettings) { 
+                foreach (var setting in intSettings)
+                {
                     var option = new ToolStripMenuItem()
                     {
                         Text = setting.Item1,
@@ -70,20 +71,21 @@ namespace Siren
             var optionText = ((ToolStripMenuItem)e.ClickedItem).Text;
             double newRate;
             int min, max;
-            switch (optionText) {
-                case "Sample Rate": 
+            switch (optionText)
+            {
+                case "Sample Rate":
                     newRate = SirenSettings.SampleRate;
                     min = 8000; max = 44100;
                     break;
-                case "Time Scale":  
+                case "Time Scale":
                     newRate = SirenSettings.TimeScale;
                     min = 1; max = 100000;
                     break;
-                case "Amplitude Scale": 
+                case "Amplitude Scale":
                     newRate = SirenSettings.AmplitudeScale;
                     min = 1; max = 100000;
                     break;
-                case "Tempo": 
+                case "Tempo":
                     newRate = SirenSettings.Tempo;
                     min = 1; max = 240;
                     break;
@@ -94,9 +96,9 @@ namespace Siren
                 optionText,
                 optionText,
                 ref newRate,
-                min, 
+                min,
                 max);
-            if (dialog_result && Grasshopper.Instances.ActiveCanvas.Document != null) 
+            if (dialog_result && Grasshopper.Instances.ActiveCanvas.Document != null)
                 Grasshopper.Instances.ActiveCanvas.Document.ExpireSolution();
         }
     }

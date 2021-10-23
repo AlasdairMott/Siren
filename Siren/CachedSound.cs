@@ -1,7 +1,7 @@
-﻿using NAudio.Wave;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NAudio.Wave;
 using Siren.SampleProviders;
 
 namespace Siren
@@ -13,7 +13,7 @@ namespace Siren
         public WaveFormat WaveFormat { get; private set; }
         public long Length { get; private set; }
         public static CachedSound Empty => new CachedSound(new RawSourceWaveStream(new byte[0], 0, 0, new WaveFormat()));
-        public TimeSpan TotalTime => TimeSpan.FromSeconds(((double) Length) / WaveFormat.SampleRate);
+        public TimeSpan TotalTime => TimeSpan.FromSeconds(((double)Length) / WaveFormat.SampleRate);
 
         public CachedSound(WaveStream wave)
         {
@@ -32,7 +32,7 @@ namespace Siren
             AudioData = wholeFile.ToArray();
         }
 
-        public CachedSound(ISampleProvider sampleProvider) 
+        public CachedSound(ISampleProvider sampleProvider)
         {
             var buffer = new List<float>();
 
@@ -52,12 +52,12 @@ namespace Siren
             AudioData = buffer.ToArray();
         }
 
-        public CachedSound(float[] data, WaveFormat waveFormat) 
+        public CachedSound(float[] data, WaveFormat waveFormat)
         {
             throw new NotImplementedException();
         }
 
-        public CachedSound(CachedSound other) 
+        public CachedSound(CachedSound other)
         {
             this.AudioData = new float[other.AudioData.Length];
             other.AudioData.CopyTo(this.AudioData, 0);
@@ -67,10 +67,10 @@ namespace Siren
 
         public CachedSoundSampleProvider ToSampleProvider() => new CachedSoundSampleProvider(this);
 
-        public RawSourceWaveStream ToRawSourceWaveStream() 
+        public RawSourceWaveStream ToRawSourceWaveStream()
         {
             var stream = new List<byte>();
-            for (int n =0; n < AudioData.Length; n++)
+            for (int n = 0; n < AudioData.Length; n++)
             {
                 short valShort = Convert.ToInt16(short.MaxValue * SirenUtilities.Limit(AudioData[n]));
                 var valByte = BitConverter.GetBytes(valShort);

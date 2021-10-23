@@ -1,11 +1,11 @@
-﻿using Grasshopper.GUI;
-using Grasshopper.GUI.Canvas;
-using Grasshopper.Kernel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using Grasshopper.GUI;
+using Grasshopper.GUI.Canvas;
+using Grasshopper.Kernel;
 
 namespace Siren.Utilities
 {
@@ -25,7 +25,7 @@ namespace Siren.Utilities
         private System.Drawing.Rectangle iconStripBounds; // Overall icon area
         System.Drawing.Rectangle[] iconBounds; // Track per-icon boundaries to ID click events
 
-        public GH_ToggleAttributes(GH_Component owner, Action<int> callback, 
+        public GH_ToggleAttributes(GH_Component owner, Action<int> callback,
                                List<System.Drawing.Bitmap> icons, int activeIndex) : base(owner)
         {
             this.IndexOfSelectedIcon = activeIndex;
@@ -67,7 +67,7 @@ namespace Siren.Utilities
             var toggleSize = new Size(iconStripBounds.Width, iconDimensions + iconPadding * 2);
             var toggleLocation = new Point(iconStripBounds.Location.X, iconStripBounds.Location.Y + IndexOfSelectedIcon * iconSpacing);
             var toggle = new Rectangle(toggleLocation, toggleSize);
-            
+
             DrawToggle(graphics, iconStripBounds, toggle);
 
             for (var i = 0; i < iconImages.Count; i++)
@@ -84,7 +84,7 @@ namespace Siren.Utilities
         {
             if (e.Button != System.Windows.Forms.MouseButtons.Left)
                 return base.RespondToMouseDown(sender, e);
-             
+
             for (var i = 0; i < iconImages.Count; i++)
             {
                 System.Drawing.RectangleF iconRec = new System.Drawing.RectangleF(iconBounds[i].Location.X + iconOffset, iconBounds[i].Location.Y, iconStripBounds.Width, iconDimensions + iconPadding * 2); /*(iconBounds[i]);*/
@@ -125,7 +125,7 @@ namespace Siren.Utilities
         private void DrawToggle(System.Drawing.Graphics graphics, Rectangle bounds, Rectangle toggle)
         {
             using (var brush = new SolidBrush(Color.FromArgb(30, 30, 30)))
-            using (var penDark = new Pen(Color.Black, 6.6f) { LineJoin = LineJoin.Round})
+            using (var penDark = new Pen(Color.Black, 6.6f) { LineJoin = LineJoin.Round })
             {
                 var rectangleSmall = bounds;
                 rectangleSmall.Inflate(-2, -2);
@@ -136,7 +136,7 @@ namespace Siren.Utilities
             using (var brush = new SolidBrush(Color.FromArgb(150, 150, 150)))
             using (var penLight = new Pen(Color.FromArgb(10, 220, 220, 220), 2f) { LineJoin = LineJoin.Round, Alignment = PenAlignment.Inset })
             using (var penMid = new Pen(Color.FromArgb(70, 70, 70), 1.4f))
-            using (var penDark = new Pen(Color.Black, 1.0f) { LineJoin = LineJoin.Round})
+            using (var penDark = new Pen(Color.Black, 1.0f) { LineJoin = LineJoin.Round })
             {
                 graphics.FillRectangle(brush, toggle);
                 for (int i = 1; i < toggle.Height / 2; i++)

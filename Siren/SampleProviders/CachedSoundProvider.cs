@@ -1,5 +1,5 @@
-﻿using NAudio.Wave;
-using System;
+﻿using System;
+using NAudio.Wave;
 
 namespace Siren.SampleProviders
 {
@@ -8,7 +8,7 @@ namespace Siren.SampleProviders
         private readonly CachedSound cachedSound;
         public long Position { get; private set; }
         public long Length => cachedSound.Length;
-        public TimeSpan CurrentTime => TimeSpan.FromSeconds((double) Position / cachedSound.WaveFormat.SampleRate);
+        public TimeSpan CurrentTime => TimeSpan.FromSeconds((double)Position / cachedSound.WaveFormat.SampleRate);
 
         public CachedSoundSampleProvider(CachedSound cachedSound)
         {
