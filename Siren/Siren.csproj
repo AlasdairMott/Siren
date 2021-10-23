@@ -184,9 +184,6 @@
     <None Include="Resources\curve.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\cv.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\noise.png" />
   </ItemGroup>
   <ItemGroup>
@@ -254,6 +251,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\stitch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cv.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

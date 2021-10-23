@@ -16,7 +16,6 @@ namespace Siren.Utilities
 		private float knobDiameter = 40f;
 		private float p0;
 		private float p1;
-		private float dp;
 		private RectangleF knobBounds;
 
 		private bool clicked;
@@ -50,6 +49,15 @@ namespace Siren.Utilities
 			knobBounds.Y += (Bounds.Height - knobDiameter) * 0.5f;
 			knobBounds.Width = knobBounds.Height = knobDiameter;
 			DrawKnob(graphics, knobBounds, p1);
+
+
+			//if (Selected) {
+			//	using (var green = new SolidBrush(Color.FromArgb(100, 95, 195, 25)))
+			//	{
+			//		knobBounds.Inflate(10, 10);
+			//		graphics.FillRectangle(green, knobBounds);
+			//	}
+			//}
 		}
 
 		private void DrawKnob(Graphics graphics, RectangleF bounds, float angle)
@@ -86,8 +94,8 @@ namespace Siren.Utilities
 		{
 			if (!Owner.Locked && e.Button == System.Windows.Forms.MouseButtons.Left && knobBounds.Contains(e.CanvasLocation))
 			{
-				clicked = true;
-				p1 = p0;
+				sender.MouseMove += Sender_MouseMove;
+				sender.MouseUp += Sender_MouseUp;
 
 				mouseLocation = e.CanvasLocation;
 				return GH_ObjectResponse.Handled;
@@ -96,32 +104,20 @@ namespace Siren.Utilities
 			return base.RespondToMouseDown(sender, e);
 		}
 
-		public override GH_ObjectResponse RespondToMouseMove(GH_Canvas sender, GH_CanvasMouseEvent e)
+		private void Sender_MouseUp(object sender, System.Windows.Forms.MouseEventArgs e)
 		{
-			if (clicked)
-			{
-				dp = (mouseLocation.Y - e.CanvasLocation.Y) * 0.03f;
-				p1 = p0 + dp;
-
-				ExpireLayout();
-				sender.Refresh();
-
-				return GH_ObjectResponse.Handled;
-			}
-
-			return base.RespondToMouseMove(sender, e);
+			p0 = p1;
+			(sender as GH_Canvas).MouseMove -= Sender_MouseMove;
+			(sender as GH_Canvas).MouseUp -= Sender_MouseUp;
 		}
 
-		public override GH_ObjectResponse RespondToMouseUp(GH_Canvas sender, GH_CanvasMouseEvent e)
+		private void Sender_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
 		{
-			if (clicked)
-			{
-				p0 = p1;
-				clicked = false;
-				return GH_ObjectResponse.Handled;
-			}
+			var dp = (mouseLocation.Y - e.Location.Y) * 0.01f;
+			p1 = p0 + dp;
 
-			return base.RespondToMouseUp(sender, e);
+			ExpireLayout();
+			(sender as GH_Canvas).Refresh();
 		}
 
 		public override GH_ObjectResponse RespondToMouseDoubleClick(GH_Canvas sender, GH_CanvasMouseEvent e)
@@ -131,3 +127,4 @@ namespace Siren.Utilities
 		}
 	}
 }
+
