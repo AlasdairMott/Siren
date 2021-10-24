@@ -138,7 +138,7 @@ namespace Siren
         private RectangleF _outerButtonBounds; // Includes draghandle space
         private Rectangle _playButtonBounds; // Triggers click
         private readonly AudioOutComponent _owner;
-        private bool _aboutToPlay = false;
+        private bool _clicked = false;
 
         public CachedSoundSampleProvider PlayingWave { get; private set; }
 
@@ -173,12 +173,18 @@ namespace Siren
 
             // Black button background
             GH_Capsule button;
-            if (_aboutToPlay)
+            if (_clicked)
+            {
                 button = GH_Capsule.CreateTextCapsule(_playButtonBounds, _playButtonBounds, GH_Palette.Grey, "", 1, 0);
+                _clicked = false;
+            }
             else
+            {
                 button = GH_Capsule.CreateTextCapsule(_playButtonBounds, _playButtonBounds, GH_Palette.Black, "", 1, 0);
+            }
 
             button.Render(graphics, Selected, Owner.Locked, false);
+            button.Dispose();
 
             if (!_owner.WaveIsPlaying)
                 DrawPlayTriangle(graphics, _playButtonBounds);
@@ -244,41 +250,28 @@ namespace Siren
             // Checking if it's a left click, and if it's in the button's area
             if (e.Button == System.Windows.Forms.MouseButtons.Left && ((RectangleF)_playButtonBounds).Contains(e.CanvasLocation))
             {
-                _aboutToPlay = true;
+                _clicked = true;
+
+                if (!_owner.WaveIsPlaying) // Start playing
+                {
+                    PlayingWave = _owner.Wave.ToSampleProvider();
+                    _owner.Mixer.AddMixerInput(PlayingWave);
+
+                    _owner.PlayState.T0 = _owner.DefaultLatency;
+                    _owner.WaveIsPlaying = true;
+                    _owner.OnPingDocument()?.ScheduleSolution(_owner.TickRate, _owner.TriggerPlayheadUpdate);
+                }
+                else // Stop playing
+                {
+                    _owner.WaveIsPlaying = false;
+                    _owner.Mixer.RemoveAllMixerInputs();
+                }
+
+                ExpireLayout();
+                sender.Refresh();
                 return GH_ObjectResponse.Handled;
             }
 
-            return base.RespondToMouseDown(sender, e);
-        }
-
-        public override GH_ObjectResponse RespondToMouseUp(GH_Canvas sender, GH_CanvasMouseEvent e)
-        {
-            // Checking if the left mouse button is the one being used
-            if (e.Button == System.Windows.Forms.MouseButtons.Left)
-            {
-                sender.ScheduleRegen(1);
-
-                // Checking if it was clicked, and if it's in the right area
-                if (!Owner.Locked && e.Clicks >= 1 && ((RectangleF)_playButtonBounds).Contains(e.CanvasLocation))
-                {
-                    _aboutToPlay = false;
-
-                    if (!_owner.WaveIsPlaying) // Start playing
-                    {
-                        PlayingWave = _owner.Wave.ToSampleProvider();
-                        _owner.Mixer.AddMixerInput(PlayingWave);
-
-                        _owner.PlayState.T0 = _owner.DefaultLatency;
-                        _owner.WaveIsPlaying = true;
-                        _owner.OnPingDocument()?.ScheduleSolution(_owner.TickRate, _owner.TriggerPlayheadUpdate);
-                    }
-                    else // Stop playing
-                    {
-                        _owner.WaveIsPlaying = false;
-                        _owner.Mixer.RemoveAllMixerInputs();
-                    }
-                }
-            }
             return base.RespondToMouseDown(sender, e);
         }
     }
