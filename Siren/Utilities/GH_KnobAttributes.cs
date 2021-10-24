@@ -23,6 +23,7 @@ namespace Siren.Utilities
 
         public float P { get; set; }
         public GH_Knob Knob { get; private set; }
+        public bool Locked { get; set; }
 
         public GH_KnobAttributes(GH_Component owner, string text, float width = 0, float height = 0) : base(owner)
         {
@@ -64,8 +65,10 @@ namespace Siren.Utilities
 
         public override GH_ObjectResponse RespondToMouseDown(GH_Canvas sender, GH_CanvasMouseEvent e)
         {
-            if (!Owner.Locked && e.Button == System.Windows.Forms.MouseButtons.Left && _knobBounds.Contains(e.CanvasLocation))
+            if (!Owner.Locked && !Locked && e.Button == System.Windows.Forms.MouseButtons.Left && _knobBounds.Contains(e.CanvasLocation))
             {
+                p0 = P;
+
                 sender.MouseMove += Sender_MouseMove;
                 sender.MouseUp += Sender_MouseUp;
 
@@ -84,7 +87,6 @@ namespace Siren.Utilities
         {
             var canvas = sender as GH_Canvas;
 
-            p0 = P;
             canvas.MouseMove -= Sender_MouseMove;
             canvas.MouseUp -= Sender_MouseUp;
 
@@ -107,9 +109,9 @@ namespace Siren.Utilities
 
         public override GH_ObjectResponse RespondToMouseDoubleClick(GH_Canvas sender, GH_CanvasMouseEvent e)
         {
-            if (!Owner.Locked && e.Button == System.Windows.Forms.MouseButtons.Left && _knobBounds.Contains(e.CanvasLocation))
+            if (!Owner.Locked && !Locked && e.Button == System.Windows.Forms.MouseButtons.Left && _knobBounds.Contains(e.CanvasLocation))
             {
-                P = 0;
+                P = p0 = 0;
 
                 ExpireLayout();
                 sender.Refresh();
