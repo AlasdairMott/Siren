@@ -59,10 +59,10 @@ namespace Siren
 
         public CachedSound(CachedSound other)
         {
-            this.AudioData = new float[other.AudioData.Length];
-            other.AudioData.CopyTo(this.AudioData, 0);
-            this.WaveFormat = other.WaveFormat;
-            this.Length = other.Length;
+            AudioData = new float[other.AudioData.Length];
+            other.AudioData.CopyTo(AudioData, 0);
+            WaveFormat = other.WaveFormat;
+            Length = other.Length;
         }
 
         public CachedSoundSampleProvider ToSampleProvider() => new CachedSoundSampleProvider(this);

@@ -17,12 +17,12 @@ namespace Siren
 
         public WaveStreamGoo()
         {
-            this.Value = CachedSound.Empty;
+            Value = CachedSound.Empty;
         }
         public WaveStreamGoo(CachedSound stream)
         {
             if (stream == null) stream = CachedSound.Empty;
-            this.Value = stream;
+            Value = stream;
         }
 
         #region casting methods
@@ -47,7 +47,7 @@ namespace Siren
             }
             else if (typeof(ISampleProvider).IsAssignableFrom(source.GetType()))
             {
-                Value = (CachedSound)new CachedSound(source as ISampleProvider);
+                Value = new CachedSound(source as ISampleProvider);
                 return true;
             }
             return false;
@@ -85,7 +85,7 @@ namespace Siren
             base.AppendAdditionalMenuItems(menu);
             var m_save = new ToolStripMenuItem("Save file")
             {
-                Enabled = this.m_data.Count() > 0
+                Enabled = m_data.Count() > 0
             };
             menu.Items.Add(m_save);
             m_save.Click += button_OnSave;
@@ -105,7 +105,7 @@ namespace Siren
             var result = fd.ShowSaveDialog();
             if (result)
             {
-                var goo = this.m_data.get_FirstItem(true);
+                var goo = m_data.get_FirstItem(true);
                 if (goo == null) return;
                 var stream = goo.Value.ToRawSourceWaveStream();
 

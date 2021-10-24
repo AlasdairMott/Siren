@@ -32,8 +32,10 @@ namespace Siren
               "Siren", "Utilities")
         {
             waveOut = new WaveOut();
-            Mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(SirenSettings.SampleRate, 1));
-            Mixer.ReadFully = true;
+            Mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(SirenSettings.SampleRate, 1))
+            {
+                ReadFully = true
+            };
             waveOut.Init(Mixer);
             DefaultLatency = waveOut.DesiredLatency / 1000f;
 
@@ -96,7 +98,7 @@ namespace Siren
 
         public void TriggerPlayheadUpdate(GH_Document gh)
         {
-            this.ExpireSolution(false);
+            ExpireSolution(false);
         }
 
         public override void AddedToDocument(GH_Document document)
@@ -128,12 +130,12 @@ namespace Siren
 
     public class GH_PlayButtonAttributes : GH_ComponentAttributes
     {
-        private int dragSpace = 15;
-        private int buttonWidth = 46;
-        private int componentHeight = 24;
+        private readonly int dragSpace = 15;
+        private readonly int buttonWidth = 46;
+        private readonly int componentHeight = 24;
         private RectangleF outerButtonBounds; // Includes draghandle space
         private Rectangle playButtonBounds; // Triggers click
-        private AudioOutComponent owner;
+        private readonly AudioOutComponent owner;
         private bool aboutToPlay = false;
 
         public CachedSoundSampleProvider PlayingWave { get; private set; }

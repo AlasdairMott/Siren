@@ -5,13 +5,13 @@ namespace Siren.SampleProviders
 {
     public class ADEnvelopeProvider : ISampleProvider
     {
-        private ISampleProvider pulses;
+        private readonly ISampleProvider pulses;
 
         private float envelope;
         private float power;
-        private float rise;
-        private float fall;
-        private float exponent;
+        private readonly float rise;
+        private readonly float fall;
+        private readonly float exponent;
         private bool rising;
 
         public WaveFormat WaveFormat => pulses.WaveFormat;
@@ -21,8 +21,8 @@ namespace Siren.SampleProviders
             this.pulses = pulses;
             envelope = 0;
             power = 0;
-            this.rise = Math.Min((float)(1.0 / (attack.TotalSeconds * pulses.WaveFormat.SampleRate)), 1.0f);
-            this.fall = Math.Min((float)(1.0 / (decay.TotalSeconds * pulses.WaveFormat.SampleRate)), 1.0f);
+            rise = Math.Min((float)(1.0 / (attack.TotalSeconds * pulses.WaveFormat.SampleRate)), 1.0f);
+            fall = Math.Min((float)(1.0 / (decay.TotalSeconds * pulses.WaveFormat.SampleRate)), 1.0f);
             this.exponent = Math.Max(0f, exponent);
             rising = false;
         }

@@ -57,7 +57,7 @@ namespace Siren.Components
         public override void CreateAttributes() // Setup custom inline icons within component
         {
             var waveIcons = waveOptions.Select(o => o.Icon).ToList();
-            m_attributes = new GH_ToggleAttributes(this, this.SetWaveformFromIcon, waveIcons, selectedWave);
+            m_attributes = new GH_ToggleAttributes(this, SetWaveformFromIcon, waveIcons, selectedWave);
         }
 
         /// <summary>

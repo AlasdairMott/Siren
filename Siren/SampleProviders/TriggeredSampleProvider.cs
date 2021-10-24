@@ -6,8 +6,8 @@ namespace Siren.SampleProviders
 {
     public class TriggeredSampleProvider : ISampleProvider
     {
-        private CachedSound sample;
-        private ISampleProvider pulses;
+        private readonly CachedSound sample;
+        private readonly ISampleProvider pulses;
         private Queue<float> cache;
 
         public WaveFormat WaveFormat => sample.WaveFormat;

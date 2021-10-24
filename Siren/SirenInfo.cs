@@ -6,7 +6,7 @@ namespace Siren
 {
     public class SirenInfo : GH_AssemblyInfo
     {
-        static SirenFileMenu sirenFileMenu;
+        private static SirenFileMenu sirenFileMenu;
 
         public SirenInfo()
         {

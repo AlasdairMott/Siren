@@ -7,7 +7,7 @@ namespace Siren.SampleProviders
     /// </summary>
     public class LoopStream : WaveStream
     {
-        WaveStream sourceStream;
+        private readonly WaveStream sourceStream;
 
         /// <summary>
         /// Creates a new Loop stream
@@ -17,7 +17,7 @@ namespace Siren.SampleProviders
         public LoopStream(WaveStream sourceStream)
         {
             this.sourceStream = sourceStream;
-            this.EnableLooping = true;
+            EnableLooping = true;
         }
 
         /// <summary>

@@ -11,13 +11,13 @@ namespace Siren.Utilities
     {
         private float width;
         private float height;
-        private float knobDiameter = 36f;
+        private readonly float knobDiameter = 36f;
 
         private float p0;
         public readonly float Min = (float)-Math.PI * 0.75f;
         public readonly float Max = (float)Math.PI * 0.75f;
 
-        private GH_Knob knob;
+        private readonly GH_Knob knob;
         private RectangleF knobBounds;
         private PointF canvasLocation;
         private Point systemLocation;

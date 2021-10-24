@@ -11,7 +11,7 @@ namespace Siren.Audio
     public class CVFromGeometryComponent : GH_Component /*, IGH_PreviewData*/
     {
         private Curve bounds;
-        private List<Line> timeIntervals;
+        private readonly List<Line> timeIntervals;
         private BoundingBox boundingBox;
 
         /// <summary>
@@ -88,10 +88,12 @@ namespace Siren.Audio
             var count = (int)(width / X * sampleRate);
 
 
-            var cuttingPlane = new Plane(plane);
-            cuttingPlane.XAxis = plane.ZAxis;
-            cuttingPlane.ZAxis = -plane.XAxis;
-            cuttingPlane.Origin = start;
+            var cuttingPlane = new Plane(plane)
+            {
+                XAxis = plane.ZAxis,
+                ZAxis = -plane.XAxis,
+                Origin = start
+            };
 
             #region display
             var boundsRect = new Polyline(new Point3d[4] {
@@ -122,7 +124,7 @@ namespace Siren.Audio
             boundingBox = bounds.GetBoundingBox(true);
             #endregion
 
-            int repeats = (int)SirenSettings.SampleRate / sampleRate;
+            int repeats = SirenSettings.SampleRate / sampleRate;
 
             var bufferOscillator = new List<byte>();
             var bufferTrigger = new List<byte>();
@@ -188,7 +190,7 @@ namespace Siren.Audio
         public override void DrawViewportWires(IGH_PreviewArgs args)
         {
             base.DrawViewportWires(args);
-            if (this.Hidden) return;
+            if (Hidden) return;
             args.Display.DrawCurve(bounds, Color.Red);
             foreach (Line l in timeIntervals)
             {

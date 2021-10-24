@@ -6,10 +6,10 @@ namespace Siren.SampleProviders
 {
     public class OscillatorProvider : ISampleProvider
     {
-        private ISampleProvider source;
-        private SignalGenerator signalGenerator;
-        private double octave;
-        private double semi;
+        private readonly ISampleProvider source;
+        private readonly SignalGenerator signalGenerator;
+        private readonly double octave;
+        private readonly double semi;
 
         public WaveFormat WaveFormat => source.WaveFormat;
 

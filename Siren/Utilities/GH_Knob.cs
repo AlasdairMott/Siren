@@ -5,14 +5,14 @@ namespace Siren.Utilities
 {
     public class GH_Knob
     {
-        private string text;
+        private readonly string text;
 
-        private Font font = new Font("Segoe UI", 2.5f);
-        private SolidBrush whiteBrush = new SolidBrush(Color.White);
-        private SolidBrush shadowBrush = new SolidBrush(Color.FromArgb(20, 0, 0, 0));
-        private SolidBrush blackBrush = new SolidBrush(Color.Black);
-        private Pen grey = new Pen(Color.FromArgb(80, 255, 255, 255), 1f);
-        private Pen white = new Pen(Color.White, 3f);
+        private readonly Font font = new Font("Segoe UI", 2.5f);
+        private readonly SolidBrush whiteBrush = new SolidBrush(Color.White);
+        private readonly SolidBrush shadowBrush = new SolidBrush(Color.FromArgb(20, 0, 0, 0));
+        private readonly SolidBrush blackBrush = new SolidBrush(Color.Black);
+        private readonly Pen grey = new Pen(Color.FromArgb(80, 255, 255, 255), 1f);
+        private readonly Pen white = new Pen(Color.White, 3f);
 
         public GH_Knob(string text)
         {

@@ -5,21 +5,23 @@ using System.Windows.Forms;
 
 namespace Siren
 {
-    class SirenFileMenu
+    internal class SirenFileMenu
     {
-        Eto.Forms.UITimer _timer;
+        private Eto.Forms.UITimer _timer;
 
         public void AddToMenu()
         {
             if (_timer != null)
                 return;
-            _timer = new Eto.Forms.UITimer();
-            _timer.Interval = 1;
+            _timer = new Eto.Forms.UITimer
+            {
+                Interval = 1
+            };
             _timer.Elapsed += SetupMenu;
             _timer.Start();
         }
 
-        void SetupMenu(object sender, EventArgs e)
+        private void SetupMenu(object sender, EventArgs e)
         {
             var editor = Grasshopper.Instances.DocumentEditor;
             if (null == editor || editor.Handle == IntPtr.Zero)

@@ -14,24 +14,24 @@ namespace Siren.Utilities
     /// </summary>
     public class GH_ToggleAttributes : Grasshopper.Kernel.Attributes.GH_ComponentAttributes
     {
-        private Action<int> iconClickHander;
+        private readonly Action<int> iconClickHander;
         public int IndexOfSelectedIcon { get; set; }
         private const int iconDimensions = 9; // Actually 24px; but larger when rendered (despite rect size being accurate?)
         private const int iconPadding = 2; // 24px base; including 2px minimum padding
         private const float unselectedOpacity = 0.35F;
         private const int iconOffset = 15;
-        List<System.Drawing.Bitmap> iconImages;
+        private readonly List<System.Drawing.Bitmap> iconImages;
 
         private System.Drawing.Rectangle iconStripBounds; // Overall icon area
-        System.Drawing.Rectangle[] iconBounds; // Track per-icon boundaries to ID click events
+        private readonly System.Drawing.Rectangle[] iconBounds; // Track per-icon boundaries to ID click events
 
         public GH_ToggleAttributes(GH_Component owner, Action<int> callback,
                                List<System.Drawing.Bitmap> icons, int activeIndex) : base(owner)
         {
-            this.IndexOfSelectedIcon = activeIndex;
-            this.iconClickHander = callback;
-            this.iconImages = icons;
-            this.iconBounds = new System.Drawing.Rectangle[icons.Count];
+            IndexOfSelectedIcon = activeIndex;
+            iconClickHander = callback;
+            iconImages = icons;
+            iconBounds = new System.Drawing.Rectangle[icons.Count];
         }
 
         protected override void Layout()
@@ -39,9 +39,11 @@ namespace Siren.Utilities
             base.Layout();
 
             var componentRect = GH_Convert.ToRectangle(Bounds);
-            var iconsRect = new Rectangle();
-            iconsRect.Height = (iconDimensions + iconPadding * 2) * iconBounds.Length;
-            iconsRect.Width = iconDimensions + iconPadding * 2;
+            var iconsRect = new Rectangle
+            {
+                Height = (iconDimensions + iconPadding * 2) * iconBounds.Length,
+                Width = iconDimensions + iconPadding * 2
+            };
             iconsRect.X = componentRect.X + componentRect.Width - (12 + iconsRect.Width);
             iconsRect.Y = componentRect.Y + (componentRect.Height - iconsRect.Height) / 2;
 
@@ -59,10 +61,12 @@ namespace Siren.Utilities
             RenderComponentCapsule(canvas, graphics, true, false, false, true, true, true);
             var iconSpacing = GH_Convert.ToRectangle(iconStripBounds).Height / iconImages.Count;
 
-            var iconBox = new Rectangle();
-            iconBox.X = iconStripBounds.X + iconPadding - iconOffset;
-            iconBox.Width = iconDimensions;
-            iconBox.Height = iconDimensions;
+            var iconBox = new Rectangle
+            {
+                X = iconStripBounds.X + iconPadding - iconOffset,
+                Width = iconDimensions,
+                Height = iconDimensions
+            };
 
             var toggleSize = new Size(iconStripBounds.Width, iconDimensions + iconPadding * 2);
             var toggleLocation = new Point(iconStripBounds.Location.X, iconStripBounds.Location.Y + IndexOfSelectedIcon * iconSpacing);
@@ -91,8 +95,8 @@ namespace Siren.Utilities
 
                 if (iconRec.Contains(e.CanvasLocation))
                 {
-                    this.IndexOfSelectedIcon = i;
-                    this.iconClickHander(i);
+                    IndexOfSelectedIcon = i;
+                    iconClickHander(i);
                     return GH_ObjectResponse.Handled;
                 }
             }
@@ -105,8 +109,10 @@ namespace Siren.Utilities
                 return image;
 
             // Thanks Jack Marchetti, https://stackoverflow.com/a/2201233
-            var colorMatrix = new ColorMatrix();
-            colorMatrix.Matrix33 = unselectedOpacity;
+            var colorMatrix = new ColorMatrix
+            {
+                Matrix33 = unselectedOpacity
+            };
 
             var imageAttributes = new ImageAttributes();
             imageAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);

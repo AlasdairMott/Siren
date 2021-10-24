@@ -7,8 +7,8 @@ namespace Siren.SampleProviders
 {
     public class CVQuantizer : ISampleProvider
     {
-        private ISampleProvider source;
-        private List<double> scale;
+        private readonly ISampleProvider source;
+        private readonly List<double> scale;
 
         public WaveFormat WaveFormat => source.WaveFormat;
 

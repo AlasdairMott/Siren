@@ -5,8 +5,8 @@ namespace Siren.SampleProviders
 {
     public class VCAProvider : ISampleProvider
     {
-        private ISampleProvider source;
-        private ISampleProvider cv;
+        private readonly ISampleProvider source;
+        private readonly ISampleProvider cv;
 
         public WaveFormat WaveFormat => source.WaveFormat;
 

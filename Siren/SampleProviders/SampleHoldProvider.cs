@@ -4,8 +4,8 @@ namespace Siren.SampleProviders
 {
     public class SampleHoldProvider : ISampleProvider
     {
-        private ISampleProvider source;
-        private ISampleProvider pulses;
+        private readonly ISampleProvider source;
+        private readonly ISampleProvider pulses;
         private float sample;
 
         public WaveFormat WaveFormat => source.WaveFormat;

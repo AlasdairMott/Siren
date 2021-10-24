@@ -7,9 +7,9 @@ namespace Siren.SampleProviders
 {
     public class PulseProvider : ISampleProvider
     {
-        private int pulseLength;
-        private int[] times;
-        private List<float> cache;
+        private readonly int pulseLength;
+        private readonly int[] times;
+        private readonly List<float> cache;
 
         public WaveFormat WaveFormat { get; private set; }
         public long Length { get; private set; }

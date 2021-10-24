@@ -5,12 +5,12 @@ namespace Siren.SampleProviders
 {
     public class FilteredAudioProvider : ISampleProvider
     {
-        private ISampleProvider source;
-        private ISampleProvider cvProvider;
-        private BiQuadFilter filter;
-        private float cutoff;
-        private float cvAmount;
-        private float q;
+        private readonly ISampleProvider source;
+        private readonly ISampleProvider cvProvider;
+        private readonly BiQuadFilter filter;
+        private readonly float cutoff;
+        private readonly float cvAmount;
+        private readonly float q;
 
         public WaveFormat WaveFormat => source.WaveFormat;
 

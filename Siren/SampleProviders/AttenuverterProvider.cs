@@ -4,8 +4,8 @@ namespace Siren.SampleProviders
 {
     public class AttenuverterProvider : ISampleProvider
     {
-        private ISampleProvider source;
-        private float amount;
+        private readonly ISampleProvider source;
+        private readonly float amount;
 
         public WaveFormat WaveFormat => source.WaveFormat;
 

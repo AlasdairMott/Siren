@@ -9,7 +9,7 @@ namespace Siren.Audio
         /// Initializes a new instance of the ADEnvelopeComponent class.
         /// </summary>
         public ADEnvelopeComponent()
-          : base("AD Envelope Generator", "Nickname",
+          : base("AD Envelope Generator", "AD",
               "Attack/Decay Envelope Generator",
               "Siren", "Envelope")
         {

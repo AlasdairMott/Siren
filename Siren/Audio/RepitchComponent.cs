@@ -49,8 +49,10 @@ namespace Siren
             var upOneTone = semitone * semitone;
             var downOneTone = 1.0 / upOneTone;
 
-            var pitchShifted = new SmbPitchShiftingSampleProvider(waveIn.ToSampleProvider());
-            pitchShifted.PitchFactor = (float)(upOneTone * p); // or downOneTone
+            var pitchShifted = new SmbPitchShiftingSampleProvider(waveIn.ToSampleProvider())
+            {
+                PitchFactor = (float)(upOneTone * p) // or downOneTone
+            };
 
             DA.SetData(0, pitchShifted);
         }

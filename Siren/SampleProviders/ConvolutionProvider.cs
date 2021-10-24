@@ -6,12 +6,12 @@ namespace Siren.SampleProviders
 {
     public class ConvolutionProvider : ISampleProvider
     {
-        private ISampleProvider source;
-        private float[] kernel;
-        private float[] window;
-        private int kernelSize;
-        private float divisor;
-        private int k;
+        private readonly ISampleProvider source;
+        private readonly float[] kernel;
+        private readonly float[] window;
+        private readonly int kernelSize;
+        private readonly float divisor;
+        private readonly int k;
 
         public WaveFormat WaveFormat => source.WaveFormat;
 
@@ -21,7 +21,7 @@ namespace Siren.SampleProviders
 
             this.source = source;
             this.kernel = kernel.AudioData.Take(count).ToArray();
-            this.kernelSize = count;
+            kernelSize = count;
             divisor = this.kernel.Sum();
             window = new float[kernelSize];
             k = skip;
