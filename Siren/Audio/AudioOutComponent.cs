@@ -62,6 +62,7 @@ namespace Siren
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddIntervalParameter("Play Progress", "P", "The play progress, in seconds, of the sample", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Level", "L", "Current audio level", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -72,8 +73,8 @@ namespace Siren
         {
             if (WaveIsPlaying && PlayState != null)
             {
-                var mixerWave = (m_attributes as GH_PlayButtonAttributes).PlayingWave;
-                PlayState.T0 = mixerWave.CurrentTime.TotalSeconds;
+                var playingWave = (m_attributes as GH_PlayButtonAttributes).PlayingWave;
+                PlayState.T0 = playingWave.CurrentTime.TotalSeconds;
 
                 if (PlayState.T0 + 0.099 > PlayState.T1) // 99 because currentTime ~0.001 less than total
                 {
@@ -84,6 +85,8 @@ namespace Siren
                     OnPingDocument()?.ScheduleSolution(TickRate, TriggerPlayheadUpdate);
 
                 DA.SetData(0, PlayState);
+                DA.SetData(1, playingWave.Level);
+
                 return; // Skip rest of solve
             }
 
@@ -132,11 +135,10 @@ namespace Siren
     {
         private readonly int _dragSpace = 15;
         private readonly int _buttonWidth = 46;
-        private readonly int _componentHeight = 24;
         private RectangleF _outerButtonBounds; // Includes draghandle space
         private Rectangle _playButtonBounds; // Triggers click
         private readonly AudioOutComponent _owner;
-        private bool _aboutToPlay = false;
+        private bool _clicked = false;
 
         public CachedSoundSampleProvider PlayingWave { get; private set; }
 
@@ -147,9 +149,9 @@ namespace Siren
 
         protected override void Layout()
         {
-            Pivot = GH_Convert.ToPoint(Pivot);
+            base.Layout();
 
-            _outerButtonBounds = new RectangleF(Pivot.X, Pivot.Y, _buttonWidth + _dragSpace * 2, _componentHeight);
+            _outerButtonBounds = new RectangleF(Bounds.X, Bounds.Y, _buttonWidth + _dragSpace * 2, Bounds.Height);
             LayoutInputParams(Owner, _outerButtonBounds);
             LayoutOutputParams(Owner, _outerButtonBounds);
             Bounds = LayoutBounds(Owner, _outerButtonBounds);
@@ -157,13 +159,12 @@ namespace Siren
 
         protected override void Render(GH_Canvas canvas, Graphics graphics, GH_CanvasChannel channel)
         {
-            if (channel != Grasshopper.GUI.Canvas.GH_CanvasChannel.Objects)
+            if (channel != GH_CanvasChannel.Objects)
             {
                 base.Render(canvas, graphics, channel);
                 return;
             }
 
-            if (_aboutToPlay) Selected = false;
             RenderComponentCapsule(canvas, graphics, true, false, false, true, true, true); // Standard UI
 
             _playButtonBounds = GH_Convert.ToRectangle(_outerButtonBounds); // Icon inset space
@@ -172,17 +173,30 @@ namespace Siren
 
             // Black button background
             GH_Capsule button;
-            if (_aboutToPlay)
+            if (_clicked)
+            {
                 button = GH_Capsule.CreateTextCapsule(_playButtonBounds, _playButtonBounds, GH_Palette.Grey, "", 1, 0);
+                _clicked = false;
+            }
             else
-                button = GH_Capsule.CreateTextCapsule(_playButtonBounds, _playButtonBounds, GH_Palette.Black, "", 1, _componentHeight / 2);
+            {
+                button = GH_Capsule.CreateTextCapsule(_playButtonBounds, _playButtonBounds, GH_Palette.Black, "", 1, 0);
+            }
 
             button.Render(graphics, Selected, Owner.Locked, false);
+            button.Dispose();
 
             if (!_owner.WaveIsPlaying)
                 DrawPlayTriangle(graphics, _playButtonBounds);
             else
                 DrawStopSquare(graphics, _playButtonBounds);
+
+            var levelBounds = Bounds;
+            levelBounds.X = Bounds.X + Bounds.Width - 32;
+            levelBounds.Width = 4;
+            levelBounds.Height = 26;
+            levelBounds.Y += (Bounds.Height - levelBounds.Height) * 0.5f;
+            DrawLevel(canvas, graphics, levelBounds);
         }
 
         private void DrawStopSquare(Graphics graphics, Rectangle playButtonBounds)
@@ -191,8 +205,9 @@ namespace Siren
             using (var outerstroke = new Pen(Color.Black, 4f) { LineJoin = LineJoin.Round })
             using (var innerstroke = new Pen(Color.LightGray, 2f) { LineJoin = LineJoin.Round })
             {
-                var topLeft = new Point(playButtonBounds.X + 17, playButtonBounds.Y + 6);
-                var square = new Rectangle(topLeft, new Size(12, 12));
+                var size = new Size(12, 12);
+                var topLeft = new Point(playButtonBounds.X + 17, playButtonBounds.Y + 16);
+                var square = new Rectangle(topLeft, size);
                 graphics.DrawRectangle(outerstroke, square);
                 graphics.DrawRectangle(innerstroke, square);
                 graphics.FillRectangle(fill, square);
@@ -213,7 +228,7 @@ namespace Siren
             using (var innerstroke = new Pen(Color.LightGray, 2f) { LineJoin = LineJoin.Round })
             {
                 int Xleft = playButtonBounds.X + 20;
-                int YTop = playButtonBounds.Y + 7;
+                int YTop = playButtonBounds.Y + 17;
                 int iconHeight = 10;
                 Point[] trianglePts = new Point[] {
                     new Point(Xleft, YTop), // Top
@@ -237,43 +252,66 @@ namespace Siren
             }
         }
 
+        private void DrawLevel(GH_Canvas canvas, Graphics graphics, RectangleF bounds)
+        {
+            using (var black = new Pen(Color.FromArgb(160, 0, 0, 0), 0.8f))
+            using (var blackSolid = new SolidBrush(Color.FromArgb(120, 0, 0, 0)))
+            using (var greenSolid = new SolidBrush(Color.FromArgb(255, 52, 209, 76)))
+            {
+                var count = 4;
+                var rect = bounds;
+                rect.Height = rect.Width;
+                var spacing = (bounds.Height - rect.Height) / (count - 1);
+                for (var i = count - 1; i >= 0; i--)
+                {
+                    rect.Y = bounds.Y + i * spacing;
+
+                    if (_owner.WaveIsPlaying && PlayingWave != null && PlayingWave.Level * count >= count - i - 1)
+                    {
+                        graphics.FillEllipse(greenSolid, rect);
+                    }
+                    else
+                    {
+                        graphics.FillEllipse(blackSolid, rect);
+                    }
+
+                    graphics.DrawEllipse(black, rect);
+                }
+            }
+
+            if (_owner.WaveIsPlaying && PlayingWave != null)
+            {
+                canvas.ScheduleRegen(10);
+            }
+        }
+
         public override GH_ObjectResponse RespondToMouseDown(GH_Canvas sender, GH_CanvasMouseEvent e)
         {
             // Checking if it's a left click, and if it's in the button's area
             if (e.Button == System.Windows.Forms.MouseButtons.Left && ((RectangleF)_playButtonBounds).Contains(e.CanvasLocation))
-                _aboutToPlay = true;
-
-            return base.RespondToMouseDown(sender, e);
-        }
-
-        public override GH_ObjectResponse RespondToMouseUp(GH_Canvas sender, GH_CanvasMouseEvent e)
-        {
-            // Checking if the left mouse button is the one being used
-            if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
-                sender.ScheduleRegen(1);
+                _clicked = true;
 
-                // Checking if it was clicked, and if it's in the right area
-                if (!Owner.Locked && e.Clicks >= 1 && ((RectangleF)_playButtonBounds).Contains(e.CanvasLocation))
+                if (!_owner.WaveIsPlaying) // Start playing
                 {
-                    _aboutToPlay = false;
+                    PlayingWave = _owner.Wave.ToSampleProvider();
+                    _owner.Mixer.AddMixerInput(PlayingWave);
 
-                    if (!_owner.WaveIsPlaying) // Start playing
-                    {
-                        PlayingWave = _owner.Wave.ToSampleProvider();
-                        _owner.Mixer.AddMixerInput(PlayingWave);
-
-                        _owner.PlayState.T0 = _owner.DefaultLatency;
-                        _owner.WaveIsPlaying = true;
-                        _owner.OnPingDocument()?.ScheduleSolution(_owner.TickRate, _owner.TriggerPlayheadUpdate);
-                    }
-                    else // Stop playing
-                    {
-                        _owner.WaveIsPlaying = false;
-                        _owner.Mixer.RemoveAllMixerInputs();
-                    }
+                    _owner.PlayState.T0 = _owner.DefaultLatency;
+                    _owner.WaveIsPlaying = true;
+                    _owner.OnPingDocument()?.ScheduleSolution(_owner.TickRate, _owner.TriggerPlayheadUpdate);
                 }
+                else // Stop playing
+                {
+                    _owner.WaveIsPlaying = false;
+                    _owner.Mixer.RemoveAllMixerInputs();
+                }
+
+                ExpireLayout();
+                sender.Refresh();
+                return GH_ObjectResponse.Handled;
             }
+
             return base.RespondToMouseDown(sender, e);
         }
     }
