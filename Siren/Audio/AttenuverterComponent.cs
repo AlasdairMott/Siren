@@ -28,6 +28,8 @@ namespace Siren.Audio
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
             pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Attenuation", "A", "Attenuation", GH_ParamAccess.item);
+            pManager[1].Optional = true;
         }
 
         /// <summary>
@@ -49,10 +51,20 @@ namespace Siren.Audio
 
             var attributes = m_attributes as GH_KnobAttributes;
 
-            var atten = attributes.P;
-            atten = SirenUtilities.Remap(atten, attributes.Min, attributes.Max, -2.0f, 2.0f);
+            var attenuation = 1.0;
+            if (!DA.GetData(1, ref attenuation)) 
+            {
+                attenuation = attributes.P;
+                attenuation = SirenUtilities.Remap((float)attenuation, attributes.Min, attributes.Max, -2.0f, 2.0f);
+                attributes.Locked = false;
+            }
+            else
+            {
+                attributes.P = SirenUtilities.Clamp((float)attenuation, attributes.Min, attributes.Max);
+                attributes.Locked = true;
+            }
 
-            var attenuverter = new SampleProviders.AttenuverterProvider(waveIn.ToSampleProvider(), atten);
+            var attenuverter = new SampleProviders.AttenuverterProvider(waveIn.ToSampleProvider(), (float)attenuation);
 
             DA.SetData(0, attenuverter);
         }
