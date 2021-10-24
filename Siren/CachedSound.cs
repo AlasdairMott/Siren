@@ -84,6 +84,12 @@ namespace Siren
 
         object ICloneable.Clone() => Clone();
 
+        public void SaveToFile(string fileName)
+        {
+            using (var writer = new WaveFileWriter(fileName, WaveFormat))
+            {
+                writer.WriteSamples(AudioData, 0, (int)Length);
+            }
+        }
     }
-
 }

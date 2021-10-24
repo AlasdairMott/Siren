@@ -107,9 +107,7 @@ namespace Siren
             {
                 var goo = m_data.get_FirstItem(true);
                 if (goo == null) return;
-                var stream = goo.Value.ToRawSourceWaveStream();
-
-                WaveFileWriter.CreateWaveFile(fd.FileName, stream);
+                goo.Value.SaveToFile(fd.FileName);
             }
         }
     }

@@ -103,7 +103,7 @@ namespace Siren.Utilities
 
             return base.RespondToMouseDown(sender, e);
         }
-        private Bitmap GetImageForState(Bitmap image, bool isSelected)
+        private Bitmap GetImageForState(Bitmap image    , bool isSelected)
         {
             if (isSelected)
                 return image;
