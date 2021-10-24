@@ -85,5 +85,11 @@ namespace Siren.Audio
             }
             return base.Read(reader);
         }
+
+        public override void RemovedFromDocument(GH_Document document)
+        {
+            base.RemovedFromDocument(document);
+            (m_attributes as GH_KnobAttributes).Knob.DisposeGraphics();
+        }
     }
 }

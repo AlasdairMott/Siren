@@ -17,16 +17,16 @@ namespace Siren.Utilities
         public readonly float Min = (float)-Math.PI * 0.75f;
         public readonly float Max = (float)Math.PI * 0.75f;
 
-        private readonly GH_Knob _knob;
         private RectangleF _knobBounds;
         private PointF _canvasLocation;
         private Point _systemLocation;
 
         public float P { get; set; }
+        public GH_Knob Knob { get; private set; }
 
         public GH_KnobAttributes(GH_Component owner, string text, float width = 0, float height = 0) : base(owner)
         {
-            _knob = new GH_Knob(text);
+            Knob = new GH_Knob(text);
 
             _width = width;
             _height = height;
@@ -59,7 +59,7 @@ namespace Siren.Utilities
             _knobBounds.Y += (Bounds.Height - _knobDiameter) * 0.5f;
             _knobBounds.Width = _knobBounds.Height = _knobDiameter;
 
-            _knob.Draw(graphics, _knobBounds, P);
+            Knob.Draw(graphics, _knobBounds, P);
         }
 
         public override GH_ObjectResponse RespondToMouseDown(GH_Canvas sender, GH_CanvasMouseEvent e)

@@ -48,5 +48,15 @@ namespace Siren.Utilities
 
             graphics.DrawLine(_white, pt1, pt2);
         }
+
+        public void DisposeGraphics()
+        {
+            _font.Dispose();
+            _whiteBrush.Dispose();
+            _shadowBrush.Dispose();
+            _blackBrush.Dispose();
+            _grey.Dispose();
+            _white.Dispose();
+        }
     }
 }
