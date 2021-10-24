@@ -190,6 +190,13 @@ namespace Siren
                 DrawPlayTriangle(graphics, _playButtonBounds);
             else
                 DrawStopSquare(graphics, _playButtonBounds);
+
+            var levelBounds = Bounds;
+            levelBounds.X = Bounds.X + Bounds.Width - 32;
+            levelBounds.Width = 4;
+            levelBounds.Height = 26;
+            levelBounds.Y += (Bounds.Height - levelBounds.Height) * 0.5f;
+            DrawLevel(canvas, graphics, levelBounds);
         }
 
         private void DrawStopSquare(Graphics graphics, Rectangle playButtonBounds)
@@ -242,6 +249,39 @@ namespace Siren
                     };
                     graphics.FillPolygon(highlight, triangleHighlightPts);
                 }
+            }
+        }
+
+        private void DrawLevel(GH_Canvas canvas, Graphics graphics, RectangleF bounds)
+        {
+            using (var black = new Pen(Color.FromArgb(160, 0, 0, 0), 0.8f))
+            using (var blackSolid = new SolidBrush(Color.FromArgb(120, 0, 0, 0)))
+            using (var greenSolid = new SolidBrush(Color.FromArgb(255, 52, 209, 76)))
+            {
+                var count = 4;
+                var rect = bounds;
+                rect.Height = rect.Width;
+                var spacing = (bounds.Height - rect.Height) / (count - 1);
+                for (var i = count - 1; i >= 0; i--)
+                {
+                    rect.Y = bounds.Y + i * spacing;
+
+                    if (_owner.WaveIsPlaying && PlayingWave != null && PlayingWave.Level * count >= count - i - 1)
+                    {
+                        graphics.FillEllipse(greenSolid, rect);
+                    }
+                    else
+                    {
+                        graphics.FillEllipse(blackSolid, rect);
+                    }
+
+                    graphics.DrawEllipse(black, rect);
+                }
+            }
+
+            if (_owner.WaveIsPlaying && PlayingWave != null)
+            {
+                canvas.ScheduleRegen(10);
             }
         }
 
