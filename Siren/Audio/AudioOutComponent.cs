@@ -62,6 +62,7 @@ namespace Siren
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddIntervalParameter("Play Progress", "P", "The play progress, in seconds, of the sample", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Level", "L", "Current audio level", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -72,8 +73,8 @@ namespace Siren
         {
             if (WaveIsPlaying && PlayState != null)
             {
-                var mixerWave = (m_attributes as GH_PlayButtonAttributes).PlayingWave;
-                PlayState.T0 = mixerWave.CurrentTime.TotalSeconds;
+                var playingWave = (m_attributes as GH_PlayButtonAttributes).PlayingWave;
+                PlayState.T0 = playingWave.CurrentTime.TotalSeconds;
 
                 if (PlayState.T0 + 0.099 > PlayState.T1) // 99 because currentTime ~0.001 less than total
                 {
@@ -84,6 +85,8 @@ namespace Siren
                     OnPingDocument()?.ScheduleSolution(TickRate, TriggerPlayheadUpdate);
 
                 DA.SetData(0, PlayState);
+                DA.SetData(1, playingWave.Level);
+
                 return; // Skip rest of solve
             }
 
@@ -132,7 +135,6 @@ namespace Siren
     {
         private readonly int _dragSpace = 15;
         private readonly int _buttonWidth = 46;
-        private readonly int _componentHeight = 24;
         private RectangleF _outerButtonBounds; // Includes draghandle space
         private Rectangle _playButtonBounds; // Triggers click
         private readonly AudioOutComponent _owner;
@@ -147,9 +149,9 @@ namespace Siren
 
         protected override void Layout()
         {
-            Pivot = GH_Convert.ToPoint(Pivot);
+            base.Layout();
 
-            _outerButtonBounds = new RectangleF(Pivot.X, Pivot.Y, _buttonWidth + _dragSpace * 2, _componentHeight);
+            _outerButtonBounds = new RectangleF(Bounds.X, Bounds.Y, _buttonWidth + _dragSpace * 2, Bounds.Height);
             LayoutInputParams(Owner, _outerButtonBounds);
             LayoutOutputParams(Owner, _outerButtonBounds);
             Bounds = LayoutBounds(Owner, _outerButtonBounds);
@@ -157,13 +159,12 @@ namespace Siren
 
         protected override void Render(GH_Canvas canvas, Graphics graphics, GH_CanvasChannel channel)
         {
-            if (channel != Grasshopper.GUI.Canvas.GH_CanvasChannel.Objects)
+            if (channel != GH_CanvasChannel.Objects)
             {
                 base.Render(canvas, graphics, channel);
                 return;
             }
 
-            if (_aboutToPlay) Selected = false;
             RenderComponentCapsule(canvas, graphics, true, false, false, true, true, true); // Standard UI
 
             _playButtonBounds = GH_Convert.ToRectangle(_outerButtonBounds); // Icon inset space
@@ -175,7 +176,7 @@ namespace Siren
             if (_aboutToPlay)
                 button = GH_Capsule.CreateTextCapsule(_playButtonBounds, _playButtonBounds, GH_Palette.Grey, "", 1, 0);
             else
-                button = GH_Capsule.CreateTextCapsule(_playButtonBounds, _playButtonBounds, GH_Palette.Black, "", 1, _componentHeight / 2);
+                button = GH_Capsule.CreateTextCapsule(_playButtonBounds, _playButtonBounds, GH_Palette.Black, "", 1, 0);
 
             button.Render(graphics, Selected, Owner.Locked, false);
 
@@ -191,8 +192,9 @@ namespace Siren
             using (var outerstroke = new Pen(Color.Black, 4f) { LineJoin = LineJoin.Round })
             using (var innerstroke = new Pen(Color.LightGray, 2f) { LineJoin = LineJoin.Round })
             {
-                var topLeft = new Point(playButtonBounds.X + 17, playButtonBounds.Y + 6);
-                var square = new Rectangle(topLeft, new Size(12, 12));
+                var size = new Size(12, 12);
+                var topLeft = new Point(playButtonBounds.X + 17, playButtonBounds.Y + 16);
+                var square = new Rectangle(topLeft, size);
                 graphics.DrawRectangle(outerstroke, square);
                 graphics.DrawRectangle(innerstroke, square);
                 graphics.FillRectangle(fill, square);
@@ -213,7 +215,7 @@ namespace Siren
             using (var innerstroke = new Pen(Color.LightGray, 2f) { LineJoin = LineJoin.Round })
             {
                 int Xleft = playButtonBounds.X + 20;
-                int YTop = playButtonBounds.Y + 7;
+                int YTop = playButtonBounds.Y + 17;
                 int iconHeight = 10;
                 Point[] trianglePts = new Point[] {
                     new Point(Xleft, YTop), // Top
@@ -241,7 +243,10 @@ namespace Siren
         {
             // Checking if it's a left click, and if it's in the button's area
             if (e.Button == System.Windows.Forms.MouseButtons.Left && ((RectangleF)_playButtonBounds).Contains(e.CanvasLocation))
+            {
                 _aboutToPlay = true;
+                return GH_ObjectResponse.Handled;
+            }
 
             return base.RespondToMouseDown(sender, e);
         }
