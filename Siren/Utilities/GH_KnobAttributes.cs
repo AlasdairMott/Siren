@@ -9,36 +9,36 @@ namespace Siren.Utilities
 {
     public class GH_KnobAttributes : GH_ComponentAttributes
     {
-        private float width;
-        private float height;
-        private readonly float knobDiameter = 36f;
+        private float _width;
+        private float _height;
+        private readonly float _knobDiameter = 36f;
 
         private float p0;
         public readonly float Min = (float)-Math.PI * 0.75f;
         public readonly float Max = (float)Math.PI * 0.75f;
 
-        private readonly GH_Knob knob;
-        private RectangleF knobBounds;
-        private PointF canvasLocation;
-        private Point systemLocation;
+        private readonly GH_Knob _knob;
+        private RectangleF _knobBounds;
+        private PointF _canvasLocation;
+        private Point _systemLocation;
 
         public float P { get; set; }
 
         public GH_KnobAttributes(GH_Component owner, string text, float width = 0, float height = 0) : base(owner)
         {
-            knob = new GH_Knob(text);
+            _knob = new GH_Knob(text);
 
-            this.width = width;
-            this.height = height;
+            _width = width;
+            _height = height;
         }
 
         protected override void Layout()
         {
             base.Layout();
-            if (width == 0) width = Bounds.Width;
-            if (height == 0) height = Bounds.Height;
+            if (_width == 0) _width = Bounds.Width;
+            if (_height == 0) _height = Bounds.Height;
 
-            var bounds = new RectangleF(Bounds.X, Bounds.Y, width, height);
+            var bounds = new RectangleF(Bounds.X, Bounds.Y, _width, _height);
             LayoutInputParams(Owner, bounds);
             LayoutOutputParams(Owner, bounds);
             Bounds = LayoutBounds(Owner, bounds);
@@ -54,23 +54,23 @@ namespace Siren.Utilities
 
             RenderComponentCapsule(canvas, graphics, true, false, false, true, true, true); // Standard UI
 
-            knobBounds = Bounds;
-            knobBounds.X += (Bounds.Width - knobDiameter) * 0.5f;
-            knobBounds.Y += (Bounds.Height - knobDiameter) * 0.5f;
-            knobBounds.Width = knobBounds.Height = knobDiameter;
+            _knobBounds = Bounds;
+            _knobBounds.X += (Bounds.Width - _knobDiameter) * 0.5f;
+            _knobBounds.Y += (Bounds.Height - _knobDiameter) * 0.5f;
+            _knobBounds.Width = _knobBounds.Height = _knobDiameter;
 
-            knob.Draw(graphics, knobBounds, P);
+            _knob.Draw(graphics, _knobBounds, P);
         }
 
         public override GH_ObjectResponse RespondToMouseDown(GH_Canvas sender, GH_CanvasMouseEvent e)
         {
-            if (!Owner.Locked && e.Button == System.Windows.Forms.MouseButtons.Left && knobBounds.Contains(e.CanvasLocation))
+            if (!Owner.Locked && e.Button == System.Windows.Forms.MouseButtons.Left && _knobBounds.Contains(e.CanvasLocation))
             {
                 sender.MouseMove += Sender_MouseMove;
                 sender.MouseUp += Sender_MouseUp;
 
-                canvasLocation = e.CanvasLocation;
-                systemLocation = System.Windows.Forms.Cursor.Position;
+                _canvasLocation = e.CanvasLocation;
+                _systemLocation = System.Windows.Forms.Cursor.Position;
 
                 System.Windows.Forms.Cursor.Hide();
 
@@ -89,7 +89,7 @@ namespace Siren.Utilities
             canvas.MouseUp -= Sender_MouseUp;
 
             System.Windows.Forms.Cursor.Show();
-            System.Windows.Forms.Cursor.Position = systemLocation;
+            System.Windows.Forms.Cursor.Position = _systemLocation;
 
             Owner.ExpireSolution(true);
         }
@@ -97,7 +97,7 @@ namespace Siren.Utilities
         private void Sender_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             var canvas = sender as GH_Canvas;
-            var dp = (canvasLocation.Y - canvas.CursorCanvasPosition.Y) * 0.01f;
+            var dp = (_canvasLocation.Y - canvas.CursorCanvasPosition.Y) * 0.01f;
 
             P = SirenUtilities.Clamp(p0 + dp, Min, Max);
 
@@ -107,7 +107,7 @@ namespace Siren.Utilities
 
         public override GH_ObjectResponse RespondToMouseDoubleClick(GH_Canvas sender, GH_CanvasMouseEvent e)
         {
-            if (!Owner.Locked && e.Button == System.Windows.Forms.MouseButtons.Left && knobBounds.Contains(e.CanvasLocation))
+            if (!Owner.Locked && e.Button == System.Windows.Forms.MouseButtons.Left && _knobBounds.Contains(e.CanvasLocation))
             {
                 P = 0;
 

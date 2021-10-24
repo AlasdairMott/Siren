@@ -10,9 +10,9 @@ namespace Siren.Audio
 {
     public class CVFromGeometryComponent : GH_Component /*, IGH_PreviewData*/
     {
-        private Curve bounds;
-        private readonly List<Line> timeIntervals;
-        private BoundingBox boundingBox;
+        private Curve _bounds;
+        private readonly List<Line> _timeIntervals;
+        private BoundingBox _boundingBox;
 
         /// <summary>
         /// Initializes a new instance of the CVComponent class.
@@ -22,9 +22,9 @@ namespace Siren.Audio
               "Produces a wave by sampling a curve at a given resolution.",
               "Siren", "CV Control")
         {
-            bounds = new PolylineCurve();
-            timeIntervals = new List<Line>();
-            boundingBox = BoundingBox.Empty;
+            _bounds = new PolylineCurve();
+            _timeIntervals = new List<Line>();
+            _boundingBox = BoundingBox.Empty;
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Siren.Audio
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            timeIntervals.Clear();
+            _timeIntervals.Clear();
 
             var curves = new List<Curve>();
             var plane = Plane.WorldXY;
@@ -109,7 +109,7 @@ namespace Siren.Audio
 
             transform.TryGetInverse(out transform);
             boundsRect.Transform(transform);
-            bounds = boundsRect.ToPolylineCurve();
+            _bounds = boundsRect.ToPolylineCurve();
 
             var numberOfSeconds = Math.Ceiling(width / X);
             var span = new Vector3d(0, 2 * Y, 0);
@@ -118,10 +118,10 @@ namespace Siren.Audio
             {
                 var line = new Line(new Point3d(start.X + i * X, -Y, 0), span);
                 line.Transform(transform);
-                timeIntervals.Add(line);
+                _timeIntervals.Add(line);
             }
 
-            boundingBox = bounds.GetBoundingBox(true);
+            _boundingBox = _bounds.GetBoundingBox(true);
             #endregion
 
             int repeats = SirenSettings.SampleRate / sampleRate;
@@ -185,14 +185,14 @@ namespace Siren.Audio
             get { return new Guid("3fe2ff09-1683-4131-87d7-d2760c50d4ff"); }
         }
 
-        public override BoundingBox ClippingBox => boundingBox;
+        public override BoundingBox ClippingBox => _boundingBox;
 
         public override void DrawViewportWires(IGH_PreviewArgs args)
         {
             base.DrawViewportWires(args);
             if (Hidden) return;
-            args.Display.DrawCurve(bounds, Color.Red);
-            foreach (Line l in timeIntervals)
+            args.Display.DrawCurve(_bounds, Color.Red);
+            foreach (Line l in _timeIntervals)
             {
                 args.Display.DrawLine(l, Color.Red);
             }

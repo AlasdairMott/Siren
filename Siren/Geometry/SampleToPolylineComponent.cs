@@ -6,11 +6,11 @@ namespace Siren.Geometry
 {
     public class SampleToPolylineComponent : GH_Component
     {
-        protected double cachedX;
-        protected double cachedY;
-        protected int cachedResolution;
-        protected int cachedWaveHash;
-        protected Polyline polyline;
+        protected double _cachedX;
+        protected double _cachedY;
+        protected int _cachedResolution;
+        protected int _cachedWaveHash;
+        protected Polyline _polyline;
 
         /// <summary>
         /// Initializes a new instance of the SampleToCurveComponent class.
@@ -67,17 +67,17 @@ namespace Siren.Geometry
             DA.GetData(4, ref T);
 
             // Don't regenerate the waveform if only the playhead input parameter has updated
-            if (X != cachedX || Y != cachedY || resolution != cachedResolution || waveIn.GetHashCode() != cachedWaveHash)
+            if (X != _cachedX || Y != _cachedY || resolution != _cachedResolution || waveIn.GetHashCode() != _cachedWaveHash)
             {
-                polyline = GeometryFunctions.ISampleToPolyline(waveIn.ToSampleProvider(), X, Y, resolution);
-                cachedX = X; cachedY = Y; cachedResolution = resolution; cachedWaveHash = waveIn.GetHashCode();
+                _polyline = GeometryFunctions.ISampleToPolyline(waveIn.ToSampleProvider(), X, Y, resolution);
+                _cachedX = X; _cachedY = Y; _cachedResolution = resolution; _cachedWaveHash = waveIn.GetHashCode();
             }
 
-            DA.SetData(0, polyline);
+            DA.SetData(0, _polyline);
 
             if (T.HasValue)
             {
-                var playheadX = (T.Value.T0 / T.Value.T1) * (polyline[polyline.Count - 1].X - polyline[0].X);
+                var playheadX = (T.Value.T0 / T.Value.T1) * (_polyline[_polyline.Count - 1].X - _polyline[0].X);
                 var playhead = new Line(new Point3d(playheadX, Y * -1.0, 0), new Point3d(playheadX, Y, 0));
                 DA.SetData(1, playhead);
             }

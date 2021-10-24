@@ -9,7 +9,7 @@ namespace Siren.Audio
 {
     public class NoiseComponent : GH_Component
     {
-        private string wavetype;
+        private string _noisetype;
 
         /// <summary>
         /// Initializes a new instance of the NoiseComponent class.
@@ -19,7 +19,7 @@ namespace Siren.Audio
               "Produces a signal comprised of random pitches.",
               "Siren", "Oscillators")
         {
-            wavetype = "White";
+            _noisetype = "White";
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace Siren.Audio
             if (!DA.GetData(0, ref duration)) return;
 
             SignalGeneratorType type;
-            switch (wavetype)
+            switch (_noisetype)
             {
                 case "White": type = SignalGeneratorType.White; break;
                 case "Pink": type = SignalGeneratorType.Pink; break;
@@ -84,7 +84,7 @@ namespace Siren.Audio
                 var option = new ToolStripMenuItem()
                 {
                     Text = w,
-                    Checked = (w == wavetype)
+                    Checked = (w == _noisetype)
                 };
                 m_oscillator.DropDownItems.Add(option);
             }
@@ -93,19 +93,19 @@ namespace Siren.Audio
 
         private void MenuWaveClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-            wavetype = ((ToolStripMenuItem)e.ClickedItem).Text;
+            _noisetype = ((ToolStripMenuItem)e.ClickedItem).Text;
             ExpireSolution(true);
         }
 
         public override bool Write(GH_IWriter writer)
         {
-            writer.SetString("wavetype", wavetype);
+            writer.SetString("wavetype", _noisetype);
             return base.Write(writer);
         }
 
         public override bool Read(GH_IReader reader)
         {
-            reader.TryGetString("wavetype", ref wavetype);
+            reader.TryGetString("wavetype", ref _noisetype);
             return base.Read(reader);
         }
     }

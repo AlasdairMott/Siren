@@ -5,23 +5,23 @@ namespace Siren.SampleProviders
 {
     public class VCAProvider : ISampleProvider
     {
-        private readonly ISampleProvider source;
-        private readonly ISampleProvider cv;
+        private readonly ISampleProvider _source;
+        private readonly ISampleProvider _cv;
 
-        public WaveFormat WaveFormat => source.WaveFormat;
+        public WaveFormat WaveFormat => _source.WaveFormat;
 
         public VCAProvider(ISampleProvider source, ISampleProvider cv)
         {
-            this.source = source;
-            this.cv = cv;
+            _source = source;
+            _cv = cv;
         }
 
         public int Read(float[] buffer, int offset, int count)
         {
-            int sampleRead = source.Read(buffer, offset, count);
+            int sampleRead = _source.Read(buffer, offset, count);
 
             float[] cvBuffer = new float[buffer.Length];
-            int cvSampleRead = cv.Read(cvBuffer, offset, count);
+            int cvSampleRead = _cv.Read(cvBuffer, offset, count);
 
             for (int n = 0; n < sampleRead; n++)
             {

@@ -7,9 +7,9 @@ namespace Siren.SampleProviders
 {
     public class PulseProvider : ISampleProvider
     {
-        private readonly int pulseLength;
-        private readonly int[] times;
-        private readonly List<float> cache;
+        private readonly int _pulseLength;
+        private readonly int[] _times;
+        private readonly List<float> _cache;
 
         public WaveFormat WaveFormat { get; private set; }
         public long Length { get; private set; }
@@ -17,12 +17,12 @@ namespace Siren.SampleProviders
 
         public PulseProvider(List<double> times, WaveFormat waveFormat)
         {
-            pulseLength = (int)(TimeSpan.FromMilliseconds(1).TotalSeconds * waveFormat.SampleRate);
-            this.times = times.OrderBy(t => t).ToArray().Select(t => (int)(t * waveFormat.SampleRate)).ToArray();
-            cache = new List<float>();
+            _pulseLength = (int)(TimeSpan.FromMilliseconds(1).TotalSeconds * waveFormat.SampleRate);
+            _times = times.OrderBy(t => t).ToArray().Select(t => (int)(t * waveFormat.SampleRate)).ToArray();
+            _cache = new List<float>();
 
             WaveFormat = waveFormat;
-            Length = this.times.Last() + pulseLength;
+            Length = _times.Last() + _pulseLength;
             Position = 0;
         }
 
@@ -32,14 +32,14 @@ namespace Siren.SampleProviders
 
             int samplesRead = Math.Min((int)Length - Position, count);
 
-            var pulse = Enumerable.Repeat(0.5f, pulseLength).ToArray();
-            foreach (var t in times)
+            var pulse = Enumerable.Repeat(0.5f, _pulseLength).ToArray();
+            foreach (var t in _times)
             {
                 if (t < Position || t > Position + samplesRead) continue;
 
                 var location = t - Position;
                 var remaining = buffer.Count() - location;
-                var length = Math.Min(pulseLength, remaining);
+                var length = Math.Min(_pulseLength, remaining);
                 Array.Copy(pulse, 0, buffer, location, length);
             }
 

@@ -14,24 +14,24 @@ namespace Siren.Utilities
     /// </summary>
     public class GH_ToggleAttributes : Grasshopper.Kernel.Attributes.GH_ComponentAttributes
     {
-        private readonly Action<int> iconClickHander;
-        public int IndexOfSelectedIcon { get; set; }
-        private const int iconDimensions = 9; // Actually 24px; but larger when rendered (despite rect size being accurate?)
-        private const int iconPadding = 2; // 24px base; including 2px minimum padding
-        private const float unselectedOpacity = 0.35F;
-        private const int iconOffset = 15;
-        private readonly List<System.Drawing.Bitmap> iconImages;
+        private readonly Action<int> _iconClickHander;
+        private const int IconDimensions = 9; // Actually 24px; but larger when rendered (despite rect size being accurate?)
+        private const int IconPadding = 2; // 24px base; including 2px minimum padding
+        private const float UnselectedOpacity = 0.35F;
+        private const int IconOffset = 15;
+        private readonly List<Bitmap> _iconImages;
+        private Rectangle _iconStripBounds; // Overall icon area
+        private readonly Rectangle[] _iconBounds; // Track per-icon boundaries to ID click events
 
-        private System.Drawing.Rectangle iconStripBounds; // Overall icon area
-        private readonly System.Drawing.Rectangle[] iconBounds; // Track per-icon boundaries to ID click events
+        public int IndexOfSelectedIcon { get; set; }
 
         public GH_ToggleAttributes(GH_Component owner, Action<int> callback,
-                               List<System.Drawing.Bitmap> icons, int activeIndex) : base(owner)
+                               List<Bitmap> icons, int activeIndex) : base(owner)
         {
             IndexOfSelectedIcon = activeIndex;
-            iconClickHander = callback;
-            iconImages = icons;
-            iconBounds = new System.Drawing.Rectangle[icons.Count];
+            _iconClickHander = callback;
+            _iconImages = icons;
+            _iconBounds = new Rectangle[icons.Count];
         }
 
         protected override void Layout()
@@ -41,45 +41,45 @@ namespace Siren.Utilities
             var componentRect = GH_Convert.ToRectangle(Bounds);
             var iconsRect = new Rectangle
             {
-                Height = (iconDimensions + iconPadding * 2) * iconBounds.Length,
-                Width = iconDimensions + iconPadding * 2
+                Height = (IconDimensions + IconPadding * 2) * _iconBounds.Length,
+                Width = IconDimensions + IconPadding * 2
             };
             iconsRect.X = componentRect.X + componentRect.Width - (12 + iconsRect.Width);
             iconsRect.Y = componentRect.Y + (componentRect.Height - iconsRect.Height) / 2;
 
-            iconStripBounds = iconsRect;
+            _iconStripBounds = iconsRect;
         }
 
-        protected override void Render(GH_Canvas canvas, System.Drawing.Graphics graphics, GH_CanvasChannel channel)
+        protected override void Render(GH_Canvas canvas, Graphics graphics, GH_CanvasChannel channel)
         {
-            if (channel != Grasshopper.GUI.Canvas.GH_CanvasChannel.Objects)
+            if (channel != GH_CanvasChannel.Objects)
             {
                 base.Render(canvas, graphics, channel);
                 return;
             }
 
             RenderComponentCapsule(canvas, graphics, true, false, false, true, true, true);
-            var iconSpacing = GH_Convert.ToRectangle(iconStripBounds).Height / iconImages.Count;
+            var iconSpacing = GH_Convert.ToRectangle(_iconStripBounds).Height / _iconImages.Count;
 
             var iconBox = new Rectangle
             {
-                X = iconStripBounds.X + iconPadding - iconOffset,
-                Width = iconDimensions,
-                Height = iconDimensions
+                X = _iconStripBounds.X + IconPadding - IconOffset,
+                Width = IconDimensions,
+                Height = IconDimensions
             };
 
-            var toggleSize = new Size(iconStripBounds.Width, iconDimensions + iconPadding * 2);
-            var toggleLocation = new Point(iconStripBounds.Location.X, iconStripBounds.Location.Y + IndexOfSelectedIcon * iconSpacing);
+            var toggleSize = new Size(_iconStripBounds.Width, IconDimensions + IconPadding * 2);
+            var toggleLocation = new Point(_iconStripBounds.Location.X, _iconStripBounds.Location.Y + IndexOfSelectedIcon * iconSpacing);
             var toggle = new Rectangle(toggleLocation, toggleSize);
 
-            DrawToggle(graphics, iconStripBounds, toggle);
+            DrawToggle(graphics, _iconStripBounds, toggle);
 
-            for (var i = 0; i < iconImages.Count; i++)
+            for (var i = 0; i < _iconImages.Count; i++)
             {
-                iconBox.Y = iconStripBounds.Y + iconPadding + (i * iconSpacing);
-                iconBounds[i] = iconBox;
-                var imageForState = GetImageForState(iconImages[i], i == IndexOfSelectedIcon);
-                graphics.DrawImage(imageForState, iconBounds[i]);
+                iconBox.Y = _iconStripBounds.Y + IconPadding + (i * iconSpacing);
+                _iconBounds[i] = iconBox;
+                var imageForState = GetImageForState(_iconImages[i], i == IndexOfSelectedIcon);
+                graphics.DrawImage(imageForState, _iconBounds[i]);
             }
 
         }
@@ -89,21 +89,21 @@ namespace Siren.Utilities
             if (e.Button != System.Windows.Forms.MouseButtons.Left)
                 return base.RespondToMouseDown(sender, e);
 
-            for (var i = 0; i < iconImages.Count; i++)
+            for (var i = 0; i < _iconImages.Count; i++)
             {
-                System.Drawing.RectangleF iconRec = new System.Drawing.RectangleF(iconBounds[i].Location.X + iconOffset, iconBounds[i].Location.Y, iconStripBounds.Width, iconDimensions + iconPadding * 2); /*(iconBounds[i]);*/
+                var iconRec = new RectangleF(_iconBounds[i].Location.X + IconOffset, _iconBounds[i].Location.Y, _iconStripBounds.Width, IconDimensions + IconPadding * 2); /*(iconBounds[i]);*/
 
                 if (iconRec.Contains(e.CanvasLocation))
                 {
                     IndexOfSelectedIcon = i;
-                    iconClickHander(i);
+                    _iconClickHander(i);
                     return GH_ObjectResponse.Handled;
                 }
             }
 
             return base.RespondToMouseDown(sender, e);
         }
-        private System.Drawing.Bitmap GetImageForState(System.Drawing.Bitmap image, bool isSelected)
+        private Bitmap GetImageForState(Bitmap image, bool isSelected)
         {
             if (isSelected)
                 return image;
@@ -111,7 +111,7 @@ namespace Siren.Utilities
             // Thanks Jack Marchetti, https://stackoverflow.com/a/2201233
             var colorMatrix = new ColorMatrix
             {
-                Matrix33 = unselectedOpacity
+                Matrix33 = UnselectedOpacity
             };
 
             var imageAttributes = new ImageAttributes();
@@ -128,7 +128,7 @@ namespace Siren.Utilities
             return output;
         }
 
-        private void DrawToggle(System.Drawing.Graphics graphics, Rectangle bounds, Rectangle toggle)
+        private void DrawToggle(Graphics graphics, Rectangle bounds, Rectangle toggle)
         {
             using (var brush = new SolidBrush(Color.FromArgb(30, 30, 30)))
             using (var penDark = new Pen(Color.Black, 6.6f) { LineJoin = LineJoin.Round })

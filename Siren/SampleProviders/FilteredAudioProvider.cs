@@ -5,41 +5,41 @@ namespace Siren.SampleProviders
 {
     public class FilteredAudioProvider : ISampleProvider
     {
-        private readonly ISampleProvider source;
-        private readonly ISampleProvider cvProvider;
-        private readonly BiQuadFilter filter;
-        private readonly float cutoff;
-        private readonly float cvAmount;
-        private readonly float q;
+        private readonly ISampleProvider _source;
+        private readonly ISampleProvider _cvProvider;
+        private readonly BiQuadFilter _filter;
+        private readonly float _cutoff;
+        private readonly float _cvAmount;
+        private readonly float _q;
 
-        public WaveFormat WaveFormat => source.WaveFormat;
+        public WaveFormat WaveFormat => _source.WaveFormat;
 
         public FilteredAudioProvider(ISampleProvider source, ISampleProvider cvProvider, BiQuadFilter filter, float cutoff, float cvAmount, float q)
         {
-            this.source = source;
-            this.cvProvider = cvProvider;
-            this.filter = filter;
-            this.cutoff = cutoff;
-            this.cvAmount = cvAmount;
-            this.q = q;
+            _source = source;
+            _cvProvider = cvProvider;
+            _filter = filter;
+            _cutoff = cutoff;
+            _cvAmount = cvAmount;
+            _q = q;
         }
 
         public int Read(float[] buffer, int offset, int count)
         {
             float[] cvBuffer = new float[buffer.Length];
-            int cvSampleRead = cvProvider.Read(cvBuffer, offset, count);
+            int cvSampleRead = _cvProvider.Read(cvBuffer, offset, count);
 
-            int sampleRead = source.Read(buffer, offset, count);
+            int sampleRead = _source.Read(buffer, offset, count);
             for (int n = 0; n < sampleRead; n++)
             {
                 var cv = cvBuffer[offset + n];
-                var filterCutoff = SirenUtilities.Clamp(cutoff * 0.1f + cv * cvAmount, -1, 1);
+                var filterCutoff = SirenUtilities.Clamp(_cutoff * 0.1f + cv * _cvAmount, -1, 1);
 
                 filterCutoff = SirenUtilities.Remap(filterCutoff, -1, 1, 88200, 100000);
                 //cvCutoff += cutoff;
 
-                filter.SetLowPassFilter(SirenSettings.SampleRate, filterCutoff, q);
-                buffer[offset + n] = filter.Transform(buffer[offset + n]);
+                _filter.SetLowPassFilter(SirenSettings.SampleRate, filterCutoff, _q);
+                buffer[offset + n] = _filter.Transform(buffer[offset + n]);
             }
             return sampleRead;
         }

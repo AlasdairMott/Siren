@@ -5,47 +5,47 @@ namespace Siren.SampleProviders
 {
     public class DelayProvider : ISampleProvider
     {
-        private readonly ISampleProvider source;
-        private readonly int delay;
-        private readonly float feedback;
-        private float delayedSample;
-        private readonly float colour;
-        private float[] cache;
+        private readonly ISampleProvider _source;
+        private readonly int _delay;
+        private readonly float _feedback;
+        private float _delayedSample;
+        private readonly float _colour;
+        private float[] _cache;
 
-        public WaveFormat WaveFormat => source.WaveFormat;
+        public WaveFormat WaveFormat => _source.WaveFormat;
 
         public DelayProvider(ISampleProvider source, TimeSpan time, float feedback, float colour)
         {
-            this.source = source;
-            delay = (int)(time.TotalSeconds * source.WaveFormat.SampleRate);
-            this.feedback = feedback;
-            this.colour = SirenUtilities.Clamp(colour, 0.0f, 1.0f);
+            _source = source;
+            _delay = (int)(time.TotalSeconds * source.WaveFormat.SampleRate);
+            _feedback = feedback;
+            _colour = SirenUtilities.Clamp(colour, 0.0f, 1.0f);
         }
 
         public int Read(float[] buffer, int offset, int count)
         {
-            int sampleRead = source.Read(buffer, offset, count);
+            int sampleRead = _source.Read(buffer, offset, count);
 
             for (int n = 0; n < sampleRead; n++)
             {
                 float s = 0f;
-                if (n > delay)
+                if (n > _delay)
                 {
-                    s = buffer[offset + n - delay];
+                    s = buffer[offset + n - _delay];
                 }
-                else if (cache != null && cache.Length > delay)
+                else if (_cache != null && _cache.Length > _delay)
                 {
-                    s = cache[cache.Length - (delay - n) - 1];
+                    s = _cache[_cache.Length - (_delay - n) - 1];
                 }
 
-                delayedSample = s * colour + delayedSample * (1 - colour);
+                _delayedSample = s * _colour + _delayedSample * (1 - _colour);
 
-                var sample = buffer[offset + n] + delayedSample * feedback;
+                var sample = buffer[offset + n] + _delayedSample * _feedback;
                 sample = SirenUtilities.Clamp(sample, -1.0f, 1.0f);
                 buffer[offset + n] = sample;
             }
 
-            cache = buffer;
+            _cache = buffer;
             return sampleRead;
         }
 

@@ -10,8 +10,8 @@ namespace Siren.Components
 {
     public class CVOscillatorComponent : GH_Component
     {
-        protected int selectedWave;
-        protected List<WaveForm> waveOptions = new List<WaveForm>()
+        protected int _selectedWave;
+        protected List<WaveForm> _waveOptions = new List<WaveForm>()
         {
             new WaveForm("Sin", Properties.Resources.wavef_sin, SignalGeneratorType.Sin),
             new WaveForm("Sawtooth", Properties.Resources.wavef_saw, SignalGeneratorType.SawTooth),
@@ -38,7 +38,7 @@ namespace Siren.Components
               "Produces an audible signal using a specific waveform type at the given pitch.",
               "Siren", "Oscillators")
         {
-            selectedWave = 0; // Sin default
+            _selectedWave = 0; // Sin default
         }
 
         /// <summary>
@@ -56,8 +56,8 @@ namespace Siren.Components
 
         public override void CreateAttributes() // Setup custom inline icons within component
         {
-            var waveIcons = waveOptions.Select(o => o.Icon).ToList();
-            m_attributes = new GH_ToggleAttributes(this, SetWaveformFromIcon, waveIcons, selectedWave);
+            var waveIcons = _waveOptions.Select(o => o.Icon).ToList();
+            m_attributes = new GH_ToggleAttributes(this, SetWaveformFromIcon, waveIcons, _selectedWave);
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace Siren.Components
 
             var signalGenerator = new SignalGenerator(SirenSettings.SampleRate, 1)
             {
-                Type = waveOptions[selectedWave].Type,
+                Type = _waveOptions[_selectedWave].Type,
                 Frequency = 440,
                 Gain = 0.25
             };
@@ -109,13 +109,13 @@ namespace Siren.Components
 
         protected void SetWaveformFromIcon(int indexOfClickedIcon)
         {
-            selectedWave = indexOfClickedIcon;
+            _selectedWave = indexOfClickedIcon;
             ExpireSolution(true);
         }
 
         public override bool Write(GH_IWriter writer)
         {
-            writer.SetString("wavetype", waveOptions[selectedWave].Title);
+            writer.SetString("wavetype", _waveOptions[_selectedWave].Title);
             return base.Write(writer);
         }
 
@@ -124,8 +124,8 @@ namespace Siren.Components
             string waveformTitle = "";
             if (reader.TryGetString("wavetype", ref waveformTitle))
             {
-                selectedWave = waveOptions.FindIndex(w => w.Title == waveformTitle);
-                (m_attributes as GH_ToggleAttributes).IndexOfSelectedIcon = selectedWave; // Need to refresh to pass newly-loaded state
+                _selectedWave = _waveOptions.FindIndex(w => w.Title == waveformTitle);
+                (m_attributes as GH_ToggleAttributes).IndexOfSelectedIcon = _selectedWave; // Need to refresh to pass newly-loaded state
             }
 
             return base.Read(reader);

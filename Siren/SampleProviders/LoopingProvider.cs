@@ -7,7 +7,7 @@ namespace Siren.SampleProviders
     /// </summary>
     public class LoopStream : WaveStream
     {
-        private readonly WaveStream sourceStream;
+        private readonly WaveStream _sourceStream;
 
         /// <summary>
         /// Creates a new Loop stream
@@ -16,7 +16,7 @@ namespace Siren.SampleProviders
         /// or else we will not loop to the start again.</param>
         public LoopStream(WaveStream sourceStream)
         {
-            this.sourceStream = sourceStream;
+            _sourceStream = sourceStream;
             EnableLooping = true;
         }
 
@@ -30,7 +30,7 @@ namespace Siren.SampleProviders
         /// </summary>
         public override WaveFormat WaveFormat
         {
-            get { return sourceStream.WaveFormat; }
+            get { return _sourceStream.WaveFormat; }
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace Siren.SampleProviders
         /// </summary>
         public override long Length
         {
-            get { return sourceStream.Length; }
+            get { return _sourceStream.Length; }
         }
 
         /// <summary>
@@ -46,8 +46,8 @@ namespace Siren.SampleProviders
         /// </summary>
         public override long Position
         {
-            get { return sourceStream.Position; }
-            set { sourceStream.Position = value; }
+            get { return _sourceStream.Position; }
+            set { _sourceStream.Position = value; }
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -56,16 +56,16 @@ namespace Siren.SampleProviders
 
             while (totalBytesRead < count)
             {
-                int bytesRead = sourceStream.Read(buffer, offset + totalBytesRead, count - totalBytesRead);
+                int bytesRead = _sourceStream.Read(buffer, offset + totalBytesRead, count - totalBytesRead);
                 if (bytesRead == 0)
                 {
-                    if (sourceStream.Position == 0 || !EnableLooping)
+                    if (_sourceStream.Position == 0 || !EnableLooping)
                     {
                         // something wrong with the source stream
                         break;
                     }
                     // loop
-                    sourceStream.Position = 0;
+                    _sourceStream.Position = 0;
                 }
                 totalBytesRead += bytesRead;
             }

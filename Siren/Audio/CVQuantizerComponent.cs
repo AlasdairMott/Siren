@@ -9,7 +9,7 @@ namespace Siren.Audio
 {
     public class CVQuantizerComponent : GH_Component
     {
-        private string scaleName;
+        private string _scaleName;
 
         /// <summary>
         /// Initializes a new instance of the CVQuantizer class.
@@ -19,7 +19,7 @@ namespace Siren.Audio
               "Takes a signal and transforms it into discrete steps that match the provided notes.",
               "Siren", "CV Control")
         {
-            scaleName = "Chromatic";
+            _scaleName = "Chromatic";
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace Siren.Audio
             var scale = new List<double>();
             if (!DA.GetDataList(1, scale))
             {
-                scale = Scales(scaleName);
+                scale = Scales(_scaleName);
             }
 
             if (scale.Min() < 0 || scale.Max() >= 12) throw new ArgumentOutOfRangeException("Values in scale must be from [0,12)");
@@ -102,7 +102,7 @@ namespace Siren.Audio
                 var option = new ToolStripMenuItem()
                 {
                     Text = w,
-                    Checked = (w == scaleName)
+                    Checked = (w == _scaleName)
                 };
                 m_scale.DropDownItems.Add(option);
             }
@@ -111,19 +111,19 @@ namespace Siren.Audio
 
         private void MenuScaleClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-            scaleName = ((ToolStripMenuItem)e.ClickedItem).Text;
+            _scaleName = ((ToolStripMenuItem)e.ClickedItem).Text;
             ExpireSolution(true);
         }
 
         public override bool Write(GH_IWriter writer)
         {
-            writer.SetString("scaleName", scaleName);
+            writer.SetString("scaleName", _scaleName);
             return base.Write(writer);
         }
 
         public override bool Read(GH_IReader reader)
         {
-            reader.TryGetString("scaleName", ref scaleName);
+            reader.TryGetString("scaleName", ref _scaleName);
             return base.Read(reader);
         }
     }

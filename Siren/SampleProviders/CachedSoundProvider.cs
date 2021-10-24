@@ -5,25 +5,25 @@ namespace Siren.SampleProviders
 {
     public class CachedSoundSampleProvider : ISampleProvider
     {
-        private readonly CachedSound cachedSound;
+        private readonly CachedSound _cachedSound;
         public long Position { get; private set; }
-        public long Length => cachedSound.Length;
-        public TimeSpan CurrentTime => TimeSpan.FromSeconds((double)Position / cachedSound.WaveFormat.SampleRate);
+        public long Length => _cachedSound.Length;
+        public TimeSpan CurrentTime => TimeSpan.FromSeconds((double)Position / _cachedSound.WaveFormat.SampleRate);
 
         public CachedSoundSampleProvider(CachedSound cachedSound)
         {
-            this.cachedSound = cachedSound;
+            _cachedSound = cachedSound;
         }
 
         public int Read(float[] buffer, int offset, int count)
         {
-            var availableSamples = cachedSound.AudioData.Length - Position;
+            var availableSamples = _cachedSound.AudioData.Length - Position;
             var samplesToCopy = Math.Min(availableSamples, count);
-            Array.Copy(cachedSound.AudioData, Position, buffer, offset, samplesToCopy);
+            Array.Copy(_cachedSound.AudioData, Position, buffer, offset, samplesToCopy);
             Position += samplesToCopy;
             return (int)samplesToCopy;
         }
 
-        public WaveFormat WaveFormat { get { return cachedSound.WaveFormat; } }
+        public WaveFormat WaveFormat { get { return _cachedSound.WaveFormat; } }
     }
 }

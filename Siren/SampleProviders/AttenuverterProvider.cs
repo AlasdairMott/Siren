@@ -4,23 +4,23 @@ namespace Siren.SampleProviders
 {
     public class AttenuverterProvider : ISampleProvider
     {
-        private readonly ISampleProvider source;
-        private readonly float amount;
+        private readonly ISampleProvider _source;
+        private readonly float _amount;
 
-        public WaveFormat WaveFormat => source.WaveFormat;
+        public WaveFormat WaveFormat => _source.WaveFormat;
 
         public AttenuverterProvider(ISampleProvider source, float amount)
         {
-            this.source = source;
-            this.amount = amount;
+            _source = source;
+            _amount = amount;
         }
 
         public int Read(float[] buffer, int offset, int count)
         {
-            int sampleRead = source.Read(buffer, offset, count);
+            int sampleRead = _source.Read(buffer, offset, count);
             for (int n = 0; n < sampleRead; n++)
             {
-                buffer[offset + n] *= amount;
+                buffer[offset + n] *= _amount;
             }
             return sampleRead;
         }

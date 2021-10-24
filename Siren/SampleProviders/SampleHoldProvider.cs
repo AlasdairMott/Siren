@@ -4,24 +4,24 @@ namespace Siren.SampleProviders
 {
     public class SampleHoldProvider : ISampleProvider
     {
-        private readonly ISampleProvider source;
-        private readonly ISampleProvider pulses;
-        private float sample;
+        private readonly ISampleProvider _source;
+        private readonly ISampleProvider _pulses;
+        private float _sample;
 
-        public WaveFormat WaveFormat => source.WaveFormat;
+        public WaveFormat WaveFormat => _source.WaveFormat;
 
         public SampleHoldProvider(ISampleProvider source, ISampleProvider pulses)
         {
-            this.source = source;
-            this.pulses = pulses;
+            _source = source;
+            _pulses = pulses;
         }
 
         public int Read(float[] buffer, int offset, int count)
         {
             float[] pulseBuffer = new float[buffer.Length];
-            int cvSampleRead = pulses.Read(pulseBuffer, offset, count);
+            int cvSampleRead = _pulses.Read(pulseBuffer, offset, count);
 
-            int sampleRead = source.Read(buffer, offset, count);
+            int sampleRead = _source.Read(buffer, offset, count);
 
             bool triggered = false;
             for (int n = 0; n < sampleRead; n++)
@@ -34,9 +34,9 @@ namespace Siren.SampleProviders
                 else if (p > 0.1 & !triggered)
                 {
                     triggered = true;
-                    sample = buffer[offset + n];
+                    _sample = buffer[offset + n];
                 }
-                buffer[offset + n] = sample;
+                buffer[offset + n] = _sample;
             }
             return sampleRead;
         }

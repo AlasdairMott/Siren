@@ -5,18 +5,18 @@ namespace Siren.Utilities
 {
     public class GH_Knob
     {
-        private readonly string text;
+        private readonly string _text;
 
-        private readonly Font font = new Font("Segoe UI", 2.5f);
-        private readonly SolidBrush whiteBrush = new SolidBrush(Color.White);
-        private readonly SolidBrush shadowBrush = new SolidBrush(Color.FromArgb(20, 0, 0, 0));
-        private readonly SolidBrush blackBrush = new SolidBrush(Color.Black);
-        private readonly Pen grey = new Pen(Color.FromArgb(80, 255, 255, 255), 1f);
-        private readonly Pen white = new Pen(Color.White, 3f);
+        private readonly Font _font = new Font("Segoe UI", 2.5f);
+        private readonly SolidBrush _whiteBrush = new SolidBrush(Color.White);
+        private readonly SolidBrush _shadowBrush = new SolidBrush(Color.FromArgb(20, 0, 0, 0));
+        private readonly SolidBrush _blackBrush = new SolidBrush(Color.Black);
+        private readonly Pen _grey = new Pen(Color.FromArgb(80, 255, 255, 255), 1f);
+        private readonly Pen _white = new Pen(Color.White, 3f);
 
         public GH_Knob(string text)
         {
-            this.text = text;
+            _text = text;
         }
 
         public void Draw(Graphics graphics, RectangleF bounds, float angle)
@@ -30,23 +30,23 @@ namespace Siren.Utilities
             textLocation.Y -= 28f;
             using (var format = new StringFormat() { Alignment = StringAlignment.Center })
             {
-                graphics.DrawString(text, font, blackBrush, textLocation, format);
+                graphics.DrawString(_text, _font, _blackBrush, textLocation, format);
             }
 
             var shadow = bounds;
             shadow.Inflate(1f, 1f);
             shadow.Y += 2f;
 
-            graphics.FillEllipse(shadowBrush, shadow);
-            graphics.FillEllipse(blackBrush, bounds);
+            graphics.FillEllipse(_shadowBrush, shadow);
+            graphics.FillEllipse(_blackBrush, bounds);
 
             bounds.Inflate(-4f, -4f);
-            graphics.DrawEllipse(grey, bounds);
+            graphics.DrawEllipse(_grey, bounds);
 
             bounds.Inflate(-4f, -4f);
-            graphics.FillEllipse(whiteBrush, bounds);
+            graphics.FillEllipse(_whiteBrush, bounds);
 
-            graphics.DrawLine(white, pt1, pt2);
+            graphics.DrawLine(_white, pt1, pt2);
         }
     }
 }

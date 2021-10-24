@@ -13,12 +13,12 @@ namespace Siren
 {
     public class AudioOutComponent : GH_Component
     {
-        private readonly WaveOut waveOut;
+        private readonly WaveOut _waveOut;
 
-        public bool WaveIsPlaying = false;
+        public bool WaveIsPlaying { get; set; }
         public Rhino.Geometry.Interval PlayState; // Form of (currentTime, totalTime)
         public readonly int TickRate = 100; // playStateTimer duration, e.g. playhead update rate (in ms)
-        public double DefaultLatency;
+        public double DefaultLatency { get; private set; }
         public CachedSound Wave { get; private set; }
         public MixingSampleProvider Mixer { get; private set; }
         public float Volume { get; set; }
@@ -31,13 +31,13 @@ namespace Siren
               "Allows a signal to be played within Grasshopper.",
               "Siren", "Utilities")
         {
-            waveOut = new WaveOut();
+            _waveOut = new WaveOut();
             Mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(SirenSettings.SampleRate, 1))
             {
                 ReadFully = true
             };
-            waveOut.Init(Mixer);
-            DefaultLatency = waveOut.DesiredLatency / 1000f;
+            _waveOut.Init(Mixer);
+            DefaultLatency = _waveOut.DesiredLatency / 1000f;
 
             Wave = CachedSound.Empty;
             Volume = 1.0f;
@@ -104,14 +104,14 @@ namespace Siren
         public override void AddedToDocument(GH_Document document)
         {
             base.AddedToDocument(document);
-            waveOut.Play();
+            _waveOut.Play();
         }
 
         public override void RemovedFromDocument(GH_Document document)
         {
             base.RemovedFromDocument(document);
-            waveOut.Stop();
-            waveOut.Dispose();
+            _waveOut.Stop();
+            _waveOut.Dispose();
         }
 
         /// <summary>
@@ -130,29 +130,29 @@ namespace Siren
 
     public class GH_PlayButtonAttributes : GH_ComponentAttributes
     {
-        private readonly int dragSpace = 15;
-        private readonly int buttonWidth = 46;
-        private readonly int componentHeight = 24;
-        private RectangleF outerButtonBounds; // Includes draghandle space
-        private Rectangle playButtonBounds; // Triggers click
-        private readonly AudioOutComponent owner;
-        private bool aboutToPlay = false;
+        private readonly int _dragSpace = 15;
+        private readonly int _buttonWidth = 46;
+        private readonly int _componentHeight = 24;
+        private RectangleF _outerButtonBounds; // Includes draghandle space
+        private Rectangle _playButtonBounds; // Triggers click
+        private readonly AudioOutComponent _owner;
+        private bool _aboutToPlay = false;
 
         public CachedSoundSampleProvider PlayingWave { get; private set; }
 
         public GH_PlayButtonAttributes(AudioOutComponent owner) : base(owner)
         {
-            this.owner = owner;
+            _owner = owner;
         }
 
         protected override void Layout()
         {
             Pivot = GH_Convert.ToPoint(Pivot);
 
-            outerButtonBounds = new RectangleF(Pivot.X, Pivot.Y, buttonWidth + dragSpace * 2, componentHeight);
-            LayoutInputParams(Owner, outerButtonBounds);
-            LayoutOutputParams(Owner, outerButtonBounds);
-            Bounds = LayoutBounds(Owner, outerButtonBounds);
+            _outerButtonBounds = new RectangleF(Pivot.X, Pivot.Y, _buttonWidth + _dragSpace * 2, _componentHeight);
+            LayoutInputParams(Owner, _outerButtonBounds);
+            LayoutOutputParams(Owner, _outerButtonBounds);
+            Bounds = LayoutBounds(Owner, _outerButtonBounds);
         }
 
         protected override void Render(GH_Canvas canvas, Graphics graphics, GH_CanvasChannel channel)
@@ -163,26 +163,26 @@ namespace Siren
                 return;
             }
 
-            if (aboutToPlay) Selected = false;
+            if (_aboutToPlay) Selected = false;
             RenderComponentCapsule(canvas, graphics, true, false, false, true, true, true); // Standard UI
 
-            playButtonBounds = GH_Convert.ToRectangle(outerButtonBounds); // Icon inset space
-            playButtonBounds.X += dragSpace;
-            playButtonBounds.Width = buttonWidth;
+            _playButtonBounds = GH_Convert.ToRectangle(_outerButtonBounds); // Icon inset space
+            _playButtonBounds.X += _dragSpace;
+            _playButtonBounds.Width = _buttonWidth;
 
             // Black button background
             GH_Capsule button;
-            if (aboutToPlay)
-                button = GH_Capsule.CreateTextCapsule(playButtonBounds, playButtonBounds, GH_Palette.Grey, "", 1, 0);
+            if (_aboutToPlay)
+                button = GH_Capsule.CreateTextCapsule(_playButtonBounds, _playButtonBounds, GH_Palette.Grey, "", 1, 0);
             else
-                button = GH_Capsule.CreateTextCapsule(playButtonBounds, playButtonBounds, GH_Palette.Black, "", 1, componentHeight / 2);
+                button = GH_Capsule.CreateTextCapsule(_playButtonBounds, _playButtonBounds, GH_Palette.Black, "", 1, _componentHeight / 2);
 
             button.Render(graphics, Selected, Owner.Locked, false);
 
-            if (!owner.WaveIsPlaying)
-                DrawPlayTriangle(graphics, playButtonBounds);
+            if (!_owner.WaveIsPlaying)
+                DrawPlayTriangle(graphics, _playButtonBounds);
             else
-                DrawStopSquare(graphics, playButtonBounds);
+                DrawStopSquare(graphics, _playButtonBounds);
         }
 
         private void DrawStopSquare(Graphics graphics, Rectangle playButtonBounds)
@@ -240,8 +240,8 @@ namespace Siren
         public override GH_ObjectResponse RespondToMouseDown(GH_Canvas sender, GH_CanvasMouseEvent e)
         {
             // Checking if it's a left click, and if it's in the button's area
-            if (e.Button == System.Windows.Forms.MouseButtons.Left && ((RectangleF)playButtonBounds).Contains(e.CanvasLocation))
-                aboutToPlay = true;
+            if (e.Button == System.Windows.Forms.MouseButtons.Left && ((RectangleF)_playButtonBounds).Contains(e.CanvasLocation))
+                _aboutToPlay = true;
 
             return base.RespondToMouseDown(sender, e);
         }
@@ -254,23 +254,23 @@ namespace Siren
                 sender.ScheduleRegen(1);
 
                 // Checking if it was clicked, and if it's in the right area
-                if (!Owner.Locked && e.Clicks >= 1 && ((RectangleF)playButtonBounds).Contains(e.CanvasLocation))
+                if (!Owner.Locked && e.Clicks >= 1 && ((RectangleF)_playButtonBounds).Contains(e.CanvasLocation))
                 {
-                    aboutToPlay = false;
+                    _aboutToPlay = false;
 
-                    if (!owner.WaveIsPlaying) // Start playing
+                    if (!_owner.WaveIsPlaying) // Start playing
                     {
-                        PlayingWave = owner.Wave.ToSampleProvider();
-                        owner.Mixer.AddMixerInput(PlayingWave);
+                        PlayingWave = _owner.Wave.ToSampleProvider();
+                        _owner.Mixer.AddMixerInput(PlayingWave);
 
-                        owner.PlayState.T0 = owner.DefaultLatency;
-                        owner.WaveIsPlaying = true;
-                        owner.OnPingDocument()?.ScheduleSolution(owner.TickRate, owner.TriggerPlayheadUpdate);
+                        _owner.PlayState.T0 = _owner.DefaultLatency;
+                        _owner.WaveIsPlaying = true;
+                        _owner.OnPingDocument()?.ScheduleSolution(_owner.TickRate, _owner.TriggerPlayheadUpdate);
                     }
                     else // Stop playing
                     {
-                        owner.WaveIsPlaying = false;
-                        owner.Mixer.RemoveAllMixerInputs();
+                        _owner.WaveIsPlaying = false;
+                        _owner.Mixer.RemoveAllMixerInputs();
                     }
                 }
             }
