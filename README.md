@@ -1,5 +1,5 @@
 <div align="center">
-<img width=200 src="(https://github.com/AlasdairMott/Siren/blob/develop/documentation/logo.svg">
+<img width=200 src="https://github.com/AlasdairMott/Siren/blob/develop/documentation/logo.svg">
 
 # Siren
 
