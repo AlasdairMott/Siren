@@ -54,17 +54,19 @@ namespace Siren
             var cvIn = CachedSound.Empty;
             if (!DA.GetData("Frequency CV", ref cvIn)) return;
 
-            var cutoff = 10.0;
+            var cutoff = 1.0;
             DA.GetData("Cutoff Frequency", ref cutoff);
-            cutoff = SirenUtilities.Clamp((float)cutoff, -10f, 10f);
+            cutoff = SirenUtilities.Clamp((float)cutoff, -1f, 1f);
 
-            var cvAmount = 0.0;
-            DA.GetData("Frequency CV amount", ref cvAmount);
+            var amount = 0.0;
+            DA.GetData("Frequency CV amount", ref amount);
 
             var q = 1.0;
             DA.GetData("Resonance", ref q);
 
-            var filtered = new SampleProviders.VCFProvider(waveIn.ToSampleProvider(), cvIn.ToSampleProvider(), (float)q);
+            var offsetSignal = new SampleProviders.AttenuverterProvider(cvIn.ToSampleProvider(), (float) amount, (float) cutoff);
+
+            var filtered = new SampleProviders.VCFProvider(waveIn.ToSampleProvider(), offsetSignal, (float)q);
 
             DA.SetData(0, filtered);
         }

@@ -33,7 +33,9 @@ namespace Siren.SampleProviders
             var nyquist = _source.WaveFormat.SampleRate * 0.5f;
             for (int n = 0; n < Math.Min(samplesRead, samplesReadCv); n++)
             {
-                var f = (bufferCv[offset + n]) * 1.16f;
+                var cvf = SirenUtilities.Clamp(bufferCv[offset + n], -1, 1);
+                cvf = cvf * 0.5f + 0.5f;
+                var f = (cvf) * 1.16f;
                 var fb = _resonance * (1.0f - 0.15f * f * f);
 
                 var input = buffer[offset + n];
