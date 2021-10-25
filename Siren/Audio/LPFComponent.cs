@@ -1,6 +1,5 @@
 ﻿using System;
 using Grasshopper.Kernel;
-using NAudio.Dsp;
 
 namespace Siren
 {
@@ -10,7 +9,7 @@ namespace Siren
         /// Initializes a new instance of the MultimodeFilterComponent class.
         /// </summary>
         public MultimodeFilterComponent()
-          : base("Multimode Filter", "MMF",
+          : base("Low pass filter", "LPF",
               "Subtracts frequencies with a specified range from a signal.",
               "Siren", "Effects")
         {
@@ -55,25 +54,19 @@ namespace Siren
             var cvIn = CachedSound.Empty;
             if (!DA.GetData("Frequency CV", ref cvIn)) return;
 
-            var cutoff = 10.0;
+            var cutoff = 1.0;
             DA.GetData("Cutoff Frequency", ref cutoff);
-            cutoff = SirenUtilities.Clamp((float)cutoff, -10f, 10f);
+            cutoff = SirenUtilities.Clamp((float)cutoff, -1f, 1f);
 
-            var cvAmount = 0.0;
-            DA.GetData("Frequency CV amount", ref cvAmount);
+            var amount = 0.0;
+            DA.GetData("Frequency CV amount", ref amount);
 
             var q = 1.0;
             DA.GetData("Resonance", ref q);
 
-            var filter = BiQuadFilter.LowPassFilter(sampleRate, (float)cutoff, (float)q);
+            var offsetSignal = new SampleProviders.AttenuverterProvider(cvIn.ToSampleProvider(), (float) amount, (float) cutoff);
 
-            var filtered = new SampleProviders.FilteredAudioProvider(
-                waveIn.ToSampleProvider(),
-                cvIn.ToSampleProvider(),
-                filter,
-                (float)cutoff,
-                (float)cvAmount,
-                (float)q);
+            var filtered = new SampleProviders.VCFProvider(waveIn.ToSampleProvider(), offsetSignal, (float)q);
 
             DA.SetData(0, filtered);
         }

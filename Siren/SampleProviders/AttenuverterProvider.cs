@@ -6,13 +6,15 @@ namespace Siren.SampleProviders
     {
         private readonly ISampleProvider _source;
         private readonly float _amount;
+        private readonly float _offset;
 
         public WaveFormat WaveFormat => _source.WaveFormat;
 
-        public AttenuverterProvider(ISampleProvider source, float amount)
+        public AttenuverterProvider(ISampleProvider source, float amount, float offset)
         {
             _source = source;
             _amount = amount;
+            _offset = offset;
         }
 
         public int Read(float[] buffer, int offset, int count)
@@ -21,6 +23,7 @@ namespace Siren.SampleProviders
             for (int n = 0; n < sampleRead; n++)
             {
                 buffer[offset + n] *= _amount;
+                buffer[offset + n] += _offset;
             }
             return sampleRead;
         }

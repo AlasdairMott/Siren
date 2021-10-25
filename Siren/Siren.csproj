@@ -118,6 +118,7 @@
     <Compile Include="SampleProviders\DelayProvider.cs" />
     <Compile Include="SampleProviders\PulseProvider.cs" />
     <Compile Include="SampleProviders\SampleHoldProvider.cs" />
+    <Compile Include="SampleProviders\VCFProvider.cs" />
     <Compile Include="SirenSettings.cs" />
     <Compile Include="Geometry\GeometryFunctions.cs" />
     <Compile Include="Geometry\SampleToPolylineComponent.cs" />
@@ -125,9 +126,8 @@
     <Compile Include="SampleProviders\AttenuverterProvider.cs" />
     <Compile Include="CachedSound.cs" />
     <Compile Include="SampleProviders\CVQuantizer.cs" />
-    <Compile Include="SampleProviders\FilteredAudioProvider.cs" />
     <Compile Include="SirenInfo.cs" />
-    <Compile Include="Audio\MultimodeFilterComponent.cs" />
+    <Compile Include="Audio\LPFComponent.cs" />
     <Compile Include="SampleProviders\LoopingProvider.cs" />
     <Compile Include="SampleProviders\OscillatorProvider.cs" />
     <Compile Include="SampleProviders\NoiseGenerator.cs" />
@@ -166,9 +166,6 @@
     <None Include="Resources\repitch.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\filter.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\playback.png" />
   </ItemGroup>
   <ItemGroup>
@@ -200,9 +197,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\settings.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\attenuverter.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\wavef_saw.png" />
@@ -254,6 +248,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\cv.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\attenuverter.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\filter.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

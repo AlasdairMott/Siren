@@ -64,7 +64,7 @@ namespace Siren.Audio
                 attributes.Locked = true;
             }
 
-            var attenuverter = new SampleProviders.AttenuverterProvider(waveIn.ToSampleProvider(), (float)attenuation);
+            var attenuverter = new SampleProviders.AttenuverterProvider(waveIn.ToSampleProvider(), (float)attenuation, 0.0f);
 
             DA.SetData(0, attenuverter);
         }
