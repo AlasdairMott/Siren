@@ -1,5 +1,5 @@
 <div align="center">
-<img width=120 src="(https://github.com/AlasdairMott/Siren/blob/develop/documentation/logo.svg">
+<img width=200 src="https://github.com/AlasdairMott/Siren/blob/develop/documentation/logo.svg">
 
 # Siren
 
@@ -21,7 +21,7 @@ Modular synthesizer for Grasshopper. Siren is built using [Naudio](https://githu
 
 ## Running Siren
 
-Make sure to copy NAudio dlls from Siren\bin into the grasshopper libraries folder. [Example](https://github.com/AlasdairMott/Siren/blob/develop/Examples) grasshopper files are provided.
+Make sure to copy NAudio dlls from Siren\bin into the grasshopper libraries folder. [Example](https://github.com/AlasdairMott/Siren/tree/develop/examples) grasshopper files are provided.
 
 ## Contributing
 
