@@ -1,6 +1,5 @@
 ﻿using System;
 using Grasshopper.Kernel;
-using NAudio.Dsp;
 
 namespace Siren
 {
@@ -10,7 +9,7 @@ namespace Siren
         /// Initializes a new instance of the MultimodeFilterComponent class.
         /// </summary>
         public MultimodeFilterComponent()
-          : base("Multimode Filter", "MMF",
+          : base("Low pass filter", "LPF",
               "Subtracts frequencies with a specified range from a signal.",
               "Siren", "Effects")
         {
@@ -65,15 +64,7 @@ namespace Siren
             var q = 1.0;
             DA.GetData("Resonance", ref q);
 
-            var filter = BiQuadFilter.LowPassFilter(sampleRate, (float)cutoff, (float)q);
-
-            var filtered = new SampleProviders.FilteredAudioProvider(
-                waveIn.ToSampleProvider(),
-                cvIn.ToSampleProvider(),
-                filter,
-                (float)cutoff,
-                (float)cvAmount,
-                (float)q);
+            var filtered = new SampleProviders.VCFProvider(waveIn.ToSampleProvider(), cvIn.ToSampleProvider(), (float)q);
 
             DA.SetData(0, filtered);
         }
