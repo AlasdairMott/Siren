@@ -20,9 +20,13 @@ Modular synthesizer for Grasshopper. Siren is built using [Naudio](https://githu
 
 ![grasshopper example](https://github.com/AlasdairMott/Siren/blob/develop/documentation/siren.jpg)
 
-## Running Siren
+## Running Siren on PC
 
 Make sure to copy NAudio dlls from Siren\bin into the grasshopper libraries folder. [Example](https://github.com/AlasdairMott/Siren/tree/develop/examples) grasshopper files are provided.
+
+## Running Siren on Mac
+
+Currently Siren does not run on Grasshopper for Mac.
 
 ## Contributing
 
