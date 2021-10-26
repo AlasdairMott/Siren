@@ -16,6 +16,11 @@
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <!-- Tells MacOS VS to rename to gha -->
+    <RhinoPluginType>gha</RhinoPluginType>
+    <!-- Tells Windows VS to rename to gha -->
+    <TargetExt>.gha</TargetExt>
+    <RhinoMacLauncher>/Applications/Rhino 7.app</RhinoMacLauncher>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
