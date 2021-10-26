@@ -3,6 +3,7 @@
 
 # Siren
 
+[![Build Action](https://github.com/AlasdairMott/Siren/workflows/Build%20Grasshopper%20Plugin/badge.svg)](https://github.com/AlasdairMott/Siren/actions/workflows/grasshopper-build.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 </div>
