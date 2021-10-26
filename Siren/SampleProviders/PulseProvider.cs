@@ -15,10 +15,10 @@ namespace Siren.SampleProviders
         public long Length { get; private set; }
         public int Position { get; set; }
 
-        public PulseProvider(List<double> times, WaveFormat waveFormat)
+        public PulseProvider(List<TimeSpan> times, WaveFormat waveFormat)
         {
             _pulseLength = (int)(TimeSpan.FromMilliseconds(1).TotalSeconds * waveFormat.SampleRate);
-            _times = times.OrderBy(t => t).ToArray().Select(t => (int)(t * waveFormat.SampleRate)).ToArray();
+            _times = times.OrderBy(t => t).ToArray().Select(t => (int)(t.TotalSeconds * waveFormat.SampleRate)).ToArray();
             _cache = new List<float>();
 
             WaveFormat = waveFormat;

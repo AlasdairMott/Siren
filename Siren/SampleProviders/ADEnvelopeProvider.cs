@@ -13,6 +13,7 @@ namespace Siren.SampleProviders
         private readonly float _fall;
         private readonly float _exponent;
         private bool _rising;
+        private bool _triggered;
 
         public WaveFormat WaveFormat => _pulses.WaveFormat;
 
@@ -37,17 +38,16 @@ namespace Siren.SampleProviders
                 else if (samplesRead == 0) samplesRead = WaveFormat.SampleRate;
             }
 
-            bool triggered = false;
             for (int n = 0; n < samplesRead; n++)
             {
                 float p = 0f;
                 if (n < pulseBuffer.Length)
                     p = pulseBuffer[offset + n];
 
-                if (p < 0.1) triggered = false;
-                else if (p > 0.1 & !triggered)
+                if (p < 0.1) _triggered = false;
+                else if (p > 0.1 & !_triggered)
                 {
-                    triggered = true;
+                    _triggered = true;
                     _rising = true;
                     _envelope = (float)Math.Pow(_power, _exponent);
 

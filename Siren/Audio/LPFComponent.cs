@@ -58,10 +58,10 @@ namespace Siren
             DA.GetData("Cutoff Frequency", ref cutoff);
             cutoff = SirenUtilities.Clamp((float)cutoff, -1f, 1f);
 
-            var amount = 0.0;
+            var amount = 1.0;
             DA.GetData("Frequency CV amount", ref amount);
 
-            var q = 1.0;
+            var q = 0.0;
             DA.GetData("Resonance", ref q);
 
             var offsetSignal = new SampleProviders.AttenuverterProvider(cvIn.ToSampleProvider(), (float) amount, (float) cutoff);

@@ -38,6 +38,7 @@ namespace Siren.Audio
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
             pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
+            pManager.AddParameter(new WaveStreamParameter(), "Trigger", "T", "Trigger output", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -61,6 +62,7 @@ namespace Siren.Audio
             var quantizer = new SampleProviders.CVQuantizer(cvIn.ToSampleProvider(), scale);
 
             DA.SetData(0, quantizer);
+            DA.SetData(1, quantizer.Triggers);
         }
 
         /// <summary>

@@ -94,7 +94,7 @@
     <Compile Include="Audio\RepitchComponent.cs" />
     <Compile Include="SampleProviders\VCAProvider.cs" />
     <Compile Include="Audio\VCAComponent.cs" />
-    <Compile Include="WaveStreamGoo.cs" />
+    <Compile Include="CachedSoundGoo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
