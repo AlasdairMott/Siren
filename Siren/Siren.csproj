@@ -264,10 +264,6 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>Copy "$(TargetPath)" "%25userprofile%25\AppData\Roaming\Grasshopper\Libraries\Siren\Siren.gha"
-</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup>
     <FallbackCulture>en-US</FallbackCulture>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
