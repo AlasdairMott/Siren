@@ -7,15 +7,21 @@ namespace Siren.SampleProviders
 {
     public class CVQuantizer : ISampleProvider
     {
+        private readonly List<TimeSpan> _triggers = new List<TimeSpan>();
         private readonly ISampleProvider _source;
         private readonly List<double> _scale;
+        private float _prev;
+        private int _position;
 
         public WaveFormat WaveFormat => _source.WaveFormat;
+        public ISampleProvider Triggers => new PulseProvider(_triggers, WaveFormat);
 
         public CVQuantizer(ISampleProvider source, List<double> scale)
         {
             _source = source;
             _scale = scale;
+            _position = 0;
+            _prev = 0;
         }
 
         public int Read(float[] buffer, int offset, int count)
@@ -34,6 +40,13 @@ namespace Siren.SampleProviders
                 //Transform to cv and back
                 var sample = (cv + 1) / 10;
                 buffer[offset + n] = sample;
+
+                _position++;
+                if (sample != _prev)
+                {
+                    _triggers.Add(TimeSpan.FromSeconds(((float)_position) / WaveFormat.SampleRate));
+                    _prev = sample;
+                }
             }
             return sampleRead;
         }

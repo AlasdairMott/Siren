@@ -1,25 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using GH_IO.Serialization;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
 using NAudio.Wave;
 
 namespace Siren
 {
-    public class WaveStreamGoo : GH_Goo<CachedSound>
+    public class CachedSoundGoo : GH_Goo<CachedSound>
     {
         public override bool IsValid => Value.Length > 0;
 
-        public override string TypeName => "Gooey type name" + Value.GetType().ToString();
+        public override string TypeName => "Cached Sound Goo" + Value.GetType().ToString();
 
-        public override string TypeDescription => "Gooey type description" + Value.WaveFormat.ToString();
+        public override string TypeDescription => "Siren Audio data" + Value.WaveFormat.ToString();
 
-        public WaveStreamGoo()
+        public CachedSoundGoo()
         {
             Value = CachedSound.Empty;
         }
-        public WaveStreamGoo(CachedSound stream)
+        public CachedSoundGoo(CachedSound stream)
         {
             if (stream == null) stream = CachedSound.Empty;
             Value = stream;
@@ -54,18 +56,32 @@ namespace Siren
         }
         #endregion
 
-        public override IGH_Goo Duplicate()
+        public override IGH_Goo Duplicate() => new CachedSoundGoo(Value.Clone());
+
+        public override string ToString() => Value.ToString();
+
+        public override bool Write(GH_IWriter writer)
         {
-            return new WaveStreamGoo(Value.Clone());
+            if (Value != null)
+            {
+                writer.SetByteArray("cachedWaveBuffer", Value.ToByteArray());
+            }
+            return true;
         }
 
-        public override string ToString()
+        public override bool Read(GH_IReader reader)
         {
-            return Value.ToString();
+            if (reader.ItemExists("cachedWaveBuffer"))
+            {
+                var buffer = reader.GetByteArray("cachedWaveBuffer");
+                Value = CachedSound.FromByteArray(buffer);
+            }
+            else Value = null;
+            return true;
         }
     }
 
-    public class WaveStreamParameter : GH_Param<WaveStreamGoo>
+    public class WaveStreamParameter : GH_PersistentParam<CachedSoundGoo>
     {
         public WaveStreamParameter()
             : base(new GH_InstanceDescription(
@@ -109,6 +125,17 @@ namespace Siren
                 if (goo == null) return;
                 goo.Value.SaveToFile(fd.FileName);
             }
+        }
+
+        protected override GH_GetterResult Prompt_Singular(ref CachedSoundGoo value)
+        {
+            //create cv from curve using default settings
+            throw new NotImplementedException();
+        }
+
+        protected override GH_GetterResult Prompt_Plural(ref List<CachedSoundGoo> values)
+        {
+            throw new NotImplementedException();
         }
     }
 }

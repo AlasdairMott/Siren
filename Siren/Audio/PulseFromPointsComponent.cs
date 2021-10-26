@@ -59,11 +59,11 @@ namespace Siren.Audio
             DA.GetData(2, ref X); if (X <= 0) throw new Exception("T must be positive");
             DA.GetData(3, ref Y); if (Y <= 0) throw new Exception("A must be positive");
 
-            var triggerTimes = new List<double>();
+            var triggerTimes = new List<TimeSpan>();
             foreach (var p in points)
             {
                 plane.RemapToPlaneSpace(p, out Point3d pt);
-                if (pt.X >= 0) triggerTimes.Add(pt.X / X);
+                if (pt.X >= 0) triggerTimes.Add(TimeSpan.FromSeconds(pt.X / X));
             }
 
             var waveFormat = new WaveFormat(SirenSettings.SampleRate, 1);
