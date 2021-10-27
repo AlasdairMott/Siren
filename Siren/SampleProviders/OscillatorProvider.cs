@@ -25,6 +25,7 @@ namespace Siren.SampleProviders
         private float _phase;
         private float _phaseIncrement;
         private readonly float _gain;
+        private float _prev;
 
         public WaveFormat WaveFormat => _source.WaveFormat;
 
@@ -34,7 +35,7 @@ namespace Siren.SampleProviders
         /// <param name="source">control voltage (v/o) for frequency (0 to 1f, normalized to 0 to 10f) </param>
         /// <param name="octave">octave offset</param>
         /// <param name="semi">semitone offset</param>
-        /// <remarks>Trivial oscillators. From Martin Finke's blog http://www.martin-finke.de/blog/articles/audio-plugins-008-synthesizing-waveforms/</remarks>
+        /// <remarks>Oscillawtors from Martin Finke's blog http://www.martin-finke.de/blog/articles/audio-plugins-008-synthesizing-waveforms/ with simple anti-aliasing using PolyBLEP</remarks>
         public OscillatorProvider(ISampleProvider source, WaveType waveType, double octave, double semi)
         {
             _source = source;
@@ -51,63 +52,14 @@ namespace Siren.SampleProviders
         {
             int samplesRead = _source.Read(buffer, offset, count);
 
-            switch (_waveType)
+            for (int n = 0; n < samplesRead; n++)
             {
-                case WaveType.Sin:
-                    for (int n = 0; n < samplesRead; n++)
-                    {
-                        var pitch = ComputePitch(buffer[offset + n]);
-                        _phaseIncrement = pitch * 2 * PI / WaveFormat.SampleRate;
+                var pitch = ComputePitch(buffer[offset + n]);
+                _phaseIncrement = pitch * 2 * PI / WaveFormat.SampleRate;
 
-                        buffer[offset + n] = (float)Math.Sin(_phase);
-                        buffer[offset + n] *= _gain;
-
-                        _phase += _phaseIncrement;
-                        while (_phase >= TwoPI) _phase -= TwoPI;
-                    }
-                    break;
-                case WaveType.Sawtooth:
-                    for (int n = 0; n < samplesRead; n++)
-                    {
-                        var pitch = ComputePitch(buffer[offset + n]);
-                        _phaseIncrement = pitch * 2 * PI / WaveFormat.SampleRate;
-
-                        buffer[offset + n] = 1.0f - 2.0f * _phase / TwoPI;
-                        buffer[offset + n] *= _gain;
-
-                        _phase += _phaseIncrement;
-                        while (_phase >= TwoPI) _phase -= TwoPI;
-                    }
-                    break;
-                case WaveType.Triangle:
-                    for (int n = 0; n < samplesRead; n++)
-                    {
-                        var pitch = ComputePitch(buffer[offset + n]);
-                        _phaseIncrement = pitch * 2 * PI / WaveFormat.SampleRate;
-
-                        var value = -1.0f + (2.0f * _phase / TwoPI);
-                        buffer[offset + n] = 2.0f * (float)(Math.Abs(value) - 0.5);
-                        buffer[offset + n] *= _gain;
-
-                        _phase += _phaseIncrement;
-                        while (_phase >= TwoPI) _phase -= TwoPI;
-                    }
-                    break;
-                case WaveType.Square:
-                    for (int n = 0; n < samplesRead; n++)
-                    {
-                        var pitch = ComputePitch(buffer[offset + n]);
-                        _phaseIncrement = pitch * 2 * PI / WaveFormat.SampleRate;
-
-                        if (_phase <= PI) buffer[offset + n] = 1.0f;
-                        else buffer[offset + n] = -1.0f;
-                        buffer[offset + n] *= _gain;
-
-                        _phase += _phaseIncrement;
-                        while (_phase >= TwoPI) _phase -= TwoPI;
-                    }
-                    break;
+                buffer[offset + n] = NextSample() * _gain;
             }
+
             return samplesRead;
         }
 
@@ -120,5 +72,95 @@ namespace Siren.SampleProviders
             return (float)Math.Pow(2, controlVoltage + _octave - 1) * 55;
         }
 
+        /// <summary>
+        /// Naive waveform functions. Lots of aliasing at high frequencies.
+        /// </summary>
+        /// <param name="mode">Waveform type to render</param>
+        /// <remarks>Triangle is not being used here, but should be for LFOs</remarks>
+        private float NaiveWaveform(WaveType mode)
+        {
+            float value;
+            switch (mode)
+            {
+                case WaveType.Sin:
+                    value = (float)Math.Sin(_phase);
+                    break;
+                case WaveType.Sawtooth:
+                    value = (2.0f * _phase / TwoPI) - 1.0f;
+                    break;
+                case WaveType.Triangle:
+                    value = -1.0f + (2.0f * _phase / TwoPI);
+                    value = 2.0f * (float)(Math.Abs(value) - 0.5);
+                    break;
+                case WaveType.Square:
+                    value = _phase <= PI ? 1.0f : -1.0f;
+                    break;
+                default:
+                    value = 0.0f;
+                    break;
+            }
+            return value;
+        }
+
+        /// <summary>
+        /// Render next sample for waveform
+        /// </summary>
+        private float NextSample()
+        {
+            float value = 0.0f;
+            float t = _phase / TwoPI;
+
+            if (_waveType == WaveType.Sin)
+            {
+                value = NaiveWaveform(WaveType.Sin);
+            }
+            else if (_waveType == WaveType.Sawtooth)
+            {
+                value = NaiveWaveform(WaveType.Sawtooth);
+                value -= PolyBLEP(t);
+            }
+            else
+            {
+                value = NaiveWaveform(WaveType.Square);
+                value += PolyBLEP(t);
+                value -= PolyBLEP((t + 0.5f) % 1.0f);
+            }
+            if (_waveType == WaveType.Triangle)
+            {
+                // Leaky integrator: y[n] = A * x[n] + (1 - A) * y[n-1]
+                value = _phaseIncrement * value + (1 - _phaseIncrement) * _prev;
+                _prev = value;
+            }
+
+            _phase += _phaseIncrement;
+            while (_phase >= TwoPI) _phase -= TwoPI;
+            return value;
+        }
+
+        /// <summary>
+        /// PolyBLEP function to reduce aliasing.
+        /// </summary>
+        /// <remarks>
+        // PolyBLEP by Tale, http://www.kvraudio.com/forum/viewtopic.php?t=375517, "rounds" the waveform edges.
+        // Converted to C# from Martin Finnke's blog, http://www.martin-finke.de/blog/articles/audio-plugins-018-polyblep-oscillator/
+        /// </remarks>
+        private float PolyBLEP(float t)
+        {
+            float dt = _phaseIncrement / TwoPI;
+            // 0 <= t < 1
+            if (t < dt)
+            {
+                t /= dt;
+                return t + t - t * t - 1.0f;
+            }
+            // -1 < t < 0
+            else if (t > 1.0f - dt)
+            {
+                t = (t - 1.0f) / dt;
+                return t * t + t + t + 1.0f;
+            }
+            // 0 otherwise
+            else return 0.0f;
+        }
     }
 }
