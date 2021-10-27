@@ -56,7 +56,7 @@
     <Compile Include="Audio\CVQuantizerComponent.cs" />
     <Compile Include="Audio\DelayComponent.cs" />
     <Compile Include="Audio\NoiseComponent.cs" />
-    <Compile Include="Audio\CVOscillatorComponent.cs" />
+    <Compile Include="Audio\OscillatorComponent.cs" />
     <Compile Include="Audio\ProjectSettingsComponent.cs" />
     <Compile Include="Audio\PulseFromPointsComponent.cs" />
     <Compile Include="Audio\SampleHoldComponent.cs" />

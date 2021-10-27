@@ -8,7 +8,7 @@ using Siren.Utilities;
 
 namespace Siren.Components
 {
-    public class CVOscillatorComponent : GH_Component
+    public class OscillatorComponent : GH_Component
     {
         protected int _selectedWave;
         protected List<WaveFormSelector> _waveOptions = new List<WaveFormSelector>()
@@ -33,7 +33,7 @@ namespace Siren.Components
         /// <summary>
         /// Initializes a new instance of the CVOscillatorComponent class.
         /// </summary>
-        public CVOscillatorComponent()
+        public OscillatorComponent()
           : base("CV Oscillator", "Osc",
               "Produces an audible signal using a specific waveform type at the given pitch.",
               "Siren", "Oscillators")

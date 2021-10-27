@@ -24,6 +24,7 @@ namespace Siren.SampleProviders
         private const float TwoPI = 2f * PI;
         private float _phase;
         private float _phaseIncrement;
+        private readonly float _gain;
 
         public WaveFormat WaveFormat => _source.WaveFormat;
 
@@ -40,6 +41,7 @@ namespace Siren.SampleProviders
             _octave = octave;
             _semi = semi;
             _waveType = waveType;
+            _gain = 0.5f;
         }
 
         /// <summary>
@@ -58,6 +60,7 @@ namespace Siren.SampleProviders
                         _phaseIncrement = pitch * 2 * PI / WaveFormat.SampleRate;
 
                         buffer[offset + n] = (float)Math.Sin(_phase);
+                        buffer[offset + n] *= _gain;
 
                         _phase += _phaseIncrement;
                         while (_phase >= TwoPI) _phase -= TwoPI;
@@ -70,6 +73,7 @@ namespace Siren.SampleProviders
                         _phaseIncrement = pitch * 2 * PI / WaveFormat.SampleRate;
 
                         buffer[offset + n] = 1.0f - 2.0f * _phase / TwoPI;
+                        buffer[offset + n] *= _gain;
 
                         _phase += _phaseIncrement;
                         while (_phase >= TwoPI) _phase -= TwoPI;
@@ -83,6 +87,8 @@ namespace Siren.SampleProviders
 
                         var value = -1.0f + (2.0f * _phase / TwoPI);
                         buffer[offset + n] = 2.0f * (float)(Math.Abs(value) - 0.5);
+                        buffer[offset + n] *= _gain;
+
                         _phase += _phaseIncrement;
                         while (_phase >= TwoPI) _phase -= TwoPI;
                     }
@@ -95,6 +101,7 @@ namespace Siren.SampleProviders
 
                         if (_phase <= PI) buffer[offset + n] = 1.0f;
                         else buffer[offset + n] = -1.0f;
+                        buffer[offset + n] *= _gain;
 
                         _phase += _phaseIncrement;
                         while (_phase >= TwoPI) _phase -= TwoPI;
