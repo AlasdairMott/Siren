@@ -72,6 +72,7 @@
     <Compile Include="SampleProviders\DelayProvider.cs" />
     <Compile Include="SampleProviders\PulseProvider.cs" />
     <Compile Include="SampleProviders\SampleHoldProvider.cs" />
+    <Compile Include="SampleProviders\SawtoothProvider.cs" />
     <Compile Include="SampleProviders\VCFProvider.cs" />
     <Compile Include="SirenSettings.cs" />
     <Compile Include="Geometry\GeometryFunctions.cs" />

@@ -82,6 +82,12 @@ namespace Siren.Components
             DA.GetData(1, ref octave);
             DA.GetData(2, ref semi);
 
+            if (_waveOptions[_selectedWave].Type == SignalGeneratorType.Sin)
+            {
+                DA.SetData(0, new SampleProviders.SawtoothProvider(cvIn.ToSampleProvider(), octave, semi));
+                return;
+            }
+
             var signalGenerator = new SignalGenerator(SirenSettings.SampleRate, 1)
             {
                 Type = _waveOptions[_selectedWave].Type,
