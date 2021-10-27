@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GH_IO.Serialization;
 using Grasshopper.Kernel;
-using NAudio.Wave.SampleProviders;
+using Siren.SampleProviders;
 using Siren.Utilities;
 
 namespace Siren.Components
@@ -11,20 +11,20 @@ namespace Siren.Components
     public class CVOscillatorComponent : GH_Component
     {
         protected int _selectedWave;
-        protected List<WaveForm> _waveOptions = new List<WaveForm>()
+        protected List<WaveFormSelector> _waveOptions = new List<WaveFormSelector>()
         {
-            new WaveForm("Sin", Properties.Resources.wavef_sin, SignalGeneratorType.Sin),
-            new WaveForm("Sawtooth", Properties.Resources.wavef_saw, SignalGeneratorType.SawTooth),
-            new WaveForm("Triangle", Properties.Resources.wavef_triangle, SignalGeneratorType.Triangle),
-            new WaveForm("Square", Properties.Resources.wavef_square, SignalGeneratorType.Square)
+            new WaveFormSelector("Sin", Properties.Resources.wavef_sin, WaveType.Sin),
+            new WaveFormSelector("Sawtooth", Properties.Resources.wavef_saw, WaveType.Sawtooth),
+            new WaveFormSelector("Triangle", Properties.Resources.wavef_triangle, WaveType.Triangle),
+            new WaveFormSelector("Square", Properties.Resources.wavef_square, WaveType.Square)
         };
 
-        protected struct WaveForm
+        protected struct WaveFormSelector
         {
             public string Title { get; }
             public System.Drawing.Bitmap Icon { get; }
-            public SignalGeneratorType Type { get; }
-            public WaveForm(string title, System.Drawing.Bitmap icon, SignalGeneratorType type)
+            public WaveType Type { get; }
+            public WaveFormSelector(string title, System.Drawing.Bitmap icon, WaveType type)
             {
                 Title = title; Icon = icon; Type = type;
             }
@@ -82,20 +82,7 @@ namespace Siren.Components
             DA.GetData(1, ref octave);
             DA.GetData(2, ref semi);
 
-            if (_waveOptions[_selectedWave].Type == SignalGeneratorType.Sin)
-            {
-                DA.SetData(0, new SampleProviders.SawtoothProvider(cvIn.ToSampleProvider(), octave, semi));
-                return;
-            }
-
-            var signalGenerator = new SignalGenerator(SirenSettings.SampleRate, 1)
-            {
-                Type = _waveOptions[_selectedWave].Type,
-                Frequency = 440,
-                Gain = 0.25
-            };
-
-            var oscillator = new SampleProviders.OscillatorProvider(cvIn.ToSampleProvider(), signalGenerator, octave, semi);
+            var oscillator = new OscillatorProvider(cvIn.ToSampleProvider(), _waveOptions[_selectedWave].Type, octave, semi);
 
             DA.SetData(0, oscillator);
         }

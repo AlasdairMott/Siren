@@ -72,7 +72,7 @@
     <Compile Include="SampleProviders\DelayProvider.cs" />
     <Compile Include="SampleProviders\PulseProvider.cs" />
     <Compile Include="SampleProviders\SampleHoldProvider.cs" />
-    <Compile Include="SampleProviders\SawtoothProvider.cs" />
+    <Compile Include="SampleProviders\OscillatorProvider.cs" />
     <Compile Include="SampleProviders\VCFProvider.cs" />
     <Compile Include="SirenSettings.cs" />
     <Compile Include="Geometry\GeometryFunctions.cs" />
@@ -84,7 +84,6 @@
     <Compile Include="SirenInfo.cs" />
     <Compile Include="Audio\LPFComponent.cs" />
     <Compile Include="SampleProviders\LoopingProvider.cs" />
-    <Compile Include="SampleProviders\OscillatorProvider.cs" />
     <Compile Include="SampleProviders\NoiseGenerator.cs" />
     <Compile Include="SampleProviders\TriggeredSampleProvider.cs" />
     <Compile Include="Utilities\GH_Knob.cs" />
