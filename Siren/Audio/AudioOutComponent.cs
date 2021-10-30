@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using Grasshopper.GUI;
 using Grasshopper.GUI.Canvas;
 using Grasshopper.Kernel;
@@ -13,15 +14,12 @@ namespace Siren
 {
     public class AudioOutComponent : GH_Component
     {
-        private readonly WaveOut _waveOut;
-        private readonly MMDevice _device;
-
         public Rhino.Geometry.Interval PlayState; // Form of (currentTime, totalTime)
         public readonly int TickRate = 100; // playStateTimer duration, e.g. playhead update rate (in ms)
         public double DefaultLatency { get; private set; }
-        public ISampleProvider Wave { get; private set; }
-        public MMDevice Device => _device;
-        public WaveOut WaveOut => _waveOut;
+        public MeteringSampleProvider Wave { get; private set; }
+        public WaveOut WaveOut { get; }
+        public double Peak { get; private set; } = 0.0;
 
         /// <summary>
         /// Initializes a new instance of the AudioOutComponent class.
@@ -31,12 +29,8 @@ namespace Siren
               "Allows a signal to be played within Grasshopper.",
               "Siren", "Utilities")
         {
-            _waveOut = new WaveOut();
-
-            DefaultLatency = _waveOut.DesiredLatency / 1000f;
-
-            var enumerator = new MMDeviceEnumerator();
-            _device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
+            WaveOut = new WaveOut();
+            DefaultLatency = WaveOut.DesiredLatency / 1000f;
         }
 
         public override void CreateAttributes()
@@ -69,12 +63,12 @@ namespace Siren
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            if (_waveOut.PlaybackState == PlaybackState.Playing && PlayState != null)
+            if (WaveOut.PlaybackState == PlaybackState.Playing && PlayState != null)
             {
-                PlayState.T0 = ((double)_waveOut.GetPosition()) / _waveOut.OutputWaveFormat.AverageBytesPerSecond;
+                PlayState.T0 = ((double)WaveOut.GetPosition()) / WaveOut.OutputWaveFormat.AverageBytesPerSecond;
 
                 DA.SetData(0, PlayState);
-                DA.SetData(1, _device.AudioMeterInformation.MasterPeakValue);
+                DA.SetData(1, Peak);
 
                 OnPingDocument()?.ScheduleSolution(TickRate, TriggerPlayheadUpdate);
 
@@ -88,17 +82,22 @@ namespace Siren
             var left = CachedSound.Empty;
             var right = CachedSound.Empty;
 
+            ISampleProvider stereo;
             if (!DA.GetData(0, ref left)) return;
             if (DA.GetData(1, ref right))
             {
-                Wave = new StereoProvider(left.ToSampleProvider(), right.ToSampleProvider());
+                stereo = new StereoProvider(left.ToSampleProvider(), right.ToSampleProvider());
             }
             else
             {
-                Wave = new MonoToStereoSampleProvider(left.ToSampleProvider());
+                stereo = new MonoToStereoSampleProvider(left.ToSampleProvider());
             }
 
-            //var postVolumeMeter = new MeteringSampleProvider(left.ToSampleProvider()).;
+            if (Wave != null) { Wave.StreamVolume -= Wave_StreamVolume; } //[AM] not sure if this is necessary
+
+            var notification = (int)TimeSpan.FromMilliseconds(TickRate).TotalSeconds * stereo.WaveFormat.SampleRate * 2;
+            Wave = new MeteringSampleProvider(stereo, notification);
+            Wave.StreamVolume += Wave_StreamVolume;
 
             var time = Math.Max(left.TotalTime.TotalSeconds, right.TotalTime.TotalSeconds);
 
@@ -107,27 +106,25 @@ namespace Siren
             DA.SetData(1, 0);
         }
 
-        public void TriggerPlayheadUpdate(GH_Document gh)
-        {
-            ExpireSolution(false);
-        }
+        private void Wave_StreamVolume(object sender, StreamVolumeEventArgs e) => Peak = Math.Max(e.MaxSampleValues[0], e.MaxSampleValues[1]);
 
-        public override void AddedToDocument(GH_Document document)
-        {
-            base.AddedToDocument(document);
-        }
+        public void TriggerPlayheadUpdate(GH_Document gh) => ExpireSolution(false);
+
+        public override void AddedToDocument(GH_Document document) => base.AddedToDocument(document);
 
         public override void RemovedFromDocument(GH_Document document)
         {
+            if (Wave != null) { Wave.StreamVolume -= Wave_StreamVolume; }
+            WaveOut.Stop();
+            WaveOut.Dispose();
+
             base.RemovedFromDocument(document);
-            _waveOut.Stop();
-            _waveOut.Dispose();
         }
 
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.playback;
+        protected override Bitmap Icon => Properties.Resources.playback;
 
         /// <summary>
         /// Gets the unique ID for this component. Do not change this ID after release.
@@ -135,6 +132,35 @@ namespace Siren
         public override Guid ComponentGuid
         {
             get { return new Guid("55f99243-1902-4ae3-a1e4-b2041ac6abf1"); }
+        }
+
+        public override void AppendAdditionalMenuItems(ToolStripDropDown menu)
+        {
+            base.AppendAdditionalMenuItems(menu);
+            var m_save = new ToolStripMenuItem("Save file")
+            {
+                Enabled = (Wave != null)
+            };
+            menu.Items.Add(m_save);
+            m_save.Click += button_OnSave;
+        }
+
+        private void button_OnSave(object sender, EventArgs e)
+        {
+            var fd = new Rhino.UI.SaveFileDialog()
+            {
+                Title = "Save file",
+                DefaultExt = "wav",
+                Filter = "wav files (*.wav)|*.wav|All files (*.*)|*.*",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                FileName = "Audio"
+            };
+
+            var result = fd.ShowSaveDialog();
+            if (result)
+            {
+                WaveFileWriter.CreateWaveFile(fd.FileName, Wave.ToWaveProvider());
+            }
         }
     }
 
@@ -274,7 +300,7 @@ namespace Siren
                 {
                     rect.Y = bounds.Y + i * spacing;
 
-                    if (playing && _hasWave && _owner.Device.AudioMeterInformation.MasterPeakValue * count >= count - i - 1)
+                    if (playing && _hasWave && _owner.Peak * count >= count - i - 1)
                     {
                         graphics.FillEllipse(greenSolid, rect);
                     }
@@ -286,11 +312,6 @@ namespace Siren
                     graphics.DrawEllipse(black, rect);
                 }
             }
-
-            //if (playing && _hasWave)
-            //{
-            //    //canvas.ScheduleRegen();
-            //}
         }
 
         public override GH_ObjectResponse RespondToMouseDown(GH_Canvas sender, GH_CanvasMouseEvent e)
