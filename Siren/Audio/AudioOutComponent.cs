@@ -86,7 +86,7 @@ namespace Siren
             if (!DA.GetData(0, ref left)) return;
             if (DA.GetData(1, ref right))
             {
-                stereo = new StereoProvider(left.ToSampleProvider(), right.ToSampleProvider());
+                stereo = new StereoProvider(right.ToSampleProvider(), left.ToSampleProvider());
             }
             else
             {

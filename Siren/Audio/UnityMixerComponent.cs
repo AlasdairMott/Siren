@@ -14,7 +14,7 @@ namespace Siren.Components
         public UnityMixerComponent()
           : base("Mixer", "Mixer",
               "Additively combines multiple signals into a single signal.",
-              "Siren", "VCA")
+              "Siren", "Mixing")
         {
         }
 

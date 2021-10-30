@@ -6,7 +6,7 @@ namespace Siren.SampleProviders
     public class CachedSoundSampleProvider : ISampleProvider
     {
         private readonly CachedSound _cachedSound;
-        public long Position { get; private set; }
+        public long Position { get; set; }
         public long Length => _cachedSound.Length;
         public TimeSpan CurrentTime => TimeSpan.FromSeconds((double)Position / _cachedSound.WaveFormat.SampleRate);
         public float Level { get; private set; }

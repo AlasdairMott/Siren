@@ -61,6 +61,7 @@
     <Compile Include="Audio\PulseFromPointsComponent.cs" />
     <Compile Include="Audio\SampleHoldComponent.cs" />
     <Compile Include="Audio\SamplePlayerComponent.cs" />
+    <Compile Include="Audio\StereoPannerComponent.cs" />
     <Compile Include="Audio\StitchComponent.cs" />
     <Compile Include="Audio\TrimSampleComponent.cs" />
     <Compile Include="Audio\UnityMixerComponent.cs" />
