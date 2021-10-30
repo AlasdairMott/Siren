@@ -5,23 +5,23 @@ using Grasshopper.GUI;
 using Grasshopper.GUI.Canvas;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Attributes;
+using NAudio.CoreAudioApi;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
-using Siren.SampleProviders;
 
 namespace Siren
 {
     public class AudioOutComponent : GH_Component
     {
         private readonly WaveOut _waveOut;
+        private readonly MMDevice _device;
 
-        public bool WaveIsPlaying { get; set; }
         public Rhino.Geometry.Interval PlayState; // Form of (currentTime, totalTime)
         public readonly int TickRate = 100; // playStateTimer duration, e.g. playhead update rate (in ms)
         public double DefaultLatency { get; private set; }
-        public CachedSound Wave { get; private set; }
-        public MixingSampleProvider Mixer { get; private set; }
-        public float Volume { get; set; }
+        public ISampleProvider Wave { get; private set; }
+        public MMDevice Device => _device;
+        public WaveOut WaveOut => _waveOut;
 
         /// <summary>
         /// Initializes a new instance of the AudioOutComponent class.
@@ -32,15 +32,11 @@ namespace Siren
               "Siren", "Utilities")
         {
             _waveOut = new WaveOut();
-            Mixer = new MixingSampleProvider(WaveFormat.CreateIeeeFloatWaveFormat(SirenSettings.SampleRate, 1))
-            {
-                ReadFully = true
-            };
-            _waveOut.Init(Mixer);
+
             DefaultLatency = _waveOut.DesiredLatency / 1000f;
 
-            Wave = CachedSound.Empty;
-            Volume = 1.0f;
+            var enumerator = new MMDeviceEnumerator();
+            _device = enumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Console);
         }
 
         public override void CreateAttributes()
@@ -53,7 +49,9 @@ namespace Siren
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
+            pManager.AddParameter(new WaveStreamParameter(), "Wave Left", "L", "Left channel input", GH_ParamAccess.item);
+            pManager.AddParameter(new WaveStreamParameter(), "Wave Right", "R", "Right channel input", GH_ParamAccess.item);
+            pManager[1].Optional = true;
         }
 
         /// <summary>
@@ -71,32 +69,42 @@ namespace Siren
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            if (WaveIsPlaying && PlayState != null)
+            if (_waveOut.PlaybackState == PlaybackState.Playing && PlayState != null)
             {
-                var playingWave = (m_attributes as GH_PlayButtonAttributes).PlayingWave;
-                PlayState.T0 = playingWave.CurrentTime.TotalSeconds;
-
-                if (PlayState.T0 + 0.099 > PlayState.T1) // 99 because currentTime ~0.001 less than total
-                {
-                    WaveIsPlaying = false;
-                    PlayState.T0 = 0.0;
-                }
-                else
-                    OnPingDocument()?.ScheduleSolution(TickRate, TriggerPlayheadUpdate);
+                PlayState.T0 = ((double)_waveOut.GetPosition()) / _waveOut.OutputWaveFormat.AverageBytesPerSecond;
 
                 DA.SetData(0, PlayState);
-                DA.SetData(1, playingWave.Level);
+                DA.SetData(1, _device.AudioMeterInformation.MasterPeakValue);
+
+                OnPingDocument()?.ScheduleSolution(TickRate, TriggerPlayheadUpdate);
 
                 return; // Skip rest of solve
             }
+            else
+            {
+                PlayState.T0 = 0.0;
+            }
 
-            var waveIn = CachedSound.Empty;
-            if (!DA.GetData(0, ref waveIn)) return;
+            var left = CachedSound.Empty;
+            var right = CachedSound.Empty;
 
-            Wave = waveIn;
+            if (!DA.GetData(0, ref left)) return;
+            if (DA.GetData(1, ref right))
+            {
+                Wave = new StereoProvider(left.ToSampleProvider(), right.ToSampleProvider());
+            }
+            else
+            {
+                Wave = new MonoToStereoSampleProvider(left.ToSampleProvider());
+            }
 
-            PlayState = new Rhino.Geometry.Interval(0.0, (double)waveIn.Length / waveIn.WaveFormat.SampleRate);
+            //var postVolumeMeter = new MeteringSampleProvider(left.ToSampleProvider()).;
+
+            var time = Math.Max(left.TotalTime.TotalSeconds, right.TotalTime.TotalSeconds);
+
+            PlayState = new Rhino.Geometry.Interval(0.0, time);
             DA.SetData(0, PlayState);
+            DA.SetData(1, 0);
         }
 
         public void TriggerPlayheadUpdate(GH_Document gh)
@@ -107,7 +115,6 @@ namespace Siren
         public override void AddedToDocument(GH_Document document)
         {
             base.AddedToDocument(document);
-            _waveOut.Play();
         }
 
         public override void RemovedFromDocument(GH_Document document)
@@ -139,8 +146,7 @@ namespace Siren
         private Rectangle _playButtonBounds; // Triggers click
         private readonly AudioOutComponent _owner;
         private bool _clicked = false;
-
-        public CachedSoundSampleProvider PlayingWave { get; private set; }
+        private bool _hasWave = false;
 
         public GH_PlayButtonAttributes(AudioOutComponent owner) : base(owner)
         {
@@ -186,7 +192,7 @@ namespace Siren
             button.Render(graphics, Selected, Owner.Locked, false);
             button.Dispose();
 
-            if (!_owner.WaveIsPlaying)
+            if (_owner.WaveOut.PlaybackState != PlaybackState.Playing)
                 DrawPlayTriangle(graphics, _playButtonBounds);
             else
                 DrawStopSquare(graphics, _playButtonBounds);
@@ -254,6 +260,8 @@ namespace Siren
 
         private void DrawLevel(GH_Canvas canvas, Graphics graphics, RectangleF bounds)
         {
+            var playing = _owner.WaveOut.PlaybackState == PlaybackState.Playing;
+
             using (var black = new Pen(Color.FromArgb(160, 0, 0, 0), 0.8f))
             using (var blackSolid = new SolidBrush(Color.FromArgb(120, 0, 0, 0)))
             using (var greenSolid = new SolidBrush(Color.FromArgb(255, 52, 209, 76)))
@@ -266,7 +274,7 @@ namespace Siren
                 {
                     rect.Y = bounds.Y + i * spacing;
 
-                    if (_owner.WaveIsPlaying && PlayingWave != null && PlayingWave.Level * count >= count - i - 1)
+                    if (playing && _hasWave && _owner.Device.AudioMeterInformation.MasterPeakValue * count >= count - i - 1)
                     {
                         graphics.FillEllipse(greenSolid, rect);
                     }
@@ -279,10 +287,10 @@ namespace Siren
                 }
             }
 
-            if (_owner.WaveIsPlaying && PlayingWave != null)
-            {
-                canvas.ScheduleRegen(10);
-            }
+            //if (playing && _hasWave)
+            //{
+            //    //canvas.ScheduleRegen();
+            //}
         }
 
         public override GH_ObjectResponse RespondToMouseDown(GH_Canvas sender, GH_CanvasMouseEvent e)
@@ -292,19 +300,22 @@ namespace Siren
             {
                 _clicked = true;
 
-                if (!_owner.WaveIsPlaying) // Start playing
+                if (_owner.WaveOut.PlaybackState != PlaybackState.Playing) // Start playing
                 {
-                    PlayingWave = _owner.Wave.ToSampleProvider();
-                    _owner.Mixer.AddMixerInput(PlayingWave);
+                    if (_owner.Wave == null) { return GH_ObjectResponse.Handled; }
+
+                    _hasWave = true;
+
+                    _owner.WaveOut.Init(_owner.Wave);
+                    _owner.WaveOut.Play();
 
                     _owner.PlayState.T0 = _owner.DefaultLatency;
-                    _owner.WaveIsPlaying = true;
                     _owner.OnPingDocument()?.ScheduleSolution(_owner.TickRate, _owner.TriggerPlayheadUpdate);
+
                 }
                 else // Stop playing
                 {
-                    _owner.WaveIsPlaying = false;
-                    _owner.Mixer.RemoveAllMixerInputs();
+                    _owner.WaveOut.Stop();
                 }
 
                 ExpireLayout();

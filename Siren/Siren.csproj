@@ -73,6 +73,7 @@
     <Compile Include="SampleProviders\PulseProvider.cs" />
     <Compile Include="SampleProviders\SampleHoldProvider.cs" />
     <Compile Include="SampleProviders\OscillatorProvider.cs" />
+    <Compile Include="SampleProviders\StereoProvider.cs" />
     <Compile Include="SampleProviders\VCFProvider.cs" />
     <Compile Include="SirenSettings.cs" />
     <Compile Include="Geometry\GeometryFunctions.cs" />
