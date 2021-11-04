@@ -55,6 +55,7 @@
     <Compile Include="Audio\CVFromGeometryComponent.cs" />
     <Compile Include="Audio\CVQuantizerComponent.cs" />
     <Compile Include="Audio\DelayComponent.cs" />
+    <Compile Include="Audio\FMOscillatorComponent.cs" />
     <Compile Include="Audio\NoiseComponent.cs" />
     <Compile Include="Audio\OscillatorComponent.cs" />
     <Compile Include="Audio\ProjectSettingsComponent.cs" />
@@ -70,6 +71,7 @@
     <Compile Include="SampleProviders\CachedSoundProvider.cs" />
     <Compile Include="SampleProviders\ConvolutionProvider.cs" />
     <Compile Include="SampleProviders\DelayProvider.cs" />
+    <Compile Include="SampleProviders\FMOscillatorProvider.cs" />
     <Compile Include="SampleProviders\PulseProvider.cs" />
     <Compile Include="SampleProviders\SampleHoldProvider.cs" />
     <Compile Include="SampleProviders\OscillatorProvider.cs" />
@@ -219,6 +221,9 @@
     <PackageReference Include="RhinoWindows">
       <Version>6.35.21222.17001</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\fm.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
