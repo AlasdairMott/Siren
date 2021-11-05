@@ -26,6 +26,7 @@ namespace Siren.Audio
             pManager.AddParameter(new WaveStreamParameter(), "OP-Depth", "Dp", "Operator depth", GH_ParamAccess.item);
             pManager.AddParameter(new WaveStreamParameter(), "Operator", "OP", "Operator wave", GH_ParamAccess.item);
 
+            pManager[1].Optional = true;
             pManager[2].Optional = true;
         }
 
@@ -47,24 +48,25 @@ namespace Siren.Audio
             if (!DA.GetData(0, ref cvIn)) return;
 
             var opDepthIn = CachedSound.Empty;
-            if (!DA.GetData(1, ref opDepthIn)) return;
+            if (!DA.GetData(1, ref opDepthIn))
+            {
+                opDepthIn = new CachedSound(SampleProviders.SignalGenerator.CreateSilence(cvIn.TotalTime));
+            }
 
-            ISampleProvider fmOsc;
+            ISampleProvider op;
             var operatorIn = CachedSound.Empty;
             if (!DA.GetData(2, ref operatorIn)){
-                var silenceProvider = new SilenceProvider(cvIn.WaveFormat);
-                var silence = new OffsetSampleProvider(silenceProvider.ToSampleProvider());
-                silence.Take(cvIn.TotalTime);
+                var silence = SampleProviders.SignalGenerator.CreateSilence(cvIn.TotalTime);
 
                 var feedbackOperator = new SampleProviders.FMOscillatorProvider(cvIn.ToSampleProvider(), silence, opDepthIn.ToSampleProvider());
-                fmOsc = new SampleProviders.FMOscillatorProvider(cvIn.ToSampleProvider(), feedbackOperator, opDepthIn.ToSampleProvider());
+                op = new SampleProviders.FMOscillatorProvider(cvIn.ToSampleProvider(), feedbackOperator, opDepthIn.ToSampleProvider());
             }
             else
             {
-                fmOsc = new SampleProviders.FMOscillatorProvider(cvIn.ToSampleProvider(), operatorIn.ToSampleProvider(), opDepthIn.ToSampleProvider());
+                op = new SampleProviders.FMOscillatorProvider(cvIn.ToSampleProvider(), operatorIn.ToSampleProvider(), opDepthIn.ToSampleProvider());
             }
 
-            DA.SetData(0, fmOsc);
+            DA.SetData(0, op);
         }
 
         /// <summary>

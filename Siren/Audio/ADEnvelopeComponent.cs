@@ -24,6 +24,9 @@ namespace Siren.Audio
             pManager.AddNumberParameter("Attack", "A", "Attack", GH_ParamAccess.item);
             pManager.AddNumberParameter("Decay", "D", "Decay", GH_ParamAccess.item);
             pManager.AddNumberParameter("Exponent", "E", "Exponent (> 0)", GH_ParamAccess.item);
+
+            pManager[1].Optional = true;
+            pManager[2].Optional = true;
             pManager[3].Optional = true;
         }
 
@@ -44,13 +47,15 @@ namespace Siren.Audio
             var waveIn = CachedSound.Empty;
             if (!DA.GetData(0, ref waveIn)) return;
 
-            var attack = 1.0;
+            var attack = 0.0;
+            DA.GetData(1, ref attack);
+            if (attack < 0) return;
+
             var decay = 1.0;
-            var exponent = 1.0;
-            if (!DA.GetData(1, ref attack)) return;
-            else if (attack < 0) return;
-            if (!DA.GetData(2, ref decay)) return;
-            else if (decay < 0) return;
+            DA.GetData(2, ref decay);
+            if (decay < 0) return;
+
+            var exponent = 2.0;
             DA.GetData(3, ref exponent);
             if (exponent <= 0) return;
 
