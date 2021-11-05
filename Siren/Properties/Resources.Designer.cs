@@ -183,6 +183,16 @@ namespace Siren.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap offset {
+            get {
+                object obj = ResourceManager.GetObject("offset", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap playback {
             get {
                 object obj = ResourceManager.GetObject("playback", resourceCulture);
@@ -276,6 +286,16 @@ namespace Siren.Properties {
         internal static System.Drawing.Bitmap settings {
             get {
                 object obj = ResourceManager.GetObject("settings", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap silence {
+            get {
+                object obj = ResourceManager.GetObject("silence", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

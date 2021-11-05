@@ -53,6 +53,7 @@
     <Compile Include="Audio\AttenuverterComponent.cs" />
     <Compile Include="Audio\ConvolutionComponent.cs" />
     <Compile Include="Audio\CVFromGeometryComponent.cs" />
+    <Compile Include="Audio\CVPitchOffsetComponent.cs" />
     <Compile Include="Audio\CVQuantizerComponent.cs" />
     <Compile Include="Audio\DelayComponent.cs" />
     <Compile Include="Audio\FMOscillatorComponent.cs" />
@@ -62,6 +63,7 @@
     <Compile Include="Audio\PulseFromPointsComponent.cs" />
     <Compile Include="Audio\SampleHoldComponent.cs" />
     <Compile Include="Audio\SamplePlayerComponent.cs" />
+    <Compile Include="Audio\SlienceComponent.cs" />
     <Compile Include="Audio\StitchComponent.cs" />
     <Compile Include="Audio\TrimSampleComponent.cs" />
     <Compile Include="Audio\UnityMixerComponent.cs" />
@@ -87,7 +89,7 @@
     <Compile Include="SirenInfo.cs" />
     <Compile Include="Audio\LPFComponent.cs" />
     <Compile Include="SampleProviders\LoopingProvider.cs" />
-    <Compile Include="SampleProviders\NoiseGenerator.cs" />
+    <Compile Include="SampleProviders\SignalGenerator.cs" />
     <Compile Include="SampleProviders\TriggeredSampleProvider.cs" />
     <Compile Include="Utilities\GH_Knob.cs" />
     <Compile Include="Utilities\GH_KnobAttributes.cs" />
@@ -224,6 +226,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\fm.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\offset.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\silence.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
