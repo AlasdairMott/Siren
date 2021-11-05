@@ -16,7 +16,7 @@ namespace Siren.Audio
         /// </summary>
         public NoiseComponent()
           : base("Noise", "Noise",
-              "Produces a signal comprised of random pitches.",
+              "Produces a signal comprised of random frequencies.",
               "Siren", "Oscillators")
         {
             _noisetype = "White";
@@ -44,7 +44,6 @@ namespace Siren.Audio
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
-            int sampleRate = SirenSettings.SampleRate;
             double duration = 0.5;
             if (!DA.GetData(0, ref duration)) return;
 
@@ -55,7 +54,7 @@ namespace Siren.Audio
                 case "Pink": type = SignalGeneratorType.Pink; break;
                 default: throw new ArgumentOutOfRangeException("wavetype not valid");
             }
-            var noise = SampleProviders.NoiseGenerator.Oscillator(440, duration * 2, type);
+            var noise = SampleProviders.SignalGenerator.CreateNoise(TimeSpan.FromSeconds(duration), type);
 
             DA.SetData(0, noise);
         }
