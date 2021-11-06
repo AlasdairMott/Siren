@@ -12,10 +12,15 @@ Modular synthesizer for Grasshopper. Siren is built using [Naudio](https://githu
 
 - Create control voltage (CV) from geometry
 - Convert audio to geometry, convert geometry to audio.
-- voltage controlled sin, sawtooth, square and triangle core oscillators.
-- voltage controlled multimode filter
-- voltage controlled attenator
+- Sin, sawtooth, square, triangle and noise oscillators.
+- FM synthesis
+- Voltage controlled low pass filter
+- Voltage controlled attenator
+- Sample and hold
+- Quantization
+- Convolution reverb and delay
 - Import and trigger samples
+- Join and trim samples
 - Preview sounds within grasshopper and export to wav.
 
 ![grasshopper example](https://github.com/AlasdairMott/Siren/blob/develop/documentation/siren.jpg)
