@@ -121,6 +121,9 @@
   <data name="AD" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\AD.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="addition" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\addition.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="attenuverter" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\attenuverter.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -150,6 +153,9 @@
   </data>
   <data name="mixer" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\mixer.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="multiplication" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\multiplication.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="noise" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\noise.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

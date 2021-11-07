@@ -73,6 +73,16 @@ namespace Siren.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap addition {
+            get {
+                object obj = ResourceManager.GetObject("addition", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap attenuverter {
             get {
                 object obj = ResourceManager.GetObject("attenuverter", resourceCulture);
@@ -166,6 +176,16 @@ namespace Siren.Properties {
         internal static System.Drawing.Bitmap mixer {
             get {
                 object obj = ResourceManager.GetObject("mixer", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap multiplication {
+            get {
+                object obj = ResourceManager.GetObject("multiplication", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -21,10 +21,10 @@ namespace Siren
         {
             Value = CachedSound.Empty;
         }
-        public CachedSoundGoo(CachedSound stream)
+        public CachedSoundGoo(CachedSound cachedSound)
         {
-            if (stream == null) stream = CachedSound.Empty;
-            Value = stream;
+            if (cachedSound == null) cachedSound = CachedSound.Empty;
+            Value = cachedSound;
         }
 
         #region casting methods
@@ -83,6 +83,9 @@ namespace Siren
 
     public class WaveStreamParameter : GH_PersistentParam<CachedSoundGoo>
     {
+        private float _gain = 1.0f;
+        private float _offset = 0.0f;
+
         public WaveStreamParameter()
             : base(new GH_InstanceDescription(
                 "Wave",
@@ -96,18 +99,73 @@ namespace Siren
 
         public override Guid ComponentGuid => new Guid("08a1577a-7dff-4163-a2c9-2dbd928626c4");
 
+        protected override void OnVolatileDataCollected()
+        {
+            base.OnVolatileDataCollected();
+            if (_gain == 1.0 && _offset == 0.0) return;
+            ModifyGoo();
+        }
+
+        private void ModifyGoo()
+        {
+            var modified = new Grasshopper.Kernel.Data.GH_Structure<CachedSoundGoo>();
+            foreach (CachedSoundGoo w in m_data)
+            {
+                var value = new SampleProviders.AttenuverterProvider(w.Value.ToSampleProvider(), _gain, _offset);
+                var cachedSound = new CachedSound(value);
+                modified.Append(new CachedSoundGoo(cachedSound));
+            }
+            m_data = modified;
+        }
+
+        protected override void Menu_AppendPromptOne(ToolStripDropDown menu) { }
+        protected override void Menu_AppendPromptMore(ToolStripDropDown menu) { }
+        protected override void Menu_AppendManageCollection(ToolStripDropDown menu) { }
         public override void AppendAdditionalMenuItems(ToolStripDropDown menu)
         {
             base.AppendAdditionalMenuItems(menu);
-            var m_save = new ToolStripMenuItem("Save file")
-            {
-                Enabled = m_data.Count() > 0
-            };
-            menu.Items.Add(m_save);
-            m_save.Click += button_OnSave;
-        }
 
-        private void button_OnSave(object sender, EventArgs e)
+            Menu_AppendSeparator(menu);
+
+            var enabled = m_data.Count() > 0;
+            var saveButton = Menu_AppendItem(menu, "Save File", OnSave, enabled);
+
+            if (enabled)
+            {
+                var gainTextBox = new ToolStripTextBox("Expression") { Text = _gain.ToString() };
+                var gainDropdown = new ToolStripMenuItem("Gain", Properties.Resources.multiplication) { Enabled = enabled };
+                gainDropdown.DropDownItems.Add(gainTextBox);
+                gainDropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24, OnGain);
+                gainDropdown.DropDownItems.Add("Cancel Changes", Grasshopper.Plugin.GH_ResourceGate.Error_24x24);
+                menu.Items.Add(gainDropdown);
+
+                var offsetTextBox = new ToolStripTextBox("Expression") { Text = _offset.ToString() };
+                var offsetDropdown = new ToolStripMenuItem("Offset", Properties.Resources.addition) { Enabled = enabled };
+                offsetDropdown.DropDownItems.Add(offsetTextBox);
+                offsetDropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24, OnOffset);
+                offsetDropdown.DropDownItems.Add("Cancel Changes", Grasshopper.Plugin.GH_ResourceGate.Error_24x24);
+                menu.Items.Add(offsetDropdown);
+            }
+        }
+        private void OnGain(object sender, EventArgs e)
+        {
+            var text = (sender as ToolStripMenuItem).Owner.Items[0].Text;
+            if (GH_Convert.ToDouble(text, out double gain, GH_Conversion.Both))
+            {
+                _gain = (float)gain;
+                ExpireSolution(true);
+            }
+        }
+        private void OnOffset(object sender, EventArgs e)
+        {
+            var text = (sender as ToolStripMenuItem).Owner.Items[0].Text;
+            if (GH_Convert.ToDouble(text, out double offset, GH_Conversion.Both))
+            {
+                _offset = (float)offset;
+                ExpireSolution(true);
+            }
+        }
+        private void OnSave(object sender, EventArgs e)
         {
             var fd = new Rhino.UI.SaveFileDialog()
             {
@@ -126,16 +184,25 @@ namespace Siren
                 goo.Value.SaveToFile(fd.FileName);
             }
         }
+        protected override GH_GetterResult Prompt_Singular(ref CachedSoundGoo value) => GH_GetterResult.cancel;
 
-        protected override GH_GetterResult Prompt_Singular(ref CachedSoundGoo value)
+        protected override GH_GetterResult Prompt_Plural(ref List<CachedSoundGoo> values) => GH_GetterResult.cancel;
+
+        public override bool Write(GH_IWriter writer)
         {
-            //create cv from curve using default settings
-            throw new NotImplementedException();
+            writer.SetDouble("gain", _gain);
+            writer.SetDouble("offset", _offset);
+            return base.Write(writer);
         }
 
-        protected override GH_GetterResult Prompt_Plural(ref List<CachedSoundGoo> values)
+        public override bool Read(GH_IReader reader)
         {
-            throw new NotImplementedException();
+            double gain, offset;
+            gain = offset = 0.0;
+            if (reader.TryGetDouble("gain", ref gain)) _gain = (float)gain;
+            if (reader.TryGetDouble("offset", ref offset)) _offset = (float)offset;
+
+            return base.Read(reader);
         }
     }
 }
