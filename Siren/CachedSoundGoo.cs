@@ -13,9 +13,9 @@ namespace Siren
     {
         public override bool IsValid => Value.Length > 0;
 
-        public override string TypeName => "Cached Sound Goo" + Value.GetType().ToString();
+        public override string TypeName => "Sound";
 
-        public override string TypeDescription => "Siren Audio data" + Value.WaveFormat.ToString();
+        public override string TypeDescription => "Siren Audio data";
 
         public CachedSoundGoo()
         {
@@ -25,6 +25,10 @@ namespace Siren
         {
             if (cachedSound == null) cachedSound = CachedSound.Empty;
             Value = cachedSound;
+        }
+        public CachedSoundGoo(ISampleProvider sampleProvider)
+        {
+            Value = new CachedSound(sampleProvider);
         }
 
         #region casting methods
@@ -112,14 +116,11 @@ namespace Siren
             foreach (CachedSoundGoo w in m_data)
             {
                 var value = new SampleProviders.AttenuverterProvider(w.Value.ToSampleProvider(), _gain, _offset);
-                var cachedSound = new CachedSound(value);
-                modified.Append(new CachedSoundGoo(cachedSound));
+                modified.Append(new CachedSoundGoo(value));
             }
             m_data = modified;
         }
 
-        protected override void Menu_AppendPromptOne(ToolStripDropDown menu) { }
-        protected override void Menu_AppendPromptMore(ToolStripDropDown menu) { }
         protected override void Menu_AppendManageCollection(ToolStripDropDown menu) { }
         public override void AppendAdditionalMenuItems(ToolStripDropDown menu)
         {
@@ -172,7 +173,6 @@ namespace Siren
                 Title = "Save file",
                 DefaultExt = "wav",
                 Filter = "wav files (*.wav)|*.wav|All files (*.*)|*.*",
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 FileName = "Audio"
             };
 
@@ -184,10 +184,60 @@ namespace Siren
                 goo.Value.SaveToFile(fd.FileName);
             }
         }
-        protected override GH_GetterResult Prompt_Singular(ref CachedSoundGoo value) => GH_GetterResult.cancel;
 
-        protected override GH_GetterResult Prompt_Plural(ref List<CachedSoundGoo> values) => GH_GetterResult.cancel;
+        private OpenFileDialog GH_OpenFileDialog(bool multiselect)
+        {
+            return new OpenFileDialog()
+            {
+                Title = "Open file",
+                DefaultExt = ".wav",
+                Filter = "wav files (*.wav)|*.wav|All files (*.*)|*.*",
+                Multiselect = multiselect
+            };
+        }
+        protected override GH_GetterResult Prompt_Singular(ref CachedSoundGoo value)
+        {
+            var fd = GH_OpenFileDialog(false);
+            var result = fd.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                try
+                {
+                    var audioFile = new AudioFileReader(fd.FileName);
+                    value = new CachedSoundGoo(audioFile.ToSampleProvider());
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+                return GH_GetterResult.success;
+            }
+            else return GH_GetterResult.cancel;
+        }
 
+        protected override GH_GetterResult Prompt_Plural(ref List<CachedSoundGoo> values)
+        {
+            values = new List<CachedSoundGoo>();
+
+            var fd = GH_OpenFileDialog(true);
+            var result = fd.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                foreach (var filename in fd.FileNames)
+                {
+                    try
+                    {
+                        var audioFile = new AudioFileReader(filename);
+                        values.Add(new CachedSoundGoo(audioFile.ToSampleProvider()));
+                    }
+                    catch (Exception e)
+                    {
+                    }
+                }
+                return GH_GetterResult.success;
+            }
+            else return GH_GetterResult.cancel;
+        }
         public override bool Write(GH_IWriter writer)
         {
             writer.SetDouble("gain", _gain);
