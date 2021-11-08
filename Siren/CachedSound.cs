@@ -50,23 +50,44 @@ namespace Siren
 
             AudioData = buffer.ToArray();
         }
-
-        public CachedSound(float[] data, WaveFormat waveFormat)
+        public CachedSound(float[] audioData, WaveFormat waveFormat)
         {
-            throw new NotImplementedException();
+            Length = audioData.Length;
+            WaveFormat = waveFormat;
+            AudioData = new float[Length];
+            audioData.CopyTo(AudioData, 0);
         }
-
-        public CachedSound(CachedSound other)
+        public CachedSound(CachedSound other) : this(other.AudioData, other.WaveFormat)
         {
-            AudioData = new float[other.AudioData.Length];
-            other.AudioData.CopyTo(AudioData, 0);
-            WaveFormat = other.WaveFormat;
-            Length = other.Length;
         }
+        public static CachedSound Stretch(CachedSound cachedSound, float speed)
+        {
+            if (speed == 0) throw new ArgumentOutOfRangeException("speed", "Speed cannot equal 0");
 
+            var length = (int)Math.Floor(cachedSound.Length * (1 / speed));
+            var audioData = new float[length];
+
+            for (var n = 0; n < length; n++)
+            {
+                var position = n * speed;
+
+                int index_1 = (int)Math.Floor(position);
+                if (index_1 >= cachedSound.Length - 2) break;
+                int index_2 = (int)Math.Ceiling(position);
+                var p = position - Math.Truncate(position);
+
+                var sample_1 = cachedSound.AudioData[index_1];
+                var sample_2 = cachedSound.AudioData[index_2];
+                var lerpedSample = SirenUtilities.Lerp(sample_1, sample_2, (float)p);
+
+                audioData[n] = lerpedSample;
+            }
+
+            return new CachedSound(audioData, cachedSound.WaveFormat);
+        }
         public CachedSoundSampleProvider ToSampleProvider() => new CachedSoundSampleProvider(this);
 
-        public CachedSound Clone() { return new CachedSound(this); }
+        public CachedSound Clone() => new CachedSound(this);
 
         object ICloneable.Clone() => Clone();
 
