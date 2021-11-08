@@ -20,8 +20,8 @@ namespace Siren
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
-            pManager.AddParameter(new WaveStreamParameter(), "Frequency CV", "f", "Frequency CV", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "Frequency CV", "f", "Frequency CV", GH_ParamAccess.item);
             pManager.AddNumberParameter("Cutoff Frequency", "F", "Cutoff Frequency", GH_ParamAccess.item);
             pManager.AddNumberParameter("Frequency CV amount", "cv", "Frequency CV amount", GH_ParamAccess.item);
             pManager.AddNumberParameter("Resonance", "Q", "Resonance", GH_ParamAccess.item);
@@ -37,7 +37,7 @@ namespace Siren
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
         }
 
         /// <summary>

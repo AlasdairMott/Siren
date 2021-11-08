@@ -85,12 +85,12 @@ namespace Siren
         }
     }
 
-    public class WaveStreamParameter : GH_PersistentParam<CachedSoundGoo>
+    public class CachedSoundParameter : GH_PersistentParam<CachedSoundGoo>
     {
         private float _gain = 1.0f;
         private float _offset = 0.0f;
 
-        public WaveStreamParameter()
+        public CachedSoundParameter()
             : base(new GH_InstanceDescription(
                 "Wave",
                 "W",
@@ -115,7 +115,8 @@ namespace Siren
             var modified = new Grasshopper.Kernel.Data.GH_Structure<CachedSoundGoo>();
             foreach (CachedSoundGoo w in m_data)
             {
-                var value = new SampleProviders.AttenuverterProvider(w.Value.ToSampleProvider(), _gain, _offset);
+                //var value = new SampleProviders.AttenuverterProvider(w.Value.ToSampleProvider(), _gain, _offset);
+                var value = CachedSound.Stretch(w.Value, _gain);
                 modified.Append(new CachedSoundGoo(value));
             }
             m_data = modified;
@@ -131,22 +132,20 @@ namespace Siren
             var enabled = m_data.Count() > 0;
             var saveButton = Menu_AppendItem(menu, "Save File", OnSave, enabled);
 
-            if (enabled)
-            {
-                var gainTextBox = new ToolStripTextBox("Expression") { Text = _gain.ToString() };
-                var gainDropdown = new ToolStripMenuItem("Gain", Properties.Resources.multiplication) { Enabled = enabled };
-                gainDropdown.DropDownItems.Add(gainTextBox);
-                gainDropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24, OnGain);
-                gainDropdown.DropDownItems.Add("Cancel Changes", Grasshopper.Plugin.GH_ResourceGate.Error_24x24);
-                menu.Items.Add(gainDropdown);
+            var gainTextBox = new ToolStripTextBox("Expression") { Text = _gain.ToString() };
+            var gainDropdown = new ToolStripMenuItem("Gain", Properties.Resources.multiplication) { Enabled = enabled };
+            gainDropdown.DropDownItems.Add(gainTextBox);
+            gainDropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24, OnGain);
+            gainDropdown.DropDownItems.Add("Cancel Changes", Grasshopper.Plugin.GH_ResourceGate.Error_24x24);
+            menu.Items.Add(gainDropdown);
 
-                var offsetTextBox = new ToolStripTextBox("Expression") { Text = _offset.ToString() };
-                var offsetDropdown = new ToolStripMenuItem("Offset", Properties.Resources.addition) { Enabled = enabled };
-                offsetDropdown.DropDownItems.Add(offsetTextBox);
-                offsetDropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24, OnOffset);
-                offsetDropdown.DropDownItems.Add("Cancel Changes", Grasshopper.Plugin.GH_ResourceGate.Error_24x24);
-                menu.Items.Add(offsetDropdown);
-            }
+            var offsetTextBox = new ToolStripTextBox("Expression") { Text = _offset.ToString() };
+            var offsetDropdown = new ToolStripMenuItem("Offset", Properties.Resources.addition) { Enabled = enabled };
+            offsetDropdown.DropDownItems.Add(offsetTextBox);
+            offsetDropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24, OnOffset);
+            offsetDropdown.DropDownItems.Add("Cancel Changes", Grasshopper.Plugin.GH_ResourceGate.Error_24x24);
+            menu.Items.Add(offsetDropdown);
+
         }
         private void OnGain(object sender, EventArgs e)
         {
@@ -208,7 +207,6 @@ namespace Siren
                 }
                 catch (Exception e)
                 {
-                    throw e;
                 }
                 return GH_GetterResult.success;
             }
@@ -253,6 +251,13 @@ namespace Siren
             if (reader.TryGetDouble("offset", ref offset)) _offset = (float)offset;
 
             return base.Read(reader);
+        }
+
+        public override void RemoveEffects()
+        {
+            base.RemoveEffects();
+            _gain = 1.0f;
+            _offset = 0.0f;
         }
     }
 }

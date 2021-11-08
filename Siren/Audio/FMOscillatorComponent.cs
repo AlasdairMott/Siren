@@ -22,9 +22,9 @@ namespace Siren.Audio
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new WaveStreamParameter(), "Frequency", "F", "Frequency of the note", GH_ParamAccess.item);
-            pManager.AddParameter(new WaveStreamParameter(), "OP-Depth", "Dp", "Operator depth", GH_ParamAccess.item);
-            pManager.AddParameter(new WaveStreamParameter(), "Operator", "OP", "Operator wave", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "Frequency", "F", "Frequency of the note", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "OP-Depth", "Dp", "Operator depth", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "Operator", "OP", "Operator wave", GH_ParamAccess.item);
 
             pManager[1].Optional = true;
             pManager[2].Optional = true;
@@ -35,7 +35,7 @@ namespace Siren.Audio
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
         }
 
         /// <summary>
