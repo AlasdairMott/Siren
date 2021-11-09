@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using GH_IO.Serialization;
@@ -13,6 +14,9 @@ namespace Siren
         private float _gain = 1.0f;
         private float _offset = 0.0f;
 
+        public float Gain => _gain;
+        public float Offset => _offset;
+
         public CachedSoundParameter()
             : base(new GH_InstanceDescription(
                 "Wave",
@@ -20,16 +24,26 @@ namespace Siren
                 "Audio wave",
                 "Siren",
                 "Utilities"))
-        { }
+        {
+        }
 
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.wave;
+        protected override Bitmap Icon => Properties.Resources.wave;
 
         public override Guid ComponentGuid => new Guid("08a1577a-7dff-4163-a2c9-2dbd928626c4");
+
+        public override void CreateAttributes()
+        {
+            m_attributes = new CachedSoundAttributes(this);
+        }
 
         protected override void OnVolatileDataCollected()
         {
             base.OnVolatileDataCollected();
-            if (_gain == 1.0 && _offset == 0.0) return;
+            if (_gain == 1.0 && _offset == 0.0)
+            {
+                StateTags.RemoveAll(t => t.GetType() == typeof(EffectsAppliedTag));
+                return;
+            }
             ModifyGoo();
         }
 
@@ -43,6 +57,9 @@ namespace Siren
                 modified.Append(new CachedSoundGoo(value));
             }
             m_data = modified;
+
+            var tag = new EffectsAppliedTag(this);
+            StateTags.Add(tag);
         }
 
         protected override void Menu_AppendManageCollection(ToolStripDropDown menu) { }
@@ -50,10 +67,7 @@ namespace Siren
         {
             base.AppendAdditionalMenuItems(menu);
 
-            Menu_AppendSeparator(menu);
-
             var enabled = m_data.Count() > 0;
-            var saveButton = Menu_AppendItem(menu, "Save File", OnSave, enabled);
 
             var gainTextBox = new ToolStripTextBox("Expression") { Text = _gain.ToString() };
             var gainDropdown = new ToolStripMenuItem("Gain", Properties.Resources.multiplication) { Enabled = enabled };
@@ -69,6 +83,8 @@ namespace Siren
             offsetDropdown.DropDownItems.Add("Cancel Changes", Grasshopper.Plugin.GH_ResourceGate.Error_24x24);
             menu.Items.Add(offsetDropdown);
 
+            Menu_AppendSeparator(menu);
+            var saveButton = Menu_AppendItem(menu, "Save File", OnSave, enabled);
         }
         private void OnGain(object sender, EventArgs e)
         {
@@ -181,6 +197,35 @@ namespace Siren
             base.RemoveEffects();
             _gain = 1.0f;
             _offset = 0.0f;
+        }
+    }
+
+    public class EffectsAppliedTag : IGH_StateTag
+    {
+        private readonly CachedSoundParameter _owner;
+
+        public Bitmap Icon => Properties.Resources.multiplication;
+        public string Name => "Effects";
+        public string Description => "Effects are applied";
+        public Rectangle Stage
+        {
+            get
+            {
+                var rectangle = _owner.Attributes.Bounds;
+                return Rectangle.Round(rectangle);
+            }
+            set => throw new NotImplementedException();
+        }
+        string IGH_StateTag.StateDescription { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public EffectsAppliedTag(CachedSoundParameter owner)
+        {
+            _owner = owner;
+        }
+
+        public void Render(Graphics graphics)
+        {
+            graphics.DrawImage(Icon, Stage);
         }
     }
 }
