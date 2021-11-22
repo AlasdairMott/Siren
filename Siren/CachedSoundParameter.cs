@@ -14,8 +14,7 @@ namespace Siren
         private float _gain = 1.0f;
         private float _offset = 0.0f;
 
-        public float Gain => _gain;
-        public float Offset => _offset;
+        public bool Modified => _gain != 1.0 || _offset != 0.0;
 
         public CachedSoundParameter()
             : base(new GH_InstanceDescription(
@@ -39,12 +38,7 @@ namespace Siren
         protected override void OnVolatileDataCollected()
         {
             base.OnVolatileDataCollected();
-            if (_gain == 1.0 && _offset == 0.0)
-            {
-                StateTags.RemoveAll(t => t.GetType() == typeof(EffectsAppliedTag));
-                return;
-            }
-            ModifyGoo();
+            if (Modified) ModifyGoo();
         }
 
         private void ModifyGoo()
@@ -58,8 +52,10 @@ namespace Siren
             }
             m_data = modified;
 
-            var tag = new EffectsAppliedTag(this);
-            StateTags.Add(tag);
+            var effect = new EffectsAppliedTag(this);
+            StateTags.Add(effect);
+
+           
         }
 
         protected override void Menu_AppendManageCollection(ToolStripDropDown menu) { }
@@ -67,24 +63,22 @@ namespace Siren
         {
             base.AppendAdditionalMenuItems(menu);
 
-            var enabled = m_data.Count() > 0;
-
             var gainTextBox = new ToolStripTextBox("Expression") { Text = _gain.ToString() };
-            var gainDropdown = new ToolStripMenuItem("Gain", Properties.Resources.multiplication) { Enabled = enabled };
+            var gainDropdown = new ToolStripMenuItem("Gain", Properties.Resources.multiplication);
             gainDropdown.DropDownItems.Add(gainTextBox);
             gainDropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24, OnGain);
             gainDropdown.DropDownItems.Add("Cancel Changes", Grasshopper.Plugin.GH_ResourceGate.Error_24x24);
             menu.Items.Add(gainDropdown);
 
             var offsetTextBox = new ToolStripTextBox("Expression") { Text = _offset.ToString() };
-            var offsetDropdown = new ToolStripMenuItem("Offset", Properties.Resources.addition) { Enabled = enabled };
+            var offsetDropdown = new ToolStripMenuItem("Offset", Properties.Resources.addition);
             offsetDropdown.DropDownItems.Add(offsetTextBox);
             offsetDropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24, OnOffset);
             offsetDropdown.DropDownItems.Add("Cancel Changes", Grasshopper.Plugin.GH_ResourceGate.Error_24x24);
             menu.Items.Add(offsetDropdown);
 
             Menu_AppendSeparator(menu);
-            var saveButton = Menu_AppendItem(menu, "Save File", OnSave, enabled);
+            var saveButton = Menu_AppendItem(menu, "Save File", OnSave, m_data.Count() > 0);
         }
         private void OnGain(object sender, EventArgs e)
         {
@@ -200,13 +194,9 @@ namespace Siren
         }
     }
 
-    public class EffectsAppliedTag : IGH_StateTag
+    public class EffectsAppliedTag : GH_StateTag
     {
         private readonly CachedSoundParameter _owner;
-
-        public Bitmap Icon => Properties.Resources.multiplication;
-        public string Name => "Effects";
-        public string Description => "Effects are applied";
         public Rectangle Stage
         {
             get
@@ -216,7 +206,12 @@ namespace Siren
             }
             set => throw new NotImplementedException();
         }
-        string IGH_StateTag.StateDescription { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public override string Description => "Effects are applied";
+
+        public override string Name => "Effects";
+
+        public override Bitmap Icon => Properties.Resources.multiplication;
 
         public EffectsAppliedTag(CachedSoundParameter owner)
         {
