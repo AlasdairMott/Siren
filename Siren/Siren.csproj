@@ -68,7 +68,6 @@
     <Compile Include="Audio\TrimSampleComponent.cs" />
     <Compile Include="Audio\UnityMixerComponent.cs" />
     <Compile Include="Audio\WavePropertiesComponent.cs" />
-    <Compile Include="CachedSoundAttributes.cs" />
     <Compile Include="CachedSoundParameter.cs" />
     <Compile Include="Geometry\SampleToPointComponent.cs" />
     <Compile Include="SampleProviders\ADEnvelopeProvider.cs" />

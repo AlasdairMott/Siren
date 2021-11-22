@@ -5,7 +5,6 @@ using System.Linq;
 using System.Windows.Forms;
 using GH_IO.Serialization;
 using Grasshopper.Kernel;
-using Grasshopper.Kernel.Attributes;
 using NAudio.Wave;
 
 namespace Siren
@@ -31,11 +30,6 @@ namespace Siren
 
         public override Guid ComponentGuid => new Guid("08a1577a-7dff-4163-a2c9-2dbd928626c4");
 
-        public override void CreateAttributes()
-        {
-            m_attributes = new CachedSoundAttributes(this);
-        }
-
         protected override void OnVolatileDataCollected()
         {
             base.OnVolatileDataCollected();
@@ -50,25 +44,14 @@ namespace Siren
                 ISampleProvider value = new SampleProviders.AttenuverterProvider(w.Value.ToSampleProvider(), _gain, _offset);
                 var cachedSound = new CachedSound(value);
 
-                if (_speed != 1.0f) {
+                if (_speed != 1.0f)
+                {
                     cachedSound = CachedSound.Stretch(cachedSound, _speed);
                 }
 
                 modified.Append(new CachedSoundGoo(cachedSound));
             }
             m_data = modified;
-
-            if (Kind == GH_ParamKind.floating)
-            {
-
-            }
-            else
-            {
-                if (Attributes.Parent.GetType() == typeof(GH_ComponentAttributes))
-                {
-                    (Attributes.Parent as GH_ComponentAttributes).Owner.Message = "Modified";
-                }
-            }
         }
 
         protected override void Menu_AppendManageCollection(ToolStripDropDown menu) { }
@@ -76,29 +59,9 @@ namespace Siren
         {
             base.AppendAdditionalMenuItems(menu);
 
-            var gainTextBox = new ToolStripTextBox("Expression") { Text = _gain.ToString() };
-            var gainDropdown = new ToolStripMenuItem("Gain", Properties.Resources.multiplication);
-            gainDropdown.DropDownItems.Add(gainTextBox);
-            gainDropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24);
-            gainDropdown.DropDownItems.Add("Cancel Changes", Grasshopper.Plugin.GH_ResourceGate.Error_24x24);
-            gainDropdown.DropDownItems[1].Click += (sender, e) => OnExpressionClick(sender, e, ref _gain);
-            menu.Items.Add(gainDropdown);
-
-            var offsetTextBox = new ToolStripTextBox("Expression") { Text = _offset.ToString() };
-            var offsetDropdown = new ToolStripMenuItem("Offset", Properties.Resources.addition);
-            offsetDropdown.DropDownItems.Add(offsetTextBox);
-            offsetDropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24);
-            offsetDropdown.DropDownItems.Add("Cancel Changes", Grasshopper.Plugin.GH_ResourceGate.Error_24x24);
-            offsetDropdown.DropDownItems[1].Click += (sender, e) => OnExpressionClick(sender, e, ref _offset);
-            menu.Items.Add(offsetDropdown);
-
-            var speedTextBox = new ToolStripTextBox("Expression") { Text = _speed.ToString() };
-            var speedDropdown = new ToolStripMenuItem("Speed", Properties.Resources.stretch);
-            speedDropdown.DropDownItems.Add(speedTextBox);
-            speedDropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24);
-            speedDropdown.DropDownItems.Add("Cancel Changes", Grasshopper.Plugin.GH_ResourceGate.Error_24x24);
-            speedDropdown.DropDownItems[1].Click += (sender, e) => OnExpressionClick(sender, e, ref _speed);
-            menu.Items.Add(speedDropdown);
+            AddEffect(menu, "Gain",   Properties.Resources.multiplication, _gain.ToString(),  (sender, e) => OnEffectClick(sender, e, ref _gain));
+            AddEffect(menu, "Offset", Properties.Resources.addition,      _offset.ToString(), (sender, e) => OnEffectClick(sender, e, ref _offset));
+            AddEffect(menu, "Speed",  Properties.Resources.stretch,       _speed.ToString(),  (sender, e) => OnEffectClick(sender, e, ref _speed));
 
             var removeEffects = Menu_AppendItem(menu, "Remove Effects", (sender, e) => RemoveAudioEffects(), Modified);
 
@@ -106,7 +69,17 @@ namespace Siren
             var saveButton = Menu_AppendItem(menu, "Save File", OnSave, m_data.Count() > 0);
         }
 
-        private void OnExpressionClick(object sender, EventArgs e, ref float value)
+        private void AddEffect(ToolStripDropDown menu, string name, Bitmap icon, string text, EventHandler handler)
+        {
+            var dropdown = new ToolStripMenuItem(name, icon);
+            dropdown.DropDownItems.Add(new ToolStripTextBox() { Text = text });
+            dropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24);
+            dropdown.DropDownItems.Add("Cancel Changes", Grasshopper.Plugin.GH_ResourceGate.Error_24x24);
+            dropdown.DropDownItems[1].Click += handler;
+            menu.Items.Add(dropdown);
+        }
+
+        private void OnEffectClick(object sender, EventArgs e, ref float value)
         {
             var text = (sender as ToolStripMenuItem).Owner.Items[0].Text;
             if (GH_Convert.ToDouble(text, out double v, GH_Conversion.Both))
@@ -191,15 +164,17 @@ namespace Siren
         {
             writer.SetDouble("gain", _gain);
             writer.SetDouble("offset", _offset);
+            writer.SetDouble("speed", _speed);
             return base.Write(writer);
         }
 
         public override bool Read(GH_IReader reader)
         {
-            double gain, offset;
-            gain = offset = 0.0;
+            double gain, offset, speed;
+            gain = offset = speed = 0.0;
             if (reader.TryGetDouble("gain", ref gain)) _gain = (float)gain;
             if (reader.TryGetDouble("offset", ref offset)) _offset = (float)offset;
+            if (reader.TryGetDouble("speed", ref speed)) _speed = (float)speed;
 
             return base.Read(reader);
         }
