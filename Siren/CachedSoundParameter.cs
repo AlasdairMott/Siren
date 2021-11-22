@@ -13,8 +13,8 @@ namespace Siren
     {
         private float _gain = 1.0f;
         private float _offset = 0.0f;
-
-        public bool Modified => _gain != 1.0 || _offset != 0.0;
+        private float _speed = 1.0f;
+        public bool Modified => _gain != 1.0f || _offset != 0.0f || _speed != 1.0f;
 
         public CachedSoundParameter()
             : base(new GH_InstanceDescription(
@@ -46,16 +46,16 @@ namespace Siren
             var modified = new Grasshopper.Kernel.Data.GH_Structure<CachedSoundGoo>();
             foreach (CachedSoundGoo w in m_data)
             {
-                //var value = new SampleProviders.AttenuverterProvider(w.Value.ToSampleProvider(), _gain, _offset);
-                var value = CachedSound.Stretch(w.Value, _gain);
-                modified.Append(new CachedSoundGoo(value));
+                ISampleProvider value = new SampleProviders.AttenuverterProvider(w.Value.ToSampleProvider(), _gain, _offset);
+                var cachedSound = new CachedSound(value);
+
+                if (_speed != 1.0f) {
+                    cachedSound = CachedSound.Stretch(cachedSound, _speed);
+                }
+
+                modified.Append(new CachedSoundGoo(cachedSound));
             }
             m_data = modified;
-
-            var effect = new EffectsAppliedTag(this);
-            StateTags.Add(effect);
-
-           
         }
 
         protected override void Menu_AppendManageCollection(ToolStripDropDown menu) { }
@@ -66,38 +66,41 @@ namespace Siren
             var gainTextBox = new ToolStripTextBox("Expression") { Text = _gain.ToString() };
             var gainDropdown = new ToolStripMenuItem("Gain", Properties.Resources.multiplication);
             gainDropdown.DropDownItems.Add(gainTextBox);
-            gainDropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24, OnGain);
+            gainDropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24);
             gainDropdown.DropDownItems.Add("Cancel Changes", Grasshopper.Plugin.GH_ResourceGate.Error_24x24);
+            gainDropdown.DropDownItems[1].Click += (sender, e) => OnExpressionClick(sender, e, ref _gain);
             menu.Items.Add(gainDropdown);
 
             var offsetTextBox = new ToolStripTextBox("Expression") { Text = _offset.ToString() };
             var offsetDropdown = new ToolStripMenuItem("Offset", Properties.Resources.addition);
             offsetDropdown.DropDownItems.Add(offsetTextBox);
-            offsetDropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24, OnOffset);
+            offsetDropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24);
             offsetDropdown.DropDownItems.Add("Cancel Changes", Grasshopper.Plugin.GH_ResourceGate.Error_24x24);
+            offsetDropdown.DropDownItems[1].Click += (sender, e) => OnExpressionClick(sender, e, ref _offset);
             menu.Items.Add(offsetDropdown);
+
+            var speedTextBox = new ToolStripTextBox("Expression") { Text = _speed.ToString() };
+            var speedDropdown = new ToolStripMenuItem("Speed", Properties.Resources.addition);
+            speedDropdown.DropDownItems.Add(speedTextBox);
+            speedDropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24);
+            speedDropdown.DropDownItems.Add("Cancel Changes", Grasshopper.Plugin.GH_ResourceGate.Error_24x24);
+            speedDropdown.DropDownItems[1].Click += (sender, e) => OnExpressionClick(sender, e, ref _speed);
+            menu.Items.Add(speedDropdown);
 
             Menu_AppendSeparator(menu);
             var saveButton = Menu_AppendItem(menu, "Save File", OnSave, m_data.Count() > 0);
         }
-        private void OnGain(object sender, EventArgs e)
+
+        private void OnExpressionClick(object sender, EventArgs e, ref float value)
         {
             var text = (sender as ToolStripMenuItem).Owner.Items[0].Text;
-            if (GH_Convert.ToDouble(text, out double gain, GH_Conversion.Both))
+            if (GH_Convert.ToDouble(text, out double v, GH_Conversion.Both))
             {
-                _gain = (float)gain;
+                value = (float)v;
                 ExpireSolution(true);
             }
         }
-        private void OnOffset(object sender, EventArgs e)
-        {
-            var text = (sender as ToolStripMenuItem).Owner.Items[0].Text;
-            if (GH_Convert.ToDouble(text, out double offset, GH_Conversion.Both))
-            {
-                _offset = (float)offset;
-                ExpireSolution(true);
-            }
-        }
+
         private void OnSave(object sender, EventArgs e)
         {
             var fd = new Rhino.UI.SaveFileDialog()
@@ -191,36 +194,7 @@ namespace Siren
             base.RemoveEffects();
             _gain = 1.0f;
             _offset = 0.0f;
-        }
-    }
-
-    public class EffectsAppliedTag : GH_StateTag
-    {
-        private readonly CachedSoundParameter _owner;
-        public Rectangle Stage
-        {
-            get
-            {
-                var rectangle = _owner.Attributes.Bounds;
-                return Rectangle.Round(rectangle);
-            }
-            set => throw new NotImplementedException();
-        }
-
-        public override string Description => "Effects are applied";
-
-        public override string Name => "Effects";
-
-        public override Bitmap Icon => Properties.Resources.multiplication;
-
-        public EffectsAppliedTag(CachedSoundParameter owner)
-        {
-            _owner = owner;
-        }
-
-        public void Render(Graphics graphics)
-        {
-            graphics.DrawImage(Icon, Stage);
+            _speed = 1.0f;
         }
     }
 }
