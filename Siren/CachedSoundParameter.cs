@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using GH_IO.Serialization;
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Attributes;
 using NAudio.Wave;
 
 namespace Siren
@@ -56,6 +57,18 @@ namespace Siren
                 modified.Append(new CachedSoundGoo(cachedSound));
             }
             m_data = modified;
+
+            if (Kind == GH_ParamKind.floating)
+            {
+
+            }
+            else
+            {
+                if (Attributes.Parent.GetType() == typeof(GH_ComponentAttributes))
+                {
+                    (Attributes.Parent as GH_ComponentAttributes).Owner.Message = "Modified";
+                }
+            }
         }
 
         protected override void Menu_AppendManageCollection(ToolStripDropDown menu) { }
@@ -80,12 +93,14 @@ namespace Siren
             menu.Items.Add(offsetDropdown);
 
             var speedTextBox = new ToolStripTextBox("Expression") { Text = _speed.ToString() };
-            var speedDropdown = new ToolStripMenuItem("Speed", Properties.Resources.addition);
+            var speedDropdown = new ToolStripMenuItem("Speed", Properties.Resources.stretch);
             speedDropdown.DropDownItems.Add(speedTextBox);
             speedDropdown.DropDownItems.Add("Commit Changes", Grasshopper.Plugin.GH_ResourceGate.OK_24x24);
             speedDropdown.DropDownItems.Add("Cancel Changes", Grasshopper.Plugin.GH_ResourceGate.Error_24x24);
             speedDropdown.DropDownItems[1].Click += (sender, e) => OnExpressionClick(sender, e, ref _speed);
             menu.Items.Add(speedDropdown);
+
+            var removeEffects = Menu_AppendItem(menu, "Remove Effects", (sender, e) => RemoveAudioEffects(), Modified);
 
             Menu_AppendSeparator(menu);
             var saveButton = Menu_AppendItem(menu, "Save File", OnSave, m_data.Count() > 0);
@@ -189,12 +204,12 @@ namespace Siren
             return base.Read(reader);
         }
 
-        public override void RemoveEffects()
+        public void RemoveAudioEffects()
         {
-            base.RemoveEffects();
             _gain = 1.0f;
             _offset = 0.0f;
             _speed = 1.0f;
+            ExpireSolution(true);
         }
     }
 }
