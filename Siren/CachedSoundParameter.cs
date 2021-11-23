@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using GH_IO.Serialization;
 using Grasshopper.Kernel;
+using Grasshopper.Kernel.Attributes;
 using NAudio.Wave;
 
 namespace Siren
@@ -85,7 +86,7 @@ namespace Siren
             if (GH_Convert.ToDouble(text, out double v, GH_Conversion.Both))
             {
                 value = (float)v;
-                ExpireSolution(true);
+                Expire();
             }
         }
 
@@ -184,7 +185,19 @@ namespace Siren
             _gain = 1.0f;
             _offset = 0.0f;
             _speed = 1.0f;
-            ExpireSolution(true);
+            Expire();
+        }
+
+        private void Expire()
+        {
+            if (Kind == GH_ParamKind.output)
+            {
+                (Attributes.Parent as GH_ComponentAttributes).Owner.ExpireSolution(true);
+            }
+            else
+            {
+                ExpireSolution(true);
+            }
         }
     }
 }
