@@ -21,6 +21,11 @@ namespace Siren
             return targetA + (value - sourceA) * (targetB - targetA) / (sourceB - sourceA);
         }
 
+        public static float Lerp(float start, float finish, float p)
+        {
+            return finish * p + start * (1 - p);
+        }
+
         public static float Clamp(float value, float floor, float ceiling)
         {
             return Math.Max(Math.Min(value, ceiling), floor);

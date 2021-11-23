@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
-using GH_IO.Serialization;
-using Grasshopper.Kernel;
+﻿using GH_IO.Serialization;
 using Grasshopper.Kernel.Types;
 using NAudio.Wave;
 
@@ -13,18 +8,22 @@ namespace Siren
     {
         public override bool IsValid => Value.Length > 0;
 
-        public override string TypeName => "Cached Sound Goo" + Value.GetType().ToString();
+        public override string TypeName => "Sound";
 
-        public override string TypeDescription => "Siren Audio data" + Value.WaveFormat.ToString();
+        public override string TypeDescription => "Siren Audio data";
 
         public CachedSoundGoo()
         {
             Value = CachedSound.Empty;
         }
-        public CachedSoundGoo(CachedSound stream)
+        public CachedSoundGoo(CachedSound cachedSound)
         {
-            if (stream == null) stream = CachedSound.Empty;
-            Value = stream;
+            if (cachedSound == null) cachedSound = CachedSound.Empty;
+            Value = cachedSound;
+        }
+        public CachedSoundGoo(ISampleProvider sampleProvider)
+        {
+            Value = new CachedSound(sampleProvider);
         }
 
         #region casting methods
@@ -78,64 +77,6 @@ namespace Siren
             }
             else Value = null;
             return true;
-        }
-    }
-
-    public class WaveStreamParameter : GH_PersistentParam<CachedSoundGoo>
-    {
-        public WaveStreamParameter()
-            : base(new GH_InstanceDescription(
-                "Wave",
-                "W",
-                "Audio wave",
-                "Siren",
-                "Utilities"))
-        { }
-
-        protected override System.Drawing.Bitmap Icon => Properties.Resources.wave;
-
-        public override Guid ComponentGuid => new Guid("08a1577a-7dff-4163-a2c9-2dbd928626c4");
-
-        public override void AppendAdditionalMenuItems(ToolStripDropDown menu)
-        {
-            base.AppendAdditionalMenuItems(menu);
-            var m_save = new ToolStripMenuItem("Save file")
-            {
-                Enabled = m_data.Count() > 0
-            };
-            menu.Items.Add(m_save);
-            m_save.Click += button_OnSave;
-        }
-
-        private void button_OnSave(object sender, EventArgs e)
-        {
-            var fd = new Rhino.UI.SaveFileDialog()
-            {
-                Title = "Save file",
-                DefaultExt = "wav",
-                Filter = "wav files (*.wav)|*.wav|All files (*.*)|*.*",
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                FileName = "Audio"
-            };
-
-            var result = fd.ShowSaveDialog();
-            if (result)
-            {
-                var goo = m_data.get_FirstItem(true);
-                if (goo == null) return;
-                goo.Value.SaveToFile(fd.FileName);
-            }
-        }
-
-        protected override GH_GetterResult Prompt_Singular(ref CachedSoundGoo value)
-        {
-            //create cv from curve using default settings
-            throw new NotImplementedException();
-        }
-
-        protected override GH_GetterResult Prompt_Plural(ref List<CachedSoundGoo> values)
-        {
-            throw new NotImplementedException();
         }
     }
 }

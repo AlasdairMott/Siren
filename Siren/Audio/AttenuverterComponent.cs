@@ -27,7 +27,7 @@ namespace Siren.Audio
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
             pManager.AddNumberParameter("Attenuation", "A", "Attenuation", GH_ParamAccess.item);
             pManager[1].Optional = true;
         }
@@ -37,7 +37,7 @@ namespace Siren.Audio
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
         }
 
         /// <summary>

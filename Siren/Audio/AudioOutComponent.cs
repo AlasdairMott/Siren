@@ -43,8 +43,8 @@ namespace Siren
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new WaveStreamParameter(), "Wave Left", "L", "Left channel input", GH_ParamAccess.item);
-            pManager.AddParameter(new WaveStreamParameter(), "Wave Right", "R", "Right channel input", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "Wave Left", "L", "Left channel input", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "Wave Right", "R", "Right channel input", GH_ParamAccess.item);
             pManager[1].Optional = true;
         }
 

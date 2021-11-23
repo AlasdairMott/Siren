@@ -46,7 +46,7 @@ namespace Siren.Components
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new WaveStreamParameter(), "Frequency", "F", "Frequency of the note", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "Frequency", "F", "Frequency of the note", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Octave", "O", "Octave of the note", GH_ParamAccess.item);
             pManager.AddNumberParameter("Tuning", "T", "Note tuning", GH_ParamAccess.item);
 
@@ -65,7 +65,7 @@ namespace Siren.Components
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddParameter(new WaveStreamParameter(), "", "", "Wave output", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "", "", "Wave output", GH_ParamAccess.item);
         }
 
         /// <summary>

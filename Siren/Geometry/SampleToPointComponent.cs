@@ -20,7 +20,7 @@ namespace Siren.Geometry
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new WaveStreamParameter(), "Trigger", "T", "Trigger input", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "Trigger", "T", "Trigger input", GH_ParamAccess.item);
             pManager.AddNumberParameter("Time Factor", "T", "T", GH_ParamAccess.item);
             pManager.AddNumberParameter("Threshold", "A", "Amplitude Threshold", GH_ParamAccess.item);
 

@@ -23,7 +23,7 @@ namespace Siren.Components
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new WaveStreamParameter(), "Wave", "W1", "Wave input", GH_ParamAccess.list);
+            pManager.AddParameter(new CachedSoundParameter(), "Wave", "W1", "Wave input", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Siren.Components
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@ namespace Siren.Components
 
         public bool CanRemoveParameter(GH_ParameterSide side, int index) => side == GH_ParameterSide.Input;
 
-        public IGH_Param CreateParameter(GH_ParameterSide side, int index) => new WaveStreamParameter { NickName = "-" };
+        public IGH_Param CreateParameter(GH_ParameterSide side, int index) => new CachedSoundParameter { NickName = "-" };
 
         public bool DestroyParameter(GH_ParameterSide side, int index) => true;
 

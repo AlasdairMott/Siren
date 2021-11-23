@@ -20,8 +20,8 @@ namespace Siren.Audio
         /// </summary>
         protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
         {
-            pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
-            pManager.AddParameter(new WaveStreamParameter(), "Kernel", "K", "Wave input 2", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "Wave", "W", "Wave input", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "Kernel", "K", "Wave input 2", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Kernel Size", "Sz", "Size of the Kernel. Higher values have a longer decay but are slower to bounce", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Kernel Skip", "Sk", "Samples to skip ( > 0). Higher values are less accurate but faster", GH_ParamAccess.item);
 
@@ -33,7 +33,7 @@ namespace Siren.Audio
         /// </summary>
         protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
         {
-            pManager.AddParameter(new WaveStreamParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
+            pManager.AddParameter(new CachedSoundParameter(), "Wave", "W", "Wave output", GH_ParamAccess.item);
         }
 
         /// <summary>

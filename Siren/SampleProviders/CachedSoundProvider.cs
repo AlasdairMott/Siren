@@ -9,7 +9,6 @@ namespace Siren.SampleProviders
         public long Position { get; private set; }
         public long Length => _cachedSound.Length;
         public TimeSpan CurrentTime => TimeSpan.FromSeconds((double)Position / _cachedSound.WaveFormat.SampleRate);
-        public float Level { get; private set; }
 
         public CachedSoundSampleProvider(CachedSound cachedSound)
         {
@@ -22,7 +21,6 @@ namespace Siren.SampleProviders
             var samplesToCopy = Math.Min(availableSamples, count);
             Array.Copy(_cachedSound.AudioData, Position, buffer, offset, samplesToCopy);
             Position += samplesToCopy;
-            if (samplesToCopy > 0) Level = Math.Abs(buffer[0]);
             return (int)samplesToCopy;
         }
 
