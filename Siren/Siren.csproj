@@ -43,6 +43,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Speech" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Drawing" />
@@ -67,6 +68,7 @@
     <Compile Include="Audio\StitchComponent.cs" />
     <Compile Include="Audio\TrimSampleComponent.cs" />
     <Compile Include="Audio\UnityMixerComponent.cs" />
+    <Compile Include="Audio\SpeechComponent.cs" />
     <Compile Include="Audio\WavePropertiesComponent.cs" />
     <Compile Include="CachedSoundParameter.cs" />
     <Compile Include="Geometry\SampleToPointComponent.cs" />
@@ -242,6 +244,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\stretch.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Speak.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
