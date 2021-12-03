@@ -25,6 +25,9 @@ namespace Siren.Audio
               "Speak some words.",
               "Siren", "Oscillators")
         {
+            _speechSynthesizer = new SpeechSynthesizer();
+            _installedVoices = _speechSynthesizer.GetInstalledVoices().ToList();
+            _voice = _installedVoices.First().VoiceInfo.Name;
         }
 
         /// <summary>
@@ -46,8 +49,6 @@ namespace Siren.Audio
         public override void AddedToDocument(GH_Document document)
         {
             base.AddedToDocument(document);
-            _speechSynthesizer = new SpeechSynthesizer();
-            _installedVoices = _speechSynthesizer.GetInstalledVoices().ToList();
         }
 
         public override void RemovedFromDocument(GH_Document document)
@@ -68,14 +69,13 @@ namespace Siren.Audio
             ISampleProvider sound;
 
             using (var stream = new MemoryStream())
-            using (var speaker = new SpeechSynthesizer())
             {
-                speaker.Volume = 100;
-                speaker.Rate = 0;
+                _speechSynthesizer.Volume = 100;
+                _speechSynthesizer.Rate = 0;
+                _speechSynthesizer.SelectVoice(_voice);
 
-                speaker.SetOutputToWaveStream(stream);
-                speaker.Speak(text);
-
+                _speechSynthesizer.SetOutputToWaveStream(stream);
+                _speechSynthesizer.Speak(text);
 
                 var cachedSound = CachedSound.FromByteArray(stream.ToArray());
 
@@ -118,6 +118,7 @@ namespace Siren.Audio
         public override bool Read(GH_IReader reader)
         {
             reader.TryGetString("voice", ref _voice);
+            if (!_installedVoices.Any(v => v.VoiceInfo.Name != _voice)) _voice = _installedVoices.First().VoiceInfo.Name;
             return base.Read(reader);
         }
 
